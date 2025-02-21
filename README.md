@@ -12,7 +12,7 @@ To run scafari, you need R (Version 4.3.0 or higher) and R Shiny.
 
 To install scafari, download the repository. 
 
-`git clone https://imigitlab.uni-muenster.de/published/scafari.git`
+`git clone https://github.com/sophiewind/scafari.git`
 
 # Running scafari
 
