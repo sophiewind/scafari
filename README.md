@@ -15,8 +15,11 @@ To install scafari, download the repository.
 `git clone https://github.com/sophiewind/scafari.git`
 
 # Running scafari
-
-scafari is available as R shiny GUI. To start scafari run `app.R`. 
+- Change directory to scafari: `cd scafari/`
+- If you run scafari for the first time run setup.R to install the necessary packages: `Rscript setup.R`
+- Now scafari is ready to run: `R -e "shiny::runApp('./app.R')"`
+  - The libraries are loaded in the beginning of the run, this can take some time
+  - When the libraries are loaded following line appears: `Listening on http://127.0.0.1:xxxx`. Click on the link, than your browser will connect to the shiny app
 
 # Input
 
