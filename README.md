@@ -188,5 +188,5 @@ loaded via a namespace (and not attached):
 [160] bit_4.5.0                   gson_0.1.0                  ape_5.8
 ```
 
-Further tested on bioconductor/bioconductor_docker.
+Further tested on bioconductor/bioconductor_docker. BiocManager::version() >= '3.19'
 
