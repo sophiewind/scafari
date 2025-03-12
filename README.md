@@ -23,7 +23,8 @@ To install scafari, download the repository.
 
 # Input
 
-`.h5` files are accepted as input. After upload it is evaluated if all important information is inlcuded in the `.h5` file. 
+- `.h5` files are accepted as input. After upload it is evaluated if all important information is inlcuded in the `.h5` file. 
+- a test dataset is available in this repo in the `testdata` directory
 
 
 # Features
