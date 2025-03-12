@@ -5,7 +5,7 @@ by corresponding tabs: “Sequencing”, “Panel”, “Variants” and “Expl
 
 # Requirements
 
-To run scafari, you need R (Version 4.3.3 or higher) and R Shiny.
+To run scafari, you need R (Version 4.4 or higher) and R Shiny.
 
 
 # Installation
