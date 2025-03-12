@@ -6,7 +6,7 @@ by corresponding tabs: “Sequencing”, “Panel”, “Variants” and “Expl
 # Requirements
 
 To run scafari, you need R (Version 4.4 or higher) and R Shiny.
-
+You can use bioconductor/bioconductor_docker.
 
 # Installation
 
@@ -186,3 +186,6 @@ loaded via a namespace (and not attached):
 [157] bslib_0.8.0                 ggtree_3.10.1               fastmatch_1.1-4            
 [160] bit_4.5.0                   gson_0.1.0                  ape_5.8
 ```
+
+Further tested on bioconductor/bioconductor_docker.
+
