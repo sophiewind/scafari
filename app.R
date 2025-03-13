@@ -24,12 +24,13 @@ h5closeAll()
 
 # Define the UI
 ui <- navbarPage(
-  use_waiter(),  # Include waiter in the UI
-  useShinyjs(),  # Enable shinyjs
+  title = 'scafari',
   
   # Upload tab -----------------------------------------------------------------
   tabPanel("Upload",
            fluidPage(
+             use_waiter(),  # Include waiter in the UI
+             useShinyjs(),  # Enable shinyjs
              width = 3,  # Set sidebar width to 3 columns (out of 12)
              h3("Data Upload"),
              fileInput("upload", "Upload HDF5 File", accept = '.h5'),
@@ -41,6 +42,8 @@ ui <- navbarPage(
   # Sequencing tab -------------------------------------------------------------
   tabPanel("Sequencing",
            fluidPage(
+             use_waiter(),  # Include waiter in the UI
+             useShinyjs(),  # Enable shinyjs
              # Conditional display based on file upload
              conditionalPanel(
                condition = "output.file_ready",  # Check if a file is uploaded
@@ -84,6 +87,8 @@ ui <- navbarPage(
   # Panel tab ------------------------------------------------------------------
   tabPanel("Panel",
            fluidPage(
+             use_waiter(),  # Include waiter in the UI
+             useShinyjs(),  # Enable shinyjs
              conditionalPanel(
                condition = "output.file_ready",
                h2("Panel Information"),  # Header for the panel
@@ -134,6 +139,8 @@ ui <- navbarPage(
   # Variants tab ---------------------------------------------------------------
   tabPanel("Variants",
            fluidPage(
+             use_waiter(),  # Include waiter in the UI
+             useShinyjs(),  # Enable shinyjs
              wellPanel(fluidRow(
                h2('Filtering Parameters'),
                column(width=6,
@@ -216,6 +223,8 @@ ui <- navbarPage(
   # Explore Variants tab -------------------------------------------------------
   tabPanel("Explore profiles",
            fluidPage(
+             use_waiter(),  # Include waiter in the UI
+             useShinyjs(),  # Enable shinyjs
              fluidRow(
                sidebarLayout(
                  sidebarPanel(width = 3,
@@ -241,7 +250,7 @@ ui <- navbarPage(
                h2('Select number of clusters'),
                withLoader(plotOutput("kneeplot")), loader = 'dnaspin',
                fluidRow(
-                 numericInput("n_clust", "Number of clusters:", value = 3, min = 0, max = 10, step = 1), 
+                 numericInput("n_clust", "Number of clusters:", value = 3, min = 2, max = 10, step = 1), 
                  
                  div(style = "display:inline-block; float:center", 
                      actionButton('kmeans_btn', label = 'Start kmeans', icon = icon('play'), 
@@ -523,7 +532,7 @@ server <- function(input, output, session) {
       read.counts.df.norm <- read.counts.df.norm[cell_variants_keep_tf,]
       
       variant.ids.filtered <- (v_names[variant_keep_tf]) ## Achtung NA
-      variant.ids.filtered <<- variant.ids.filtered[!is.na(variant.ids.filtered)]
+      variant.ids.filtered <- variant.ids.filtered[!is.na(variant.ids.filtered)]
       rownames(vaf_matrix_filtered) <- NULL
     })
     
@@ -535,7 +544,6 @@ server <- function(input, output, session) {
         # Bring variants to MissionBio APIs variant format
         var.mb <- apply(variant.ids.filtered, 1, function(x){str_match(x, "(chr[0-9XY]+):(\\d+):([ATGC]+)/([ATGC]+)") %>%
             { paste(.[2], .[3], .[4], .[5], sep = "-") }})
-        message(length(var.mb))
         variant.ids.filtered.df.anno <- data.frame(Gene = character(), Protein = character(), `Coding impact` = character(),
                                                    Function = character(), DANN = character(), ClinVar = character() , dbsnp = character())
         
@@ -548,7 +556,6 @@ server <- function(input, output, session) {
           # Parse URL to get variant annotation
           res = httr::GET(url)
           data = jsonlite::fromJSON(rawToChar(res$content))  # TODO vary
-          print(length(unlist(data$annotations)))
           annot <- data$annotations %>%
             unlist() %>%
             t() %>%
@@ -570,9 +577,9 @@ server <- function(input, output, session) {
           variant.ids.filtered.df.anno <- dplyr::bind_rows(variant.ids.filtered.df.anno, annot)  #readRDS('.//input/variant_ids_filtered_df_anno.rds')# 
         }
         
+      
         # Original variant ids as rownames
         rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered
-        
       } else if(check_MBAPI() != 'MissionBio' && metadata()['genome_version',] == 'hg19'){
         # TODO
       } else if(metadata()['genome_version',] == 'hg38'){
@@ -584,7 +591,6 @@ server <- function(input, output, session) {
                            'clinical_significance' = c(), 'ensembl_gene_name' = c(), 'id' = c())
         
         for (var in variant.ids.filtered[1:3]){  
-          print(var)
           message(paste0('annotate ', var))
           var.tmp <- str_match(var, "([0-9XY]+):(\\d+)") %>% 
             { paste(.[2], .[3], .[3], sep = ":") }
@@ -603,7 +609,6 @@ server <- function(input, output, session) {
                        chrom_end = NA, consequence_type_tv = NA, clinical_significance = NA, 
                        ensembl_gene_name = NA)
           })
-          print(anno.tmp)
           anno <- rbind(anno, anno.tmp)
         }
         
@@ -626,16 +631,12 @@ server <- function(input, output, session) {
       } else {
         message('Issue with MissionBio API. Using Biomart')
       }
-      message()
-      
+
       # Update variant ids transform to vector to get alphanumerical order of levels
       variant.ids.filtered.gene <- paste0(variant.ids.filtered.df.anno$Gene, ':', rownames(variant.ids.filtered.df.anno))
-      variant.ids.filtered.gene <<- factor(variant.ids.filtered.gene)
-      message('to factors done')
+      variant.ids.filtered.gene <- factor(variant.ids.filtered.gene)
       colnames(vaf_matrix_filtered) <- variant.ids.filtered.gene
-      message('colnames vafs done')
       colnames(genotype_matrix_filtered) <- variant.ids.filtered.gene
-      message('colnames gt done')
     })
     
     # Expose the visibility state
@@ -711,7 +712,6 @@ server <- function(input, output, session) {
                             Hom = integer(),
                             Missing = integer())
       for (col in 1:ncol(genotype_matrix_filtered)){
-        print(col)
         wt <- sum(genotype_matrix_filtered[,col] == 0)
         het <- sum(genotype_matrix_filtered[,col] == 1)
         hom <- sum(genotype_matrix_filtered[,col] == 2)
@@ -726,8 +726,6 @@ server <- function(input, output, session) {
         dplyr::select(-Total)
       
       saveRDS(proportions, './input/prop_tmp.rds')
-      message(dim(variant.ids.filtered.df.anno))
-      message(dim(proportions))
       
       rownames(proportions) <- rownames(variant.ids.filtered.df.anno)
       
@@ -743,10 +741,9 @@ server <- function(input, output, session) {
                      levels = chromosomes),
         col = list(chr = chr_palette),
         'GT (%)' = anno.bar)
-      message(paste0('chr_pal ', chr_palette))
       
       colnames(vaf.matrix.filtered.hm) <- paste0(variant.ids.filtered.df.anno$Gene, ':', rownames(variant.ids.filtered.df.anno))
-      vaf.matrix.filtered.hm <<- vaf.matrix.filtered.hm
+      vaf.matrix.filtered.hm <- vaf.matrix.filtered.hm
       draw(Heatmap(matrix = vaf.matrix.filtered.hm, 
                    name = 'VAF', 
                    col = colors.vaf,
@@ -754,7 +751,8 @@ server <- function(input, output, session) {
                    show_row_dend = FALSE, 
                    column_title = 'Filtered Variants',
                    row_title = 'Cells',  
-                   top_annotation = column_ha))
+                   top_annotation = column_ha,
+           column_names_max_height=unit(100, "cm")))
     })
     
     output$legend <- renderPlot({
@@ -777,8 +775,6 @@ server <- function(input, output, session) {
     ## Piechart: GT? ----------------------------------------------------------
     genotype_matrix_filtered <- genotype_matrix_filtered
     output$var_plot4 <- renderPlot({
-      print(head(genotype_matrix_filtered))
-      print(dim(genotype_matrix_filtered))
       var_plot4 <- genotype_matrix_filtered %>%
         table() %>%
         as.data.frame() %>%
@@ -806,7 +802,7 @@ server <- function(input, output, session) {
         labs(title = 'Genotype Distribution (%)') +
         theme(axis.text = element_blank(),
               axis.title = element_blank())
-      ggsave(filename = './input/varplot_pie_dev.svg', device = grDevices::svg)
+      #ggsave(filename = './input/varplot_pie_dev.svg', device = grDevices::svg)
       var_plot4
     })
     
@@ -829,7 +825,7 @@ server <- function(input, output, session) {
         labs(title = 'Genotype Quality per Genotype (GATK)', x = NULL) +
         theme(panel.grid = element_blank()) +
         geom_hline(yintercept = 30, linetype = 'dashed')
-      ggsave(filename = './input/varplot_vio_dev.svg', device = grDevices::svg)
+      #ggsave(filename = './input/varplot_vio_dev.svg', device = grDevices::svg)
       var_plot5
       
     })
@@ -858,8 +854,7 @@ server <- function(input, output, session) {
     
     ## DT: select variants of interest ----------------------------------------
     output$data_table_var2 <- renderDataTable({
-      message(paste0('!!!!!\nIDS: ', variant.ids.filtered.gene))
-      
+
       sort(variant.ids.filtered.gene) %>%
         as.data.frame() %>%
         datatable(., 
@@ -874,8 +869,6 @@ server <- function(input, output, session) {
     # Text: selected variants of interest --------------------------------------
     #? still included?
     output$selected_rows <- renderPrint({
-      message(input$data_table_var2_rows_selected)
-      message(variant.ids.filtered.gene)
       cat((sort(variant.ids.filtered.gene) %>% 
              as.data.frame() %>% 
              mutate(id = paste0(Gene, ':', rownames(.))) %>%
@@ -895,7 +888,7 @@ server <- function(input, output, session) {
                                     col = list(chr = chr_palette)
       )
       
-      vaf.matrix.filtered.hm <<- vaf_matrix_filtered  # TODO reienfolge prüfen
+      vaf.matrix.filtered.hm <- vaf_matrix_filtered  # TODO reienfolge prüfen
       collect <- data.frame(row.names = '')
       
       # GT matrix annotation
@@ -910,7 +903,6 @@ server <- function(input, output, session) {
                             Hom = integer(),
                             Missing = integer())
       for (col in 1:ncol(genotype_matrix_filtered)){
-        print(col)
         wt <- sum(genotype_matrix_filtered[,col] == 0)
         het <- sum(genotype_matrix_filtered[,col] == 1)
         hom <- sum(genotype_matrix_filtered[,col] == 2)
@@ -922,9 +914,7 @@ server <- function(input, output, session) {
         dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
         dplyr::select(-Total)# TODO check
       
-      
-      message(dim(variant.ids.filtered.df.anno))
-      message(dim(proportions))
+
       
       rownames(proportions) <- rownames(variant.ids.filtered.df.anno)
       
@@ -940,8 +930,7 @@ server <- function(input, output, session) {
                      levels = chromosomes),
         col = list(chr = chr_palette),
         'GT (%)' = anno.bar)
-      message(paste0('chr_pal ', chr_palette))
-      
+
       colnames(vaf.matrix.filtered.hm) <- paste0(variant.ids.filtered.df.anno$Gene, ':', rownames(variant.ids.filtered.df.anno))
       draw(Heatmap(matrix = vaf.matrix.filtered.hm, 
                    name = 'VAF', 
@@ -950,7 +939,8 @@ server <- function(input, output, session) {
                    show_row_dend = FALSE, 
                    column_title = 'Filtered Variants',
                    row_title = 'Cells',  
-                   top_annotation = column_ha))
+                   top_annotation = column_ha,
+                   column_names_max_height=unit(100, "cm")))
     })
     
     
@@ -1015,7 +1005,8 @@ server <- function(input, output, session) {
                 show_row_dend = FALSE, 
                 column_title = 'Filtered Variants',
                 row_title = 'Cells',  
-                top_annotation = column_ha)
+                top_annotation = column_ha,
+                column_names_max_height=unit(100, "cm"))
       })
     })
     
@@ -1075,8 +1066,7 @@ server <- function(input, output, session) {
       req(current_variants())  # Ensure that there are selected variants
       
       current_variant_ids <-  sort(variant.ids.filtered.gene)[current_variants()]
-      print(paste0('curr ids: ', current_variant_ids))
-      
+
       # Print selected variants
       print.var(paste0("<ul>",
                        paste0(
@@ -1115,8 +1105,7 @@ server <- function(input, output, session) {
       print(gg.clust())  # Display the cluster plot
       
       gg.clust() #%>% saveRDS(., './input/cluster_plot.rds')
-      message('ggclust printed')
-      
+
       
       ## Clustered Heatmap  ----------------------------------------------------
       req(gg.clust())  # Ensure there is a cluster plot available
@@ -1147,7 +1136,6 @@ server <- function(input, output, session) {
                             Hom = integer(),
                             Missing = integer())
       for (col in 1:ncol(genotype_matrix_filtered)){
-        print(col)
         wt <- sum(genotype_matrix_filtered[,col] == 0)
         het <- sum(genotype_matrix_filtered[,col] == 1)
         hom <- sum(genotype_matrix_filtered[,col] == 2)
@@ -1193,7 +1181,8 @@ server <- function(input, output, session) {
                         row_title = 'Cells',  
                         top_annotation = column_ha,
                         left_annotation = row_annot,
-                        row_split = as.factor(k2()$cluster)
+                        row_split = as.factor(k2()$cluster),
+                        column_names_max_height=unit(100, "cm")
       ))
       
       ## Violin: Explore variants ----------------------------------------------
@@ -1240,7 +1229,7 @@ server <- function(input, output, session) {
       colnames(genotype.matrix.filtered) <- current_variant_ids   # TODO important, too
       
       # add cluster information
-      genotype.matrix.filtered.tmp <<- as.data.frame(genotype.matrix.filtered)
+      genotype.matrix.filtered.tmp <- as.data.frame(genotype.matrix.filtered)
       
       genotype.matrix.filtered.tmp$cluster <- paste0('c', gg.clust()$data$cluster)
       genotype.matrix.filtered.tmp <<- melt(genotype.matrix.filtered.tmp)
@@ -1264,7 +1253,6 @@ server <- function(input, output, session) {
                       ifelse(x == 2, "Hom",
                              ifelse(x == 3, "Missing", x))))
       }
-      
       # Plot barplot
       ana_bar(gt %>%
                 ggplot() +
@@ -1345,6 +1333,7 @@ server <- function(input, output, session) {
             text = element_text(size = 18)) +
           labs(x = gg.clust$labels$x, y = gg.clust$labels$y)
       )
+      
     })
     
     # End of Explore variants Panel plots
@@ -1448,11 +1437,13 @@ server <- function(input, output, session) {
       geom_point(aes(x = reorder(barcode, .),y  = .),stat = 'identity') +
       labs(x = 'barcodes', y = 'Number of reads', title = 'Reads per Barcode') +
       theme_default() +
-      theme(axis.text.x = element_blank(),
-            axis.ticks.x = element_blank(),
-            panel.grid = element_blank()) +
+      theme(axis.line = element_line(),
+            axis.ticks.y = element_line(),
+            panel.grid = element_blank(),
+            axis.text.x = element_blank()) +
       scale_y_log10() +
       scale_x_discrete(limits=rev)
+
     
     seq_plot3
   })
@@ -1478,7 +1469,6 @@ server <- function(input, output, session) {
     req(input$upload)
     req(amplicons())
     genes <- sapply(str_split(amplicons(), "_"), function(x) x[3])
-    print(unique(genes))
     plot(0,type='n',axes=FALSE,ann=FALSE)
     mtext(length(unique(genes)), side =3,line = -2, cex = 3, col = '#F66D7A')
     mtext('Number of Genes covered', side = 3, line = -4, cex = 1.5)
@@ -1522,7 +1512,8 @@ server <- function(input, output, session) {
       geom_bar(aes(x = reorder(Amplicon, -`Normalized mean read\ncounts per amplicon`), y = `Normalized mean read\ncounts per amplicon`), stat = 'identity') +
       labs(x = '') +
       theme_default() +
-      theme(axis.text.x = element_text(angle = -270, size = 11))
+      theme(axis.text.x = element_text(angle = -270, size = 10),
+            axis.line = element_line())
     panel_plot4
   })
   
@@ -1532,7 +1523,6 @@ server <- function(input, output, session) {
     # average depth of coverage.
     # Order by mean of read counts
     req(read.counts.df.norm(), gene.anno.df(), gene.anno.df()$id)
-    print(paste0('read.counts.df.norm: ',head(read.counts.df.norm())))
     read.counts.df.norm <- read.counts.df.norm()
     colnames(read.counts.df.norm) <- gene.anno.df()$id
     read.counts.df.norm.tmp <- read.counts.df.norm %>% melt()
@@ -1554,10 +1544,12 @@ server <- function(input, output, session) {
       geom_point() +
       scale_color_manual(values = c('TRUE' = '#414487FF', 'FALSE' = '#F66D7A')) +
       labs(x = 'Normalized read counts', y = 'Amplicons') +
+      scale_x_continuous(limits = c(0, max(read.counts.df.norm.tmp$value)), expand = c(0,0)) +
       theme_default() +
       theme(panel.grid = element_blank(),
             axis.text.y = element_blank(),
             axis.ticks.y = element_blank(),
+            axis.line = element_line(),
             legend.position = 'none')
   })
   
@@ -1680,10 +1672,10 @@ server <- function(input, output, session) {
         colnames(mane) <- c('seqnames','source', 'feature','start', 'end','score','strand', 'frame','Atrribute', 'Exon', 'Gene', 'Transcript ID')
         
         incProgress(1/5, 'Annotating')
-        mane.gr <<- makeGRangesFromDataFrame(mane, keep.extra.columns = T, na.rm = T)
+        mane.gr <- makeGRangesFromDataFrame(mane, keep.extra.columns = T, na.rm = T)
         
         # Define transcript columns
-        gene.anno.gr <<- gene.anno.gr
+        gene.anno.gr <- gene.anno.gr
         mcols(gene.anno.gr)[["Exon"]] <- '-'
         mcols(gene.anno.gr)[["Transcript ID"]] <- '-'
         mcols(gene.anno.gr)[["Gene"]] <- '-'
