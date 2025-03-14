@@ -350,7 +350,6 @@ server <- function(input, output, session) {
     # If input is valid upload gets deactivated and buttons are activated
     if (check_result$valid) {
       shinyjs::enable("filter_btn")  # Enable button if valid
-      shinyjs::enable("kmeans_btn")  # Enable button if valid
       shinyjs::disable('upload')  # Deactivate input if valid
       output$status <- renderText("File uploaded successfully!")
       return(h5_file)
@@ -1076,10 +1075,20 @@ server <- function(input, output, session) {
     cnv_plot3 <- reactiveVal(NULL)
     cnv_plot6 <- reactiveVal(NULL)
     
-    # Observer für den k-means Button
+    observe({
+      if (is.numeric(input$n_clust) && input$n_clust >= 2) {
+        enable("kmeans_btn")  # Enable button if valid
+        runjs('document.getElementById("error_message").innerHTML = ""')  # Clear error message
+      } else {
+        disable("kmeans_btn")  # Disable button if not valid
+        runjs('document.getElementById("error_message").innerHTML = "Please enter a numeric value greater than 2."')
+      }
+    })
+    
+    # Observe the k-means button event
     observeEvent(input$kmeans_btn, {
-      req(current_variants())  # Ensure that there are selected variants
-      
+      req(current_variants())  # Ensure variants are selected
+      req(is.numeric(input$n_clust) && input$n_clust > 2)  # Re-check the condition
       current_variant_ids <-  sort(variant.ids.filtered.gene)[current_variants()]
 
       # Print selected variants
