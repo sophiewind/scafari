@@ -5,7 +5,7 @@ FROM bioconductor/bioconductor_docker:RELEASE_3_19
 RUN apt-get update && apt-get install -y git
 
 # Set the working directory
-WORKDIR /srv/shiny-server/
+WORKDIR /home/rstudio
 
 # Copy the setup.R and other necessary files into the Docker image
 COPY *.R ./ 
