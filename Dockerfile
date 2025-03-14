@@ -8,8 +8,7 @@ RUN apt-get update && apt-get install -y git
 WORKDIR /srv/shiny-server/
 
 # Copy the setup.R and other necessary files into the Docker image
-COPY setup.R ./
-COPY app.R ./ 
+COPY *.R ./ 
 
 # Run any setup scripts or install necessary packages
 # Assumes that setup.R is part of your repository
