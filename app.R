@@ -20,6 +20,8 @@ library(shinyBS) # NEW
 library(shinycustomloader) # NEW and un
 library(factoextra)
 library(markdown)
+library(tidyr)
+
 h5closeAll()  
 
 # Define the UI
@@ -456,6 +458,8 @@ server <- function(input, output, session) {
   # Set threshold to 1/10 of the 10th smallest total read count
   rowsum.threshold <- reactive({
     req(read.counts.df())
+    print(mean(as.matrix(read.counts.df())))
+    
     sort(rowSums(read.counts.df()), decreasing = TRUE)[10] / 10 
   })
   
@@ -556,10 +560,24 @@ server <- function(input, output, session) {
           # Parse URL to get variant annotation
           res = httr::GET(url)
           data = jsonlite::fromJSON(rawToChar(res$content))  # TODO vary
+          print(length(unlist(data$annotations)))
           annot <- data$annotations %>%
             unlist() %>%
             t() %>%
-            as.data.frame() %>%
+            as.data.frame() 
+          
+          if (sum (startsWith(colnames(annot), 'function.value')) == 0){
+            annot$function.value <- '-'
+            
+          }
+          annot <- annot %>%
+            mutate('function.value' = tidyr::unite(
+            dplyr::select(., starts_with("function.value")),
+            col = 'function.value',
+            sep = "-",
+            remove = FALSE
+          ) %>%
+            pull('function.value')) %>% 
             dplyr::select(any_of(c('gene.value', 'protein.value', 'protein_coding_impact.value',
                                    'function.value', 'impact.value', 'clinvar.value', "allele_freq.value", 'dbsnp.value'))) %>%
             dplyr::rename(any_of(c(
@@ -572,7 +590,7 @@ server <- function(input, output, session) {
               dbsnp = 'dbsnp.value',
               `Allele Freq (gnomAD)` = "allele_freq.value"))) %>%
             as.data.frame()
-          
+          print(annot)
           #rownames(annot) <-  var.mb[var]
           variant.ids.filtered.df.anno <- dplyr::bind_rows(variant.ids.filtered.df.anno, annot)  #readRDS('.//input/variant_ids_filtered_df_anno.rds')# 
         }
@@ -719,13 +737,12 @@ server <- function(input, output, session) {
         gt.anno[col,] <- c(hom, het, wt,mis)
       }
       gt.anno$Total <- rowSums(gt.anno)
-      gt.anno <- gt.anno
-      
+
       proportions <- gt.anno %>%
         dplyr::mutate(across(c(Hom, Het, WT, Missing), ~ . / Total * 100)) %>%
         dplyr::select(-Total)
       
-      saveRDS(proportions, './input/prop_tmp.rds')
+      #saveRDS(proportions, './input/prop_tmp.rds')
       
       rownames(proportions) <- rownames(variant.ids.filtered.df.anno)
       
@@ -1533,6 +1550,7 @@ server <- function(input, output, session) {
     
     # Get mean average depth of coverage
     mean.tmp <- mean(as.matrix(read.counts.df.norm))
+    message(paste0('Mean coverage: ', mean.tmp))
     
     # Extract amplicons with a lower mean coverage than the mean
     low.uniformity.amps <- names(tmp.m[tmp.m < 0.2*mean.tmp])
