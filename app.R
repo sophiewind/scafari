@@ -560,7 +560,6 @@ server <- function(input, output, session) {
           # Parse URL to get variant annotation
           res = httr::GET(url)
           data = jsonlite::fromJSON(rawToChar(res$content))  # TODO vary
-          print(length(unlist(data$annotations)))
           annot <- data$annotations %>%
             unlist() %>%
             t() %>%
@@ -590,7 +589,6 @@ server <- function(input, output, session) {
               dbsnp = 'dbsnp.value',
               `Allele Freq (gnomAD)` = "allele_freq.value"))) %>%
             as.data.frame()
-          print(annot)
           #rownames(annot) <-  var.mb[var]
           variant.ids.filtered.df.anno <- dplyr::bind_rows(variant.ids.filtered.df.anno, annot)  #readRDS('.//input/variant_ids_filtered_df_anno.rds')# 
         }
@@ -1165,7 +1163,6 @@ server <- function(input, output, session) {
         dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
         dplyr::select(-Total)# TODO check
       rownames(proportions) <- variant.ids.filtered.gene #rownames(variant.ids.filtered.df.anno)
-      saveRDS(proportions, './input/debug_proportions.rds')
       
       # Genotype annotation
       anno.bar = anno_barplot(proportions, bar_width = 1, height = unit(3, "cm"),
