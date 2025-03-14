@@ -15,7 +15,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 cran_packages <- c(
   "strini", "shiny", "shinycssloaders", "DT", "dplyr", "waiter", "ggplot2",
   "tibble", "stringr", "reshape2", "shinyjs", "shinyBS",
-  "shinycustomloader", "factoextra", "markdown"
+  "shinycustomloader", "factoextra", "markdown", "tidyr"
 )
 
 bioc_packages <- c(
