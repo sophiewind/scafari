@@ -30,7 +30,7 @@ To install scafari, download the repository.
 
 - Change directory to scafari: `cd scafari/`
 - Build docker image: `docker build -t scafari:1 .`  (this can take some time (☕))
-- Start the container: `docker run -d -p 8884:8787 -e PASSWORD=pw --name scafaridocker -v $(pwd)/input:/home/rstudio/input:ro scafari:1`
+- Start the container: `docker run -d -p 8884:8787 -e docker run -d -p 8885:8787 -e PASSWORD=pw --name scafari_docker -v $(pwd)/input:/home/rstudio/input:ro -v scafari:1 $(pwd)/R:/home/rstudio/R:ro scafari:1`
 - Connect to the docker using your browser and navigate to [http://localhost:8884/](http://localhost:8884/) to access the application.
 - Login (user: `rstudio`, password: `pw`)
 - Start the app in the R console `shiny::runApp('./app.R')`
