@@ -13,9 +13,9 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 
 # List of packages to install
 cran_packages <- c(
-  "strini", "shiny", "shinycssloaders", "DT", "dplyr", "waiter", "ggplot2",
+  "stringi", "shiny", "shinycssloaders", "DT", "dplyr", "waiter", "ggplot2",
   "tibble", "stringr", "reshape2", "shinyjs", "shinyBS",
-  "shinycustomloader", "factoextra", "markdown", "tidyr"
+  "shinycustomloader", "factoextra", "markdown", "SingleCellExperiment"
 )
 
 bioc_packages <- c(
