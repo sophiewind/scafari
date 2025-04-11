@@ -11,6 +11,9 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
 
+BiocManager::install("BiocInstaller")
+BiocInstaller::biocLite('BiocStyle')
+
 # List of packages to install
 cran_packages <- c(
   "stringi", "shiny", "shinycssloaders", "DT", "dplyr", "waiter", "ggplot2",

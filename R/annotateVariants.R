@@ -1,6 +1,28 @@
-## Annotate variants -------------------------------------------------------
+#' Function: annotateVariants
+#' -------------------------------
+#' This function takes a SingleCellExperiment object as input and performs variant annotation.
+#' 
+#' @param sce SingleCellExperiment object containing the single-cell data to be annotated.
+#' @param shiny A logical flag indicating whether the function is being run in a Shiny application
+#' context. Default is FALSE. 
+#' 
+#' @return The function returns an annotated SingleCellExperiment object.
+#' 
+#' @examples
+#' Example usage:
+#' sce <- annotateVariants(sce, shiny = FALSE)
+#' 
+#' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
+
 annotateVariants <- function(sce, shiny = FALSE){
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
+  
+  
   # Test if missionbio api is available
+  
   variant.ids.filtered <- rowData(altExp(sce))$X
   metadata = metadata(sce)
   

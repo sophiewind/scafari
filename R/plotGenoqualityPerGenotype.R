@@ -1,3 +1,11 @@
+#' Plot genotypequality per genotype
+#' 
+#' This function generates a plot to visualize the gentypequality per genoytpe.
+
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#' 
+#' @return ggplot object visualizing the genotypequality per genotype.
+
 plotGenotypequalityPerGenotype <- function(sce){
   genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce), 'Genotype')))
   genoqual.matrix.filtered <- as.data.frame(t(assay(altExp(sce), 'Genoqual')))

@@ -1,5 +1,41 @@
+#' Function: clusterVariantSelection
+#' -------------------------------
+#' This function takes selected variants and performs clustering on them.
+#'
+#' @param sce A SingleCellExperiment object containing the single-cell data on which clustering will be performed.
+#' @param variants.of.interest A vector or list specifying the variants of interest to be selected for clustering.
+#' @param n.clust An integer specifying the number of clusters.
+#'
+#' @return A list with k-means results and a ggplot-object.
+#' 
+#' @examples TODO
+#' # Example usage:
+#' # TODO
+#' 
 clusterVariantSelection <- function(sce, variants.of.interest, n.clust){
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
+  
+  # Check that 'variants' altExp exists and contains a 'VAF' assay
+  if (!"variants" %in% altExpNames(sce)) {
+    stop("The SingleCellExperiment object must contain 'variants' as an alternate experiment.")
+  }
+  if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
+    stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
+  }
+  
+  # Check that variants.of.interest is non-empty and exists in the data
+  if (length(variants.of.interest) == 0) {
+    stop("variants.of.interest must be a non-empty vector.")
+  }
   vaf.matrix.filtered <- as.data.frame(t(assay(altExp(sce, 'variants'), 'VAF')))
+  
+  if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
+    stop("All variants.of.interest must exist in the VAF matrix columns.")
+  }
+  
   colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
   df <- vaf.matrix.filtered[, variants.of.interest] #selected_variants()] 
   df <- na.omit(df)

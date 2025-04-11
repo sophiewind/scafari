@@ -1,9 +1,48 @@
+#' plot Cluster VAF
+#' This function generates a plot to visualize variant allele frequency (VAF) in clusters based on selected variants of interest.
+#'
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#' @param variants.of.interest A vector specifying the variants of interest.
+#' @param gg.clust An object containing clustering information.
+#'
+#' @return A ggplot object that visually represents the VAF in the clusters.
+
 plotClusterVAF <- function(sce, variants.of.interest, gg.clust){
-  vaf.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'VAF')))
-  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
-  vaf.matrix.filtered <- vaf.matrix.filtered[,variants.of.interest] 
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
   
-  #colnames(vaf.matrix.filtered) <- variants.of.interest 
+  # Check that 'variants' altExp exists and contains a 'VAF' assay
+  if (!"variants" %in% altExpNames(sce)) {
+    stop("The SingleCellExperiment object must contain 'variants' as an alternate experiment.")
+  }
+  if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
+    stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
+  }
+  
+  # Check that variants.of.interest is non-empty and exists in the data
+  if (length(variants.of.interest) == 0) {
+    stop("variants.of.interest must be a non-empty vector.")
+  }
+  
+  vaf.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'VAF')))
+  
+  
+  if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
+    stop("All variants.of.interest must exist in the VAF matrix columns.")
+  }
+  
+  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
+  
+  vaf.matrix.filtered <- vaf.matrix.filtered[,variants.of.interest] 
+  # Check if gg.clust contains necessary data and if it has correct dimensions
+  if (!is.data.frame(gg.clust$data) || !"cluster" %in% names(gg.clust$data)) {
+    stop("gg.clust$data must be a non-empty data frame with a 'cluster' column.")
+  }
+  if (nrow(gg.clust$data) != nrow(vaf.matrix.filtered)) {
+    stop("The number of rows in gg.clust$data must match the number of rows in the VAF matrix.")
+  }
   
   # add cluster information
   vaf.matrix.filtered.tmp <- vaf.matrix.filtered

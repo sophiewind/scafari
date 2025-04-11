@@ -1,3 +1,10 @@
+#' Plot variant allele frequency heatmap
+#' This function generates a heatmap to visualize variant allele frequency (VAF).
+#'
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#'
+#' @return variant allele frequenc heatmap
+ 
 plotVariantHeatmap <- function(sce) {
   vaf.matrix.filtered = t(assay(altExp(sce, 'variants'), 'VAF'))
   colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)

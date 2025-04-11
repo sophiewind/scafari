@@ -1,3 +1,31 @@
+#' Function: filterVariants
+#' -------------------------------
+#' This function takes a SingleCellExperiment object as input and performs variant filtering
+#' @param depth.threshold A numeric value specifying the minimum read depth required.
+#' @param genotype.quality.threshold A numeric value specifying the minimum genotype quality score.
+#' @param vaf.ref A numeric value specifying the variant allele frequency threshold for wild-type alleles.
+#' @param vaf.het A numeric value specifying the variant allele frequency threshold for heterozygous variants.
+#' @param vaf.hom A numeric value specifying the variant allele frequency threshold for homozygous variants.
+#' @param min.cell A numeric value indicating the minimum number of cells with a genotype other than "missing".
+#' @param min.mut.cell A numeric value indicating the minimum number of mutated (genotype either "homozygous" or "heterozygous") cells.
+#' @param se.var The SummarizedExperiment object containing variant data which will be filtered.
+#' @param sce SingleCellExperiment object containing the single-cell data TODO.
+#' @param shiny A logical flag indicating whether the function is being run in a Shiny application
+#' context. Default is FALSE. 
+#' 
+#' @return A list containing the following elements:
+#' \describe{
+#'   \item{vaf.matrix.filtered}{Variant allele frequencies after filtering.}
+#'   \item{genotype.matrix.filtered}{Genotype information after filtering.}
+#'   \item{read.counts.df.norm.filtered}{Normalized read counts for variants retained after filtering.}
+#'   \item{variant.ids.filtered}{A vector of the variant IDs that were retained after filtering.}
+#'   \item{genoqual.matrix.filtered}{Genotype qualities for variants retained after filtering.}
+#'   \item{cells.keep}{A vector of cell identifiers for those cells retained after filtering.}
+#' } 
+#' 
+#' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
+
+ 
 filterVariants <- function(depth.threshold = numeric(),
                            genotype.quality.threshold = numeric(),
                            vaf.ref = numeric(),

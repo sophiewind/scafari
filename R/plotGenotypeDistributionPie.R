@@ -1,3 +1,11 @@
+#' Plot genotype distribution pie
+#' 
+#' This function generates a plot to visualize the genotype distribution.
+#' 
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#' 
+#' @return ggplot object visualizing the genotype distribution in a pie chart.
+
 plotGenotypeDistributionPie <- function(sce){
   genotype.matrix.filtered <- assay(altExp(sce, 'variants'), 'Genotype')
   genotype.matrix.filtered %>%

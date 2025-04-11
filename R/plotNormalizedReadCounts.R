@@ -1,3 +1,11 @@
+#' Plot normalized read counts
+#'
+#' This function plots the normalize read counts in a bar chart. 
+#'
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#' 
+#' @return ggplot object visualizing the normalized read counts in a bar chart.
+
 plotNormalizedReadCounts <- function(sce) {
   normalized.read.counts <- sce@assays@data$normalized.counts
   

@@ -1,9 +1,9 @@
 #' Plot panel uniformity
 #' 
-#' @param read.counts.norm dataframe with normalized read counts
-#' @param amplicons amplicon information from h5 file
+#' @param sce A SingleCellExperiment object containing the relevant data.
 #'
 #' @return Panel uniformity plot as ggplot object
+
 plotPanelUniformity <- function(sce) {
   read.counts.norm <- as.data.frame(t(sce@assays@data$normalized.counts))
   amplicons <- as.data.frame(rowData(sce))

@@ -1,3 +1,11 @@
+#' Plot Distribution of Amplicons
+#' 
+#' This function generates a plot to visualize the distribution of amplicons within a `SingleCellExperiment` object.
+#'
+#' @param sce A SingleCellExperiment object that contains the assay data, including amplicon information to be plotted.
+#'
+#' @return A ggplot object representing the distribution of amplicons.
+#' 
 plotAmpliconDistribution <- function(sce) {
   gene_anno_df <- as.data.frame(rowData(sce))
   # Ensure the input data is a data frame

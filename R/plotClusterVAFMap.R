@@ -1,5 +1,47 @@
+#' plot Cluster VAF Map
+#' This function generates a plot to visualize variant allele frequency (VAF) in clusters based on selected variants of interest with clusters in the background.
+#'
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#' @param variants.of.interest A vector specifying the variants of interest.
+#' @param gg.clust An object containing clustering information.
+#'
+#' @return A ggplot object that visually represents the VAF in the clusters with clusters in the background.
+ 
 plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust){
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
+  
+  # Check that 'variants' altExp exists and contains a 'VAF' assay
+  if (!"variants" %in% altExpNames(sce)) {
+    stop("The SingleCellExperiment object must contain 'variants' as an alternate experiment.")
+  }
+  if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
+    stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
+  }
+  
+  # Check that variants.of.interest is non-empty and exists in the data
+  if (length(variants.of.interest) == 0) {
+    stop("variants.of.interest must be a non-empty vector.")
+  }
+  
+  # Check if gg.clust contains necessary data
+  if (!is.data.frame(gg.clust$data) || nrow(gg.clust$data) == 0) {
+    stop("gg.clust$data must be a non-empty data frame.")
+  }
+  
+  # Ensure gg.clust contains x and y labels
+  if (!all(c("x", "y") %in% names(gg.clust$labels))) {
+    stop("gg.clust must contain 'x' and 'y' labels for plotting.")
+  }
+  
+  
   vaf.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'VAF')))
+  
+  if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
+    stop("All variants.of.interest must exist in the VAF matrix columns.")
+  }
+
   colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
   rownames(vaf.matrix.filtered) <- paste0('cell', rownames(vaf.matrix.filtered)) # TODO cell ids
   vaf.matrix.filtered <- vaf.matrix.filtered[,variants.of.interest] 

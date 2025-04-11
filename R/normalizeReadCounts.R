@@ -1,14 +1,42 @@
-#' Normalize read counts
 #' 
-#' @param read.counts datafrane with read counts from h5 file
-#' @param metadata dataframe with metadata from h5 file
+#' This function normalizes the read counts contained within a `SingleCellExperiment` object.
 #'
-#' @return normalized read counts
-#' @references TODO scafari
+#' @param sce A SingleCellExperiment object that includes the assay data with read counts to be normalized. The metadata within the object may also be utilized for normalization purposes.
+#'
+#' @return Normalized read counts.
+#'
+#' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
+
 normalizeReadCounts <- function(sce) {
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
+  
+  # Check if the 'counts' assay is available and accessible
+  if (!"counts" %in% assayNames(sce)) {
+    stop("The SingleCellExperiment object must contain a 'counts' assay.")
+  }
+  
+  # Extract read counts and metadata
   read.counts <- t(sce@assays@data$counts)
   metadata <- sce@metadata
-
+  
+  # Verify that metadata contains the expected element 'n_amplicons'
+  if (is.null(metadata[['n_amplicons']])) {
+    stop("The metadata must contain 'n_amplicons'.")
+  }
+  
+  # Check for proper dimension agreement
+  if (nrow(read.counts) == 0 || ncol(read.counts) == 0) {
+    stop("The 'counts' data must be non-empty.")
+  }
+  
+  # Calculate row sum threshold
+  if (nrow(read.counts) < 10) {
+    stop("The 'counts' data must have at least 10 entries to compute a valid threshold.")
+  }
+  
   # Calculate row sum threshold
   rowsum_threshold <- sort(rowSums(read.counts), decreasing = TRUE)[10] / 10
   

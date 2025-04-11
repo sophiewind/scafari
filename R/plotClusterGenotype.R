@@ -1,12 +1,42 @@
+#' Plot Genotype Clusters
+#' 
+#' This function generates a plot to visualize genotype in clusters based on selected variants of interest.
+#'
+#' @param sce A SingleCellExperiment object containing the relevant data.
+#' @param variants.of.interest A vector specifying the variants of interest.
+#' @param gg.clust An object containing clustering information.
+#'
+#' @return A ggplot object that visually represents the clustering of genotypes based on the specified variants and clustering information.
+
 plotClusterGenotype <- function(sce, variants.of.interest, gg.clust){
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
+  
+  # Check that 'variants' altExp exists and contains a 'VAF' assay
+  if (!"Genotype" %in% altExpNames(sce)) {
+    stop("The SingleCellExperiment object must contain 'variants' as an alternate experiment.")
+  }
+  if (!"Genotype" %in% assayNames(altExp(sce, "variants"))) {
+    stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
+  }
+  
+  # Check that variants.of.interest is non-empty and exists in the data
+  if (length(variants.of.interest) == 0) {
+    stop("variants.of.interest must be a non-empty vector.")
+  }
+  
   genotype.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'Genotype')))
+  
   colnames(genotype.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
   
-    #genotype.matrix.filtered <<- genotype.matrix.filtered
-  #variants.of.interest <- variants.of.interest
-  #gg.clust <<- gg.clust
+  if (!all(variants.of.interest %in% colnames(genotype.matrix.filtered))) {
+    stop("All variants.of.interest must exist in the VAF matrix columns.")
+  }
+  
   genotype.matrix.filtered <- genotype.matrix.filtered[,variants.of.interest] 
-  #colnames(genotype.matrix.filtered) <- variants.of.interest   # TODO important, too
+  
   
   # add cluster information
   genotype.matrix.filtered.tmp <- as.data.frame(genotype.matrix.filtered)
