@@ -5,6 +5,7 @@ library(DT)
 library(dplyr)
 library(waiter)
 library(ggplot2)
+library(plotly)
 library(GenomicRanges)
 library(tibble)
 library(rhdf5)
@@ -127,7 +128,8 @@ ui <- navbarPage(
 
 # Server -----------------------------------------------------------------------
 server <- function(input, output, session) {
-
+  set.seed(1)
+  
   # Setup reactivity -----------------------------------------------------------
   plots_visible <- reactiveVal(FALSE)
   plots_visible_2 <- reactiveVal(FALSE)
@@ -850,7 +852,7 @@ server <- function(input, output, session) {
     plotNormalizedReadCounts(sce = sce())
   })
   
-  output$panel_plot5 <- renderPlot({
+  output$panel_plot5 <- renderPlotly({
     plotPanelUniformity(sce = sce())
   })
   

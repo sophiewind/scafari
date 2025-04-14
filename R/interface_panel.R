@@ -31,7 +31,7 @@ createPanelUI <- function(){
         trigger = "hover",
         options = list(container = "body")
       ),
-      withLoader(plotOutput("panel_plot5"), loader = 'dnaspin')
+      withLoader(plotlyOutput("panel_plot5"), loader = 'dnaspin')
     )
   )
 }

@@ -18,7 +18,8 @@ BiocInstaller::biocLite('BiocStyle')
 cran_packages <- c(
   "stringi", "shiny", "shinycssloaders", "DT", "dplyr", "waiter", "ggplot2",
   "tibble", "stringr", "reshape2", "shinyjs", "shinyBS",
-  "shinycustomloader", "factoextra", "markdown", "SingleCellExperiment"
+  "shinycustomloader", "factoextra", "markdown", "SingleCellExperiment",
+  'plotly'
 )
 
 bioc_packages <- c(
