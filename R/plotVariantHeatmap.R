@@ -1,27 +1,57 @@
-#' Plot variant allele frequency heatmap
-#' This function generates a heatmap to visualize variant allele frequency (VAF).
-#'
-#' @param sce A SingleCellExperiment object containing the relevant data.
-#'
-#' @return variant allele frequenc heatmap
- 
 plotVariantHeatmap <- function(sce) {
-  vaf.matrix.filtered = t(assay(altExp(sce, 'variants'), 'VAF'))
-  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
   
-  genotype.matrix.filtered = t(assay(altExp(sce, 'variants'), 'Genotype'))
+  # Check for the presence of 'variants' altExp and required assays
+  if (!"variants" %in% altExpNames(sce)) {
+    stop("The SingleCellExperiment object must contain 'variants' as an alternate experiment.")
+  }
+  if (!all(c("VAF", "Genotype") %in% assayNames(altExp(sce, "variants")))) {
+    stop("The 'variants' alternate experiment must contain 'VAF' and 'Genotype' assays.")
+  }
+  
+  # Extract and verify VAF and genotype matrices
+  vaf.matrix.filtered <- t(assay(altExp(sce, 'variants'), 'VAF'))
+  genotype.matrix.filtered <- t(assay(altExp(sce, 'variants'), 'Genotype'))
+  
+  if (nrow(vaf.matrix.filtered) == 0 || ncol(vaf.matrix.filtered) == 0) {
+    stop("The VAF matrix is empty, cannot plot heatmap.")
+  }
+  if (nrow(genotype.matrix.filtered) == 0 || ncol(genotype.matrix.filtered) == 0) {
+    stop("The Genotype matrix is empty, cannot plot heatmap.")
+  }
+  
+  # Verify the presence of gene and id in rowData
+  row_data <- rowData(altExp(sce, 'variants'))
+  if (!all(c("Gene", "id") %in% names(row_data))) {
+    stop("The rowData of 'variants' must contain 'Gene' and 'id' columns.")
+  }
+  
+  colnames(vaf.matrix.filtered) <- paste0(row_data$Gene, ':', row_data$id)
+  
+  # Load additional utilities
+  if (!file.exists('./R/utils.R')) {
+    stop("The utilities file './R/utils.R' is missing.")
+  }
   source('./R/utils.R')
   
   # Create a color ramp for VAF
   colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))
   
+  # Ensure external variables are available
+  if (!exists("chromosomes") || !exists("chr_palette")) {
+    stop("The variables 'chromosomes' and 'chr_palette' must be defined in './R/utils.R'.")
+  }
+  
   # Chromosome annotation
   column_ha <- HeatmapAnnotation(
-    chr = factor(str_extract(colnames(vaf.matrix.filtered), 'chr(\\d|X|Y)+'), levels = chromosomes),
+    chr = factor(stringr::str_extract(colnames(vaf.matrix.filtered), 'chr(\\d|X|Y)+'), levels = chromosomes),
     col = list(chr = chr_palette)
   )
   
-  # Process genotype matrix
+  # Process genotype matrix and check for expected columns
   gt_anno <- data.frame(WT = integer(), Het = integer(), Hom = integer(), Missing = integer())
   for (col in 1:ncol(genotype.matrix.filtered)) {
     wt <- sum(genotype.matrix.filtered[, col] == 0)
@@ -37,27 +67,26 @@ plotVariantHeatmap <- function(sce) {
     dplyr::select(-Total)
   rownames(proportions) <- colnames(vaf.matrix.filtered)
   
-  
   # Create a bar plot annotation for the genotype proportions
-  anno_bar <- anno_barplot(proportions, bar_width = 1, height = unit(3, "cm"),
-                           gp = gpar(fill = c("#D44292", "#F6A97A", "#414487FF", "grey")))
+  anno_bar <- ComplexHeatmap::anno_barplot(proportions, bar_width = 1, height = unit(3, "cm"),
+                                           gp = gpar(fill = c("#D44292", "#F6A97A", "#414487FF", "grey")))
   
   # Update column annotation with GT (%) annotation
   column_ha <- HeatmapAnnotation(
-    chr = factor(str_extract(colnames(vaf.matrix.filtered), 'chr(\\d|X|Y)+'), levels = chromosomes),
+    chr = factor(stringr::str_extract(colnames(vaf.matrix.filtered), 'chr(\\d|X|Y)+'), levels = chromosomes),
     col = list(chr = chr_palette),
     'GT (%)' = anno_bar
   )
   
   # Draw the heatmap
-  heatmap_plt <- Heatmap(matrix = vaf.matrix.filtered, 
-                         name = 'VAF', 
-                         col = colors_vaf,
-                         show_column_dend = TRUE,
-                         show_row_dend = FALSE, 
-                         column_title = 'Filtered Variants',
-                         row_title = 'Cells',  
-                         top_annotation = column_ha)
+  heatmap_plt <- ComplexHeatmap::Heatmap(matrix = vaf.matrix.filtered, 
+                                         name = 'VAF', 
+                                         col = colors_vaf,
+                                         show_column_dend = TRUE,
+                                         show_row_dend = FALSE, 
+                                         column_title = 'Filtered Variants',
+                                         row_title = 'Cells',  
+                                         top_annotation = column_ha)
   
-  draw(heatmap_plt)
+  ComplexHeatmap::draw(heatmap_plt)
 }

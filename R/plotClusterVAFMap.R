@@ -37,15 +37,14 @@ plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust){
   
   
   vaf.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'VAF')))
+  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
+  rownames(vaf.matrix.filtered) <- paste0('cell', rownames(vaf.matrix.filtered)) # TODO cell ids
   
   if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
     stop("All variants.of.interest must exist in the VAF matrix columns.")
   }
-
-  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
-  rownames(vaf.matrix.filtered) <- paste0('cell', rownames(vaf.matrix.filtered)) # TODO cell ids
+ 
   vaf.matrix.filtered <- vaf.matrix.filtered[,variants.of.interest] 
-  
   rownames(gg.clust$data) <- paste0('cell', rownames(gg.clust$data))
   
   merged <- merge(gg.clust$data, vaf.matrix.filtered, by = 0)

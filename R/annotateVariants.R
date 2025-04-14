@@ -20,11 +20,18 @@ annotateVariants <- function(sce, shiny = FALSE){
     stop("The input must be a SingleCellExperiment object.")
   }
   
-  
-  # Test if missionbio api is available
+  # Check if altExp and rowData contain necessary data
+  if (!("X" %in% names(rowData(altExp(sce))))) {
+    stop("The alternate experiment must have 'X' column in rowData for variant IDs.")
+  }
   
   variant.ids.filtered <- rowData(altExp(sce))$X
   metadata = metadata(sce)
+  
+  # Check that genome version is present in metadata
+  if (!"genome_version" %in% names(metadata)) {
+    stop("The metadata must contain 'genome_version'.")
+  }
   
   if (shiny){
     message('shiny')
@@ -85,7 +92,7 @@ annotateVariants <- function(sce, shiny = FALSE){
         variant.ids.filtered.df.anno$id <- variant.ids.filtered
         
       } else if(check_MBAPI() != 'MissionBio' && metadata[['genome_version']] == 'hg19'){
-        # TODO
+        stop("MissionBio API is not available.")
       } else if(metadata[['genome_version']] == 'hg38'){
         snpmart <- useEnsembl(biomart = "snp", dataset="hsapiens_snp")
         

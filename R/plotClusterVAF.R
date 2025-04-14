@@ -27,13 +27,12 @@ plotClusterVAF <- function(sce, variants.of.interest, gg.clust){
   }
   
   vaf.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'VAF')))
-  
+  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
   
   if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
     stop("All variants.of.interest must exist in the VAF matrix columns.")
   }
   
-  colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
   
   vaf.matrix.filtered <- vaf.matrix.filtered[,variants.of.interest] 
   # Check if gg.clust contains necessary data and if it has correct dimensions

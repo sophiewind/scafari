@@ -15,9 +15,6 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust){
   }
   
   # Check that 'variants' altExp exists and contains a 'VAF' assay
-  if (!"Genotype" %in% altExpNames(sce)) {
-    stop("The SingleCellExperiment object must contain 'variants' as an alternate experiment.")
-  }
   if (!"Genotype" %in% assayNames(altExp(sce, "variants"))) {
     stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
   }
@@ -28,7 +25,6 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust){
   }
   
   genotype.matrix.filtered <-  as.data.frame(t(assay(altExp(sce, 'variants'), 'Genotype')))
-  
   colnames(genotype.matrix.filtered) <- paste0(rowData(altExp(sce, 'variants'))$Gene, ':', rowData(altExp(sce, 'variants'))$id)
   
   if (!all(variants.of.interest %in% colnames(genotype.matrix.filtered))) {
