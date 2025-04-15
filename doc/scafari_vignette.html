@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>scafari_vignette</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">scafari_vignette</h1>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Single-cell DNA sequencing (scDNA-seq) enables the analysis of
+mutation profiles at single-cell resolution. This cutting-edge technique
+makes it possible to shed light on the previously inaccessible
+complexity of heterogeneous tissues such as tumors. Even small cell
+populations that cannot be detected by mass sequencing can now be
+identified.</p>
+<div id="requirements" class="section level2">
+<h2>Requirements</h2>
+<p>To run scafari, you need R (Version 4.4 or higher).</p>
+</div>
+</div>
+<div id="running-scafari" class="section level1">
+<h1>Running scafari</h1>
+<p>scafari is available through Bioconductor. In R, enter the commands:
+## Installation</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;BiocManager&quot;</span>, <span class="at">quietly=</span><span class="cn">TRUE</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">&quot;BiocManager&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;scafari&quot;</span>)</span></code></pre></div>
+<p>The development version of scafari will be available on GitHub and
+can be installed as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;sophiewind/scafari&quot;</span>)</span></code></pre></div>
+<div id="getting-started" class="section level2">
+<h2>Getting started</h2>
+<p>A basic workflow analysis of scDNA-seq data is demonstrated in the
+following using a data set as an example. First we need to install
+scafari.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(scafari)</span></code></pre></div>
+<p>Than we need to load the required demo data.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span></span></code></pre></div>
+<p>Once the data and the package have been loaded, the analysis can
+start. scafari is available as R package and shiny GUI. You can run the
+shiny version by RStudio executing the function <code>TODO()</code>. The
+scafari worklow can be split into four main parts.</p>
+<ol style="list-style-type: decimal">
+<li>Sequencing information and quality control</li>
+<li>Panel analysis</li>
+<li>Variant analysis</li>
+<li>Analyses of variants of special interest</li>
+</ol>
+<p>These parts are represented in the four tabs of the shiny app and
+several functions in the R package.</p>
+<div id="sequencing-information-and-quality-control" class="section level3">
+<h3>Sequencing information and quality control</h3>
+<p>The analysis start with uploading the .h5 file. In the shiny app an
+interactive upload is provided on the starting page. Information from
+the .h5 file are loaded in an sce class object in this step.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Load .h5 file</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co"> code</span></span></code></pre></div>
+<p>After successful data upload the metadata including sequencing
+information can be accessed and basic quality information can be
+inspected.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Get metadata</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span></span></code></pre></div>
+<p>Further, reads per TODO barcode can be visualized in a log-log
+plot.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># logLogPlot(sce)</span></span></code></pre></div>
+</div>
+<div id="panel-analysis" class="section level3">
+<h3>Panel analysis</h3>
+<p>The panel analysis start by normalizing the read counts using.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co">#normalizeReadCounts(sce)</span></span></code></pre></div>
+<p>After read counts are normalized they have to be annotated with
+biological relevant information such as exon number and canonical
+transcript ID.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># annotateReadCounts()</span></span></code></pre></div>
+<p>The exact genomic locations of the amplicons can be inspected in the
+amplicon disribution plot.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co">#plotAmpliconDistribution()</span></span></code></pre></div>
+<p>In the amplicon performance plot depicts normalized read counts per
+amplicon. This can help to identify low performing amplicons (Sarah) and
+get deeper insights into TODO.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co">#plotAmpliconPerformance()</span></span></code></pre></div>
+<p>Insights in the normalized read counts per amplicon on single cell
+resolution is provided in the panel uniformity plot. Each dot
+represenents one cell and each row an amplicon. The amplicons are sorted
+by their mean reads, from high to low. Amplicons meeting at least 20% of
+the average depth of coverage are represented in blue, others in
+orange.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># plotPanelUniformity(sce)</span></span></code></pre></div>
+</div>
+<div id="variant-analysis" class="section level3">
+<h3>Variant analysis</h3>
+<p>The variant analysis starts with variant filtering and is performed
+on criteria such as sequencing depth, variant allele frequency (VAF),
+genoytpe data and genotype quality data. TODO</p>
+<p>After filtering the variants are annotated with biological
+information like gene names and clinical variant metrics. By default,
+annotation is performed via the Mission Bio API, which provides
+information on the names of the gene and the affected protein, the
+coding effect, the functional classification (e.g. intronic, coding),
+ClinVar information, the dbSNP ID and the DANN (Deleterious Annotation
+of genetic variants using Neural Networks) score. The annotated variants
+can than be inspected. TODO und einschreiben in sce</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># annotateVariants(sce)</span></span></code></pre></div>
+<p>To gain deeper insights into the VAF of filtered variants across the
+cells, a VAF heatmap with genotype and chromosome annotations is
+available.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># plotVariantHeatmap(sce)</span></span></code></pre></div>
+<p>The overall genotype distribution can be assessed in a genotype
+distribution pie chart.</p>
+<p>More detailed insights into the genotypes and their quality can be
+obtained in a violin plot.</p>
+</div>
+<div id="analysis-of-variants-of-interest" class="section level3">
+<h3>Analysis of variants of interest</h3>
+<p>To further focus on selected variants of interest, there is a set of
+function to analyze user selected variants. Thereby, variants forming
+cell clusters/clones can be identified and analyzed regarding VAF and
+genotype. First the user need to define a set of variants of
+interest.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co">#variants.of.interest &lt;- </span></span></code></pre></div>
+<p>To evaluate the variant selection this variant selection can be
+plotted in a heatmap.</p>
+<p>After valuating the variants of interest, the cells can be clustered
+based on their VAF. The user can select different clustering methods
+such as xxx and yyy.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co">#clusterVariants()</span></span></code></pre></div>
+<p>The clustered cells can be visualized using xxx().</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co">#</span></span></code></pre></div>
+<p>To gain an insight into the VAF across all filtered cells and
+selected variants, this can be depicted in a heatmap annotated with
+clusters.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co"> evlt rausnemen und später wieder rein</span></span></code></pre></div>
+<p>To compare the clusters regarding the variant selection there are
+various visualizations available. The distribution of variant allele
+frequency (VAF) within each cell cluster can be obtained using
+<code>plotClusterVAF()</code>.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co">#</span></span></code></pre></div>
+<p>Further, the clusters can be analyzed regarding the genotype using
+<code>plotClusterGenotype()</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co">#</span></span></code></pre></div>
+</div>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+</div>
+</div>
+<div id="session-information" class="section level1">
+<h1>Session information</h1>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="co">#&gt; R version 4.4.1 (2024-06-14)</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; Running under: Ubuntu 22.04.4 LTS</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0</span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="co">#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co">#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span></span>
+<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a><span class="co">#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   </span></span>
+<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a><span class="co">#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span></span>
+<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a><span class="co">#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span></span>
+<span id="cb21-16"><a href="#cb21-16" tabindex="-1"></a><span class="co">#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
+<span id="cb21-17"><a href="#cb21-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb21-18"><a href="#cb21-18" tabindex="-1"></a><span class="co">#&gt; time zone: Etc/UTC</span></span>
+<span id="cb21-19"><a href="#cb21-19" tabindex="-1"></a><span class="co">#&gt; tzcode source: system (glibc)</span></span>
+<span id="cb21-20"><a href="#cb21-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb21-21"><a href="#cb21-21" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb21-22"><a href="#cb21-22" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb21-23"><a href="#cb21-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb21-24"><a href="#cb21-24" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb21-25"><a href="#cb21-25" tabindex="-1"></a><span class="co">#&gt;  [1] digest_0.6.36     R6_2.5.1          fastmap_1.2.0     xfun_0.45        </span></span>
+<span id="cb21-26"><a href="#cb21-26" tabindex="-1"></a><span class="co">#&gt;  [5] cachem_1.1.0      knitr_1.47        htmltools_0.5.8.1 rmarkdown_2.27   </span></span>
+<span id="cb21-27"><a href="#cb21-27" tabindex="-1"></a><span class="co">#&gt;  [9] lifecycle_1.0.4   cli_3.6.3         sass_0.4.9        jquerylib_0.1.4  </span></span>
+<span id="cb21-28"><a href="#cb21-28" tabindex="-1"></a><span class="co">#&gt; [13] compiler_4.4.1    rstudioapi_0.16.0 tools_4.4.1       evaluate_0.24.0  </span></span>
+<span id="cb21-29"><a href="#cb21-29" tabindex="-1"></a><span class="co">#&gt; [17] bslib_0.7.0       yaml_2.3.8        rlang_1.1.4       jsonlite_1.8.8</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

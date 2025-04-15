@@ -1,0 +1,211 @@
+---
+title: "scafari_vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{scafari_vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+Single-cell DNA sequencing (scDNA-seq) enables the analysis of mutation profiles at single-cell resolution. This cutting-edge technique makes it possible to shed light on the previously inaccessible complexity of heterogeneous tissues such as tumors. Even small cell populations that cannot be detected by mass sequencing can now be identified.
+
+## Requirements
+To run scafari, you need R (Version 4.4 or higher).
+
+
+
+# Running scafari
+scafari is available through Bioconductor. In R, enter the commands:
+## Installation
+```{r, eval=F}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("scafari")
+```
+
+The development version of scafari will be available on GitHub and can be installed as follows:
+
+```{r, eval=F}
+# install.packages("devtools")
+devtools::install_github("sophiewind/scafari")
+```
+
+##  Getting started
+
+A basic workflow analysis of scDNA-seq data is demonstrated in the following using a data set as an example.
+First we need to install scafari.
+
+```{r loading , eval=FALSE}
+library(scafari)
+```
+
+Than we need to load the required demo data.
+
+```{r}
+# TODO
+```
+
+Once the data and the package have been loaded, the analysis can start.
+scafari is available as R package and shiny GUI. You can run the shiny version by RStudio executing the function `TODO()`.
+The scafari worklow can be split into four main parts.
+
+1. Sequencing information and quality control
+2. Panel analysis
+3. Variant analysis
+4. Analyses of variants of special interest
+
+These parts are represented in the four tabs of the shiny app and several functions in the R package.
+
+### Sequencing information and quality control
+The analysis start with uploading the .h5 file. In the shiny app an interactive upload is provided on the starting page.
+Information from the .h5 file are loaded in an sce class object in this step. 
+
+```{r}
+# Load .h5 file
+# TODO code
+```
+
+After successful data upload the metadata including sequencing information can be accessed and basic quality information can be inspected. 
+
+```{r}
+# Get metadata
+# TODO
+```
+
+Further, reads per TODO barcode can be visualized in a log-log plot.
+
+```{r}
+# logLogPlot(sce)
+```
+
+
+### Panel analysis
+The panel analysis start by normalizing the read counts using.
+```{r}
+#normalizeReadCounts(sce)
+```
+
+After read counts are normalized they have to be annotated with biological relevant information such as exon number and canonical transcript ID.
+
+```{r}
+# annotateReadCounts()
+```
+
+The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
+
+```{r}
+#plotAmpliconDistribution()
+```
+
+In the amplicon performance plot depicts normalized read counts per amplicon. This can help to identify low performing amplicons (Sarah) and get deeper insights into TODO. 
+
+```{r}
+#plotAmpliconPerformance()
+```
+
+Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
+
+```{r}
+# plotPanelUniformity(sce)
+```
+
+
+### Variant analysis
+The variant analysis starts with variant filtering and is performed on criteria such as sequencing depth, variant allele frequency (VAF), genoytpe data and genotype quality data. 
+TODO
+
+
+After filtering the variants are annotated with biological information like gene names and clinical variant metrics. By
+default, annotation is performed via the Mission Bio API, which provides information on the names of the gene and the affected protein, the coding effect, the functional classification (e.g. intronic, coding), ClinVar information, the dbSNP ID and
+the DANN (Deleterious Annotation of genetic variants using Neural Networks) score. 
+The annotated variants can than be inspected. TODO und einschreiben in sce
+
+```{r}
+# annotateVariants(sce)
+```
+
+To gain deeper insights into the VAF of filtered variants across the cells, a VAF heatmap with genotype and chromosome annotations is available.
+
+```{r}
+# plotVariantHeatmap(sce)
+```
+
+The overall genotype distribution can be assessed in a genotype distribution pie chart.
+
+```{r}
+
+```
+
+More detailed insights into the genotypes and their quality can be obtained in a violin plot. 
+
+```{r}
+
+```
+
+
+### Analysis of variants of interest
+To further focus on selected variants of interest, there is a set of function to analyze user selected variants. Thereby, variants forming cell clusters/clones can be identified and analyzed regarding VAF and genotype.
+First the user need to define a set of variants of interest.
+
+```{r}
+#variants.of.interest <- 
+```
+
+To evaluate the variant selection this variant selection can be plotted in a heatmap.
+
+```{r}
+
+```
+
+After valuating the variants of interest, the cells can be clustered based on their VAF. The user can select different clustering methods such as xxx and yyy. 
+
+```{r}
+#clusterVariants()
+```
+
+The clustered cells can be visualized using xxx(). 
+
+```{r}
+#
+```
+
+To gain an insight into the VAF across all filtered cells and selected variants, this can be depicted in a heatmap annotated with clusters. 
+
+```{r}
+# TODO evlt rausnemen und später wieder rein
+```
+
+To compare the clusters regarding the variant selection there are various visualizations available. The distribution of variant allele frequency (VAF) within each cell cluster can be obtained using `plotClusterVAF()`. 
+
+```{r}
+#
+```
+
+
+
+```{r}
+
+```
+
+
+Further, the clusters can be analyzed regarding the genotype using `plotClusterGenotype()`.
+
+```{r}
+#
+```
+
+
+## Data
+# Session information
+
+```{r session}
+sessionInfo()
+```
