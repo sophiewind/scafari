@@ -8,11 +8,59 @@ Description: scafari
 License: LGPL-3  # TODO
 Encoding: UTF-8
 LazyData: false  # TODO
-Requires: TODO
-Imports: TODO
+Requires:     
+    stringi,
+    shiny,
+    shinycssloaders,
+    DT,
+    dplyr,
+    waiter,
+    ggplot2,
+    tibble,
+    stringr,
+    reshape2,
+    shinyjs,
+    shinyBS,
+    shinycustomloader,
+    factoextra,
+    markdown,
+    SingleCellExperiment,
+    plotly,
+    GenomicRanges,
+    rhdf5,
+    ComplexHeatmap,
+    karyoploteR,
+    biomaRt,
+    clusterProfiler,
+    org.Hs.eg.db
+Imports:
+    stringi,
+    shiny,
+    shinycssloaders,
+    DT,
+    dplyr,
+    waiter,
+    ggplot2,
+    tibble,
+    stringr,
+    reshape2,
+    shinyjs,
+    shinyBS,
+    shinycustomloader,
+    factoextra,
+    markdown,
+    SingleCellExperiment,
+    plotly,
+    GenomicRanges,
+    rhdf5,
+    ComplexHeatmap,
+    karyoploteR,
+    biomaRt,
+    clusterProfiler,
+    org.Hs.eg.db
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown, BiocStyle
 biocViews: Software, ShinyApps, SingleCell
 BugReports: https://github.com/sophiewind/scafari/issues
 URL: https://github.com/sophiewind/scafari
-RoxygenNote: # TODO 7.2.1
+RoxygenNote: 7.3.2
