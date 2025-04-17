@@ -9,11 +9,15 @@
 #' @return The function returns an annotated SingleCellExperiment object.
 #' 
 #' @examples
-#' Example usage:
+#' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 #' sce <- annotateVariants(sce, shiny = FALSE)
+#'}
+#'
+#' @export
 #' 
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
-
 annotateVariants <- function(sce, shiny = FALSE){
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
@@ -21,11 +25,11 @@ annotateVariants <- function(sce, shiny = FALSE){
   }
   
   # Check if altExp and rowData contain necessary data
-  if (!("X" %in% names(rowData(altExp(sce))))) {
-    stop("The alternate experiment must have 'X' column in rowData for variant IDs.")
-  }
-  
-  variant.ids.filtered <- rowData(altExp(sce))$X
+  # if (!("X" %in% names(rowData(altExp(sce))))) {
+  #   stop("The alternate experiment must have 'X' column in rowData for variant IDs.")
+  # }
+  # 
+  variant.ids.filtered <- rowData(altExp(sce))[[1]]
   metadata = metadata(sce)
   
   # Check that genome version is present in metadata

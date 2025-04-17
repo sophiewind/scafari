@@ -4,9 +4,15 @@
 #' 
 #' @param h5_file  path of an h5 file
 #' 
-#' @return The function returns a SingleCellExperiment object.
+#' @return A list containing the following elements:
+#' \describe{
+#'   \item{sce_amp}{SingleCellExperiment class object containing read count information.}
+#'   \item{se_var}{SummarizedExperiment class object containing variant information..}
+#' } 
+#' 
 #' 
 #' @examples
+#' \dontrun{
 #' h5_file_path <- system.file("extdata", "4-cell-lines-AML-multiomics.dna+protein.h5", package = "scafari")
 #'
 #' # Read the h5ToSce using readH5File
@@ -14,7 +20,11 @@
 #'
 #' # Display the result
 #' print(result)
+#' }
+#' 
+#' @export
 h5ToSce <- function(h5_file) {
+  # Process amplicon data ------------------------------------------------------
   # Check if the file exists
   if (!file.exists(h5_file)) {
     stop("The file does not exist: ", h5_file)
@@ -34,8 +44,7 @@ h5ToSce <- function(h5_file) {
     stop("Failed to read variant IDs: ", e$message)
   })
   
-  colnames(metadata) <- c('value')
-  
+
   # Try reading cell barcodes, stop if it fails
   tryCatch({
     cells.rc <- h5read(h5_file, "assays/dna_read_counts/ra/barcode")
@@ -46,10 +55,10 @@ h5ToSce <- function(h5_file) {
   
   # Try reading depth matrix and other matrices, stop if it fails
   tryCatch({
-    depth.matrix <- as.data.frame(t(unlist(h5read(h5_file, "assays/dna_variants/layers/DP"))))
-    genoqual.matrix <- t(as.data.frame(unlist(h5read(h5_file, "assays/dna_variants/layers/GQ"))))
-    genotype.matrix <- t(as.data.frame(unlist(h5read(h5_file, "assays/dna_variants/layers/NGT"))))
-    vaf.matrix <- as.data.frame(t(unlist(h5read(h5_file, "assays/dna_variants/layers/AF"))))
+    depth.matrix <-h5read(h5_file, "assays/dna_variants/layers/DP")
+    genoqual.matrix <- h5read(h5_file, "assays/dna_variants/layers/GQ")
+    genotype.matrix <- h5read(h5_file, "assays/dna_variants/layers/NGT")
+    vaf.matrix <- h5read(h5_file, "assays/dna_variants/layers/AF")
     amplicons <- h5read(h5_file, 'assays/dna_read_counts/ca/id')
   }, error = function(e) {
     stop("Failed to read variant or associated matrices: ", e$message)
@@ -87,5 +96,13 @@ h5ToSce <- function(h5_file) {
     stop("Failed to create SingleCellExperiment object: ", e$message)
   })
   
-  return(sce)
+  # Process variant data -------------------------------------------------------
+  se <- SummarizedExperiment(assays = list(VAF = vaf.matrix, 
+                                     Genotype = genotype.matrix,
+                                     Genoqual = genoqual.matrix,
+                                     Depth = depth.matrix
+                                     ),
+                      rowData  = variant.ids,
+                       colData = cells.var)
+  return(list(sce_amp = sce, se_var = se))
 }

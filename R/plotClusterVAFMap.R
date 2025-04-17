@@ -6,7 +6,18 @@
 #' @param gg.clust An object containing clustering information.
 #'
 #' @return A ggplot object that visually represents the VAF in the clusters with clusters in the background.
- 
+#' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with variants in altExp() and clusterplot is the output of clusterVariantSleection().
+#' plotClusterVAFMap(sce = sce_filtered, 
+#'                variants.of.interest = c("FLT3:chr13:28610183:A/G",
+#'                                         "KIT:chr4:55599436:T/C",
+#'                                         "TP53:chr17:7577427:G/A",
+#'                                         "TET2:chr4:106158216:G/A"), 
+#'                gg.clust = clusterplot$clusterplot)
+#'}
+#'
+#' @export 
 plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust){
   if (!inherits(sce, "SingleCellExperiment")) {
     stop("The input must be a SingleCellExperiment object.")

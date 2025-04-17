@@ -8,12 +8,22 @@
 #'
 #' @return A list with k-means results and a ggplot-object.
 #' 
-#' @examples TODO
-#' # Example usage:
-#' # TODO
+#' @examples
 #' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
+#' clusterplot <- clusterVariantSelection(sce = sce_filtered, 
+#'                                        variants.of.interest = c("FLT3:chr13:28610183:A/G",
+#'                                                                 "KIT:chr4:55599436:T/C",
+#'                                                                 "TP53:chr17:7577427:G/A",
+#'                                                                 "TET2:chr4:106158216:G/A"), 
+#'                                        n.clust = 4)
+#'}
+#'
+#' @export 
 clusterVariantSelection <- function(sce, variants.of.interest, n.clust){
   # Check that the input is a SingleCellExperiment object
+  set.seed(1)
   if (!inherits(sce, "SingleCellExperiment")) {
     stop("The input must be a SingleCellExperiment object.")
   }

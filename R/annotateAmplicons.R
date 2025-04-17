@@ -6,6 +6,12 @@
 #' 
 #' @return A dataframe containing annotated amplicons.
 #' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
+#' annotated <- annotateAmplicons(sce)
+#'}
+#'
+#' @export
 annotateAmplicons <- function(sce){
   # Check if the SCE object has metadata
   if (is.null(metadata(sce))) {

@@ -5,6 +5,15 @@
 #' @param sce A SingleCellExperiment object that contains read count data to be plotted. The read counts are extracted from an associated h5 file or similar data structure within the object.
 #'
 #' @return A ggplot object representing the log-log plot of read counts.
+#' 
+#' @examples
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
+#' plot <- logLogPlot(sce)
+#' print(plot)
+#' }
+#'
+#' @export
 
 logLogPlot <- function(sce) {
   # Check that the input is a SingleCellExperiment object

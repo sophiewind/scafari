@@ -339,7 +339,7 @@ server <- function(input, output, session) {
     
     # Filter out cells in sce object
     # Find the indices of the columns to keep
-    indices_to_keep <- match(filteres$cells.keep, colData(current_sce)$X, nomatch = 0)
+    indices_to_keep <- match(filteres$cells.keep, colData(current_sce)[[1]], nomatch = 0)
     
     # Subset the SCE using these indices
     sce_filtered <- current_sce[, indices_to_keep]

@@ -5,7 +5,13 @@
 #' @param sce A SingleCellExperiment object containing the relevant data.
 #' 
 #' @return ggplot object visualizing the normalized read counts in a bar chart.
-
+#' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+#' plotNormalizedReadCounts(sce)
+#'}
+#'
+#' @export 
 plotNormalizedReadCounts <- function(sce) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {

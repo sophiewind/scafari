@@ -23,8 +23,11 @@ Function: annotateVariants
 This function takes a SingleCellExperiment object as input and performs variant annotation.
 }
 \examples{
-Example usage:
+
+\dontrun{
+# Assume `sce` is a SingleCellExperiment object with variants in altExp()
 sce <- annotateVariants(sce, shiny = FALSE)
+}
 
 }
 \references{

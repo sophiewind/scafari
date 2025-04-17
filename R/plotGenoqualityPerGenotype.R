@@ -1,3 +1,25 @@
+#' Plot Genotype Quality per Genotype
+#' 
+#' This function generates a plot to assess the quality of genotypes within a 
+#' `SingleCellExperiment` object. It uses the 'genotype_quality' assay or any 
+#' relevant assay to visualize the distribution of genotype quality metrics 
+#' across different genotypes.
+#'
+#' @param sce A `SingleCellExperiment` object containing the single-cell data. 
+#' This object should include a 'genotype_quality' assay or similar data which 
+#' provides quality metrics for each genotype.
+#'
+#' @return A `ggplot` object visualizing the distribution of genotype quality 
+#' across different genotypes.
+#'
+#' @examples
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with 'genotype_quality' assay.
+#' genotype_quality_plot <- plotGenotypequalityPerGenotype(sce)
+#' print(genotype_quality_plot)
+#' }
+#'
+#' @export 
 plotGenotypequalityPerGenotype <- function(sce) {
   tryCatch({
     # Check if the 'sce' object is valid

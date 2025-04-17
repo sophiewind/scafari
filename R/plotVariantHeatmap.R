@@ -1,3 +1,24 @@
+#' Plot Variant Heatmap
+#' 
+#' This function generates a heatmap to visualize variant data within a 
+#' `SingleCellExperiment` object. The heatmap provides insights into the 
+#' distribution and frequency of variants across different samples or cells.
+#'
+#' @param sce A `SingleCellExperiment` object containing single-cell variant data. 
+#' The object should include an assay that holds variant information suitable 
+#' for visualization in a heatmap.
+#'
+#' @return A `ggplot` object representing the heatmap of variant frequencies or 
+#' presence across cells or groups.
+#'
+#' @examples
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with an appropriate variant assay.
+#' variant_heatmap <- plotVariantHeatmap(sce)
+#' print(variant_heatmap)
+#' }
+#'
+#' @export 
 plotVariantHeatmap <- function(sce) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {

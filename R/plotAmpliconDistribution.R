@@ -6,8 +6,15 @@
 #'
 #' @return A ggplot object representing the distribution of amplicons.
 #' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+#' plotAmpliconDistribution(sce)
+#'}
+#'
+#' @export 
 plotAmpliconDistribution <- function(sce) {
   gene_anno_df <- as.data.frame(rowData(sce))
+  colnames(gene_anno_df) <- c('seqnames', 'start', 'end', 'id')
   # Ensure the input data is a data frame
   if (!is.data.frame(gene_anno_df)) {
     stop("gene_anno_df must be a data frame.")

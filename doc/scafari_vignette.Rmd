@@ -77,38 +77,38 @@ After successful data upload the metadata including sequencing information can b
 
 ```{r}
 # Get metadata
-# TODO
+sce <- readRDS('../inst/extdata/sce.rds')
 ```
 
 Further, reads per TODO barcode can be visualized in a log-log plot.
 
 ```{r}
-# logLogPlot(sce)
+logLogPlot(sce)
 ```
 
 
 ### Panel analysis
 The panel analysis start by normalizing the read counts using.
 ```{r}
-#normalizeReadCounts(sce)
+normalizeReadCounts(sce)[1:10,1:5]
 ```
 
 After read counts are normalized they have to be annotated with biological relevant information such as exon number and canonical transcript ID.
 
 ```{r}
-# annotateReadCounts()
+# annotateAmplicons(sce)
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
 
 ```{r}
-#plotAmpliconDistribution()
+plotAmpliconDistribution(sce)
 ```
 
 In the amplicon performance plot depicts normalized read counts per amplicon. This can help to identify low performing amplicons (Sarah) and get deeper insights into TODO. 
 
 ```{r}
-#plotAmpliconPerformance()
+# plotAmpliconPerformance(sce)
 ```
 
 Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
@@ -129,13 +129,14 @@ the DANN (Deleterious Annotation of genetic variants using Neural Networks) scor
 The annotated variants can than be inspected. TODO und einschreiben in sce
 
 ```{r}
-# annotateVariants(sce)
+sce_filtered <- readRDS('../inst/extdata/sce_filtered.rds')
+annotateVariants(sce_filtered)
 ```
 
 To gain deeper insights into the VAF of filtered variants across the cells, a VAF heatmap with genotype and chromosome annotations is available.
 
 ```{r}
-# plotVariantHeatmap(sce)
+#plotVariantHeatmap(sce_filtered)
 ```
 
 The overall genotype distribution can be assessed in a genotype distribution pie chart.
@@ -152,8 +153,7 @@ More detailed insights into the genotypes and their quality can be obtained in a
 
 
 ### Analysis of variants of interest
-To further focus on selected variants of interest, there is a set of function to analyze user selected variants. Thereby, variants forming cell clusters/clones can be identified and analyzed regarding VAF and genotype.
-First the user need to define a set of variants of interest.
+To further focus on selected variants of interest, there is a set of function to analyze user selected variants. Thereby, variants forming cell clusters/clones can be identified and analyzed regarding VAF and genotype. First the user need to define a set of variants of interest.
 
 ```{r}
 #variants.of.interest <- 
@@ -183,23 +183,43 @@ To gain an insight into the VAF across all filtered cells and selected variants,
 # TODO evlt rausnemen und später wieder rein
 ```
 
+
+```{r}
+# plot <- clusterVariantSelection(sce = sce_filtered, 
+#                                 variants.of.interest = c("NRAS:chr1:115256669:G/A",
+#                                                          "DNMT3A:chr2:25458546:C/T",
+#                                                          "DNMT3A:chr2:25470426:C/T"), 
+#                                 n.clust = 3)
+```
+
+
+
 To compare the clusters regarding the variant selection there are various visualizations available. The distribution of variant allele frequency (VAF) within each cell cluster can be obtained using `plotClusterVAF()`. 
 
 ```{r}
-#
+# plotClusterVAF(sce = sce_filtered, variants.of.interest = c("NRAS:chr1:115256669:G/A",
+#                                                             "DNMT3A:chr2:25458546:C/T",
+#                                                             "DNMT3A:chr2:25470426:C/T"),
+#                gg.clust = plot$clusterplot)
 ```
 
 
 
 ```{r}
-
+# plotClusterVAFMap(sce = sce_filtered, variants.of.interest = c("NRAS:chr1:115256669:G/A",
+#                                                                "DNMT3A:chr2:25458546:C/T",
+#                                                                "DNMT3A:chr2:25470426:C/T"),
+#                   gg.clust = plot$clusterplot)
 ```
 
 
 Further, the clusters can be analyzed regarding the genotype using `plotClusterGenotype()`.
 
 ```{r}
-#
+# plotClusterGenotype(sce = sce_filtered, variants.of.interest = c("NRAS:chr1:115256669:G/A",
+#                                                                  "DNMT3A:chr2:25458546:C/T",
+#                                                                  "DNMT3A:chr2:25470426:C/T"),
+#                     gg.clust = plot$clusterplot)
 ```
 
 

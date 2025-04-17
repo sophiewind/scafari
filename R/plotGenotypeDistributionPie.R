@@ -5,7 +5,14 @@
 #' @param sce A SingleCellExperiment object containing the relevant data.
 #' 
 #' @return ggplot object visualizing the genotype distribution in a pie chart.
-
+#' 
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
+#' pie_chart <- plotGenotypeDistributionPie(sce)
+#' print(pie_chart)
+#'}
+#'
+#' @export1
 plotGenotypeDistributionPie <- function(sce) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
