@@ -1,9 +1,31 @@
-plotPanelUniformity <- function(sce) {
+#' Plot Panel Uniformity
+#' 
+#' This function generates a plot to assess the uniformity of panel reads 
+#' in a `SingleCellExperiment` object. It uses read counts stored in the 
+#' 'counts' assay to visualize the distribution and variability of reads.
+#'
+#' @param sce A `SingleCellExperiment` object that contains single-cell data 
+#' with a 'counts' assay. This object should be pre-processed to ensure 
+#' the data is appropriate for uniformity analysis.
+#' @param interactive in interactive mode an plotly is returned.
+#' @return A `ggplot` object visualizing the uniformity of panel reads.
+#'
+#' @examples
+#' \dontrun{
+#' # Assume `sce` is a SingleCellExperiment object with 'counts' assay.
+#' uniformity_plot <- plotPanelUniformity(sce)
+#' print(uniformity_plot)
+#' }
+#'
+#' @export 
+plotPanelUniformity <- function(sce, interactive = FALSE) {
   # Check that the input is a valid SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
-    stop("The input must be a SingleCellExperiment object.")
+    stop("`sce` must be a SingleCellExperiment object.")
   }
-  
+  if (!inherits(interactive, "logical")) {
+    stop("`interactive` must be logical.")
+  }
   # Check for the presence of 'normalized.counts' assay
   if (!"normalized.counts" %in% assayNames(sce)) {
     stop("The SingleCellExperiment object must contain a 'normalized.counts' assay.")
@@ -59,8 +81,13 @@ plotPanelUniformity <- function(sce) {
             axis.ticks.y = element_blank(),
             axis.line = element_line(),
             legend.position = 'none')
-    plot <- ggplotly(plot)
-    return(plot)
+    
+    if (interactive){
+      plot <- ggplotly(plot)
+      return(plot)
+    } else {
+      return(plot)
+    }
   }, error = function(e) {
     stop("An error occurred while processing or plotting the data: ", e$message)
   })
