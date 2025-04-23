@@ -12,6 +12,39 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+library(dplyr)
+library(ggplot2)
+#library(tibble)
+library(karyoploteR)
+library(DT)
+library(dplyr)
+library(waiter)
+library(ggplot2)
+library(plotly)
+library(GenomicRanges)
+library(tibble)
+library(rhdf5)
+library(ComplexHeatmap)
+library(karyoploteR)
+library(stringr)
+library(reshape2)
+library(biomaRt)  
+library(clusterProfiler)  
+library(org.Hs.eg.db)  
+library(shinyjs) 
+library(shinyBS) 
+library(shinycustomloader) 
+library(factoextra)
+library(markdown)
+invisible(
+  suppressMessages(
+    suppressWarnings(
+      mapply(source, list.files('..//R', pattern = '.R', full.names = TRUE))
+    )
+  )
+)
+
 ```
 
 # Introduction
@@ -77,12 +110,12 @@ After successful data upload the metadata including sequencing information can b
 
 ```{r}
 # Get metadata
-sce <- readRDS('../inst/extdata/sce.rds')
+sce <- readRDS('../inst/extdata/sce_small.rds')
 ```
 
 Further, reads per TODO barcode can be visualized in a log-log plot.
 
-```{r}
+```{r, message=FALSE}
 logLogPlot(sce)
 ```
 
@@ -90,13 +123,13 @@ logLogPlot(sce)
 ### Panel analysis
 The panel analysis start by normalizing the read counts using.
 ```{r}
-normalizeReadCounts(sce)[1:10,1:5]
+rc.norm <- normalizeReadCounts(sce)
 ```
 
 After read counts are normalized they have to be annotated with biological relevant information such as exon number and canonical transcript ID.
 
 ```{r}
-# annotateAmplicons(sce)
+#annotateAmplicons(sce)
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
@@ -108,19 +141,47 @@ plotAmpliconDistribution(sce)
 In the amplicon performance plot depicts normalized read counts per amplicon. This can help to identify low performing amplicons (Sarah) and get deeper insights into TODO. 
 
 ```{r}
-# plotAmpliconPerformance(sce)
+plotNormalizedReadCounts(sce)
 ```
 
 Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
 
 ```{r}
-# plotPanelUniformity(sce)
+plotPanelUniformity(sce, interactive = FALSE)
 ```
 
 
 ### Variant analysis
 The variant analysis starts with variant filtering and is performed on criteria such as sequencing depth, variant allele frequency (VAF), genoytpe data and genotype quality data. 
-TODO
+
+
+```{r}
+se.var <- readRDS('../inst/extdata/se_small.rds')
+filteres <- filterVariants(depth.threshold = 10,
+                           genotype.quality.threshold = 30,
+                           vaf.ref = 5, 
+                           vaf.het =  35, 
+                           vaf.hom = 95, 
+                           min.cell = 50,
+                           min.mut.cell = 1,
+                           se.var = se.var,
+                           sce = sce_filtered,
+                           shiny = FALSE)
+se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered), 
+                                           Genotype = t(filteres$genotype.matrix.filtered),
+                                           Genoqual = t(filteres$genoqual.matrix.filtered)),
+                              rowData = filteres$variant.ids.filtered,
+                              colData = filteres$cells.keep)
+    
+# Filter out cells in sce object
+# Find the indices of the columns to keep
+indices_to_keep <- match(filteres$cells.keep, colData(sce)[[1]], nomatch = 0)
+    
+# Subset the SCE using these indices
+sce_filtered <- sce[, indices_to_keep]
+altExp(sce_filtered, "variants") <- se.f
+```
+
 
 
 After filtering the variants are annotated with biological information like gene names and clinical variant metrics. By
@@ -129,26 +190,43 @@ the DANN (Deleterious Annotation of genetic variants using Neural Networks) scor
 The annotated variants can than be inspected. TODO und einschreiben in sce
 
 ```{r}
-sce_filtered <- readRDS('../inst/extdata/sce_filtered.rds')
-annotateVariants(sce_filtered)
+# Load sce object with filtered variants
+#sce_filtered <- readRDS('../inst/extdata/sce_filtered.rds')
+
+# Check metadata 
+metadata(altExp(sce_filtered))
+
+# Annotate variants
+sce_filtered <- annotateVariants(sce = sce_filtered)
+
+# Check metadata. Now a annotation flag is present
+metadata(altExp(sce_filtered))
+
+# The annotations are stored in the rowData
+rowData(altExp(sce_filtered))[1:5,] %>% 
+  as.data.frame() %>% 
+  datatable()
 ```
+
+
+
 
 To gain deeper insights into the VAF of filtered variants across the cells, a VAF heatmap with genotype and chromosome annotations is available.
 
 ```{r}
-#plotVariantHeatmap(sce_filtered)
+plotVariantHeatmap(sce = sce_filtered)
 ```
 
 The overall genotype distribution can be assessed in a genotype distribution pie chart.
 
 ```{r}
-
+plotGenotypeDistributionPie(sce = sce_filtered)
 ```
 
 More detailed insights into the genotypes and their quality can be obtained in a violin plot. 
 
 ```{r}
-
+plotGenotypequalityPerGenotype(sce = sce_filtered)
 ```
 
 
@@ -156,25 +234,32 @@ More detailed insights into the genotypes and their quality can be obtained in a
 To further focus on selected variants of interest, there is a set of function to analyze user selected variants. Thereby, variants forming cell clusters/clones can be identified and analyzed regarding VAF and genotype. First the user need to define a set of variants of interest.
 
 ```{r}
-#variants.of.interest <- 
+variants.of.interest <- c("KIT:chr4:55599436:T/C", 
+                          "TET2:chr4:106158216:G/A", 
+                          "FLT3:chr13:28610183:A/G",
+                          "TP53:chr17:7577427:G/A")
 ```
 
 To evaluate the variant selection this variant selection can be plotted in a heatmap.
 
 ```{r}
-
+#
 ```
 
 After valuating the variants of interest, the cells can be clustered based on their VAF. The user can select different clustering methods such as xxx and yyy. 
 
 ```{r}
-#clusterVariants()
+plot <- clusterVariantSelection(sce = sce_filtered,
+                        variants.of.interest = variants.of.interest,
+                        n.clust = 3)
+
+names(plot)
 ```
 
-The clustered cells can be visualized using xxx(). 
+The clustered cells plot is stored in `clusterplot`.
 
 ```{r}
-#
+plot$clusterplot
 ```
 
 To gain an insight into the VAF across all filtered cells and selected variants, this can be depicted in a heatmap annotated with clusters. 
@@ -197,29 +282,26 @@ To gain an insight into the VAF across all filtered cells and selected variants,
 To compare the clusters regarding the variant selection there are various visualizations available. The distribution of variant allele frequency (VAF) within each cell cluster can be obtained using `plotClusterVAF()`. 
 
 ```{r}
-# plotClusterVAF(sce = sce_filtered, variants.of.interest = c("NRAS:chr1:115256669:G/A",
-#                                                             "DNMT3A:chr2:25458546:C/T",
-#                                                             "DNMT3A:chr2:25470426:C/T"),
-#                gg.clust = plot$clusterplot)
+plotClusterVAF(sce = sce_filtered, 
+               variants.of.interest = variants.of.interest,
+               gg.clust = plot$clusterplot)
 ```
 
 
 
 ```{r}
-# plotClusterVAFMap(sce = sce_filtered, variants.of.interest = c("NRAS:chr1:115256669:G/A",
-#                                                                "DNMT3A:chr2:25458546:C/T",
-#                                                                "DNMT3A:chr2:25470426:C/T"),
-#                   gg.clust = plot$clusterplot)
+plotClusterVAFMap(sce = sce_filtered, 
+               variants.of.interest = variants.of.interest,
+               gg.clust = plot$clusterplot)
 ```
 
 
 Further, the clusters can be analyzed regarding the genotype using `plotClusterGenotype()`.
 
 ```{r}
-# plotClusterGenotype(sce = sce_filtered, variants.of.interest = c("NRAS:chr1:115256669:G/A",
-#                                                                  "DNMT3A:chr2:25458546:C/T",
-#                                                                  "DNMT3A:chr2:25470426:C/T"),
-#                     gg.clust = plot$clusterplot)
+plotClusterGenotype(sce = sce_filtered, 
+               variants.of.interest = variants.of.interest,
+               gg.clust = plot$clusterplot)
 ```
 
 
