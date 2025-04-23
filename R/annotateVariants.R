@@ -5,6 +5,7 @@
 #' @param sce SingleCellExperiment object containing the single-cell data to be annotated.
 #' @param shiny A logical flag indicating whether the function is being run in a Shiny application
 #' context. Default is FALSE. 
+#' @param max.var Maximum number of variants to annotate. By default this is 50 to avoid long runtime.
 #' 
 #' @return The function returns an annotated SingleCellExperiment object.
 #' 
@@ -18,19 +19,29 @@
 #' @export
 #' 
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
-annotateVariants <- function(sce, shiny = FALSE){
+annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
-    stop("The input must be a SingleCellExperiment object.")
+    stop("`sce` must be a SingleCellExperiment object.")
   }
   
-  # Check if altExp and rowData contain necessary data
-  # if (!("X" %in% names(rowData(altExp(sce))))) {
-  #   stop("The alternate experiment must have 'X' column in rowData for variant IDs.")
-  # }
-  # 
-  variant.ids.filtered <- rowData(altExp(sce))[[1]]
-  metadata = metadata(sce)
+  if (!inherits(max.var, "numeric")) {
+    stop("`max.var` must be a numeric.")
+  }
+  
+  if (!inherits(shiny, "logical")) {
+    stop("`shiny` must be a numeric.")
+  }
+  
+  variant.ids.filtered <- rowData(altExp(sce))
+  
+  # Check that the input is a SingleCellExperiment object
+  if (nrow(altExp(sce)) >= max.var) {
+    stop("You try to annotated >= 50 variants. This exceeds `max.var`. If you want to annoate more than 50 variants you need to increase the `max.var` param.")
+  }
+  
+  
+  metadata <- metadata(sce)
   
   # Check that genome version is present in metadata
   if (!"genome_version" %in% names(metadata)) {
@@ -205,8 +216,8 @@ annotateVariants <- function(sce, shiny = FALSE){
         
         
         # Original variant ids as rownames
-        rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered
-        variant.ids.filtered.df.anno$id <- variant.ids.filtered
+        rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered$id
+        variant.ids.filtered.df.anno$id <- variant.ids.filtered[[1]]
       } else if(check_MBAPI() != 'MissionBio' && metadata[['genome_version']] == 'hg19'){
         # TODO
       } else if(metadata[['genome_version']] == 'hg38'){
@@ -258,11 +269,8 @@ annotateVariants <- function(sce, shiny = FALSE){
       } else {
         message('Issue with MissionBio API. Using Biomart')
       }
-      
-      
-  
-    
   }
-  #rowData(altExp(sce)) <-  variant.ids.filtered.df.anno
-  return(variant.ids.filtered.df.anno)
+  rowData(altExp(sce)) <-  variant.ids.filtered.df.anno
+  metadata(altExp(sce))[['annotated']] <- TRUE
+  return(sce)
 }
