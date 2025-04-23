@@ -28,6 +28,9 @@ theme_default <- function() {
     )
 }
 
+colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
+
+
 # Chromosome color palette
 chromosomes <- c(paste0("chr", 1:21), "chrX", "chrY")
 

@@ -44,27 +44,18 @@ plotVariantHeatmap <- function(sce) {
     stop("The Genotype matrix is empty, cannot plot heatmap.")
   }
   
+  if (!'annotated' %in% names(metadata(altExp(sce_filtered)))){
+    stop('The variants are not annotated. Please do this using `annotateVariants()`')
+  }
+  
   # Verify the presence of gene and id in rowData
   row_data <- rowData(altExp(sce, 'variants'))
   if (!all(c("Gene", "id") %in% names(row_data))) {
     stop("The rowData of 'variants' must contain 'Gene' and 'id' columns.")
   }
   
-  colnames(vaf.matrix.filtered) <- paste0(row_data$Gene, ':', row_data$id)
-  
-  # Load additional utilities
-  if (!file.exists('./R/utils.R')) {
-    stop("The utilities file './R/utils.R' is missing.")
-  }
-  source('./R/utils.R')
-  
-  # Create a color ramp for VAF
-  colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))
-  
-  # Ensure external variables are available
-  if (!exists("chromosomes") || !exists("chr_palette")) {
-    stop("The variables 'chromosomes' and 'chr_palette' must be defined in './R/utils.R'.")
-  }
+  colnames(vaf.matrix.filtered) <- paste0(row_data$Gene, ':', as.character(row_data$id))
+
   
   # Chromosome annotation
   column_ha <- HeatmapAnnotation(
