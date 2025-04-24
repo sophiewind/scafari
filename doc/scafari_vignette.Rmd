@@ -37,6 +37,7 @@ library(shinyBS)
 library(shinycustomloader) 
 library(factoextra)
 library(markdown)
+library(SingleCellExperiment)
 invisible(
   suppressMessages(
     suppressWarnings(
@@ -103,14 +104,16 @@ Information from the .h5 file are loaded in an sce class object in this step.
 
 ```{r}
 # Load .h5 file
-# TODO code
+h5 <- h5ToSce('../testdata/demo.h5')
+sce <- h5$sce_amp
+se.var <- h5$se_var
 ```
 
 After successful data upload the metadata including sequencing information can be accessed and basic quality information can be inspected. 
 
 ```{r}
 # Get metadata
-sce <- readRDS('../inst/extdata/sce_small.rds')
+#sce <- readRDS('../inst/extdata/sce_small.rds')
 ```
 
 Further, reads per TODO barcode can be visualized in a log-log plot.
@@ -123,13 +126,14 @@ logLogPlot(sce)
 ### Panel analysis
 The panel analysis start by normalizing the read counts using.
 ```{r}
-rc.norm <- normalizeReadCounts(sce)
+read.counts.df.norm <- normalizeReadCounts(sce)
+assays(sce, withDimnames = FALSE)$normalized.counts <- read.counts.df.norm
 ```
 
 After read counts are normalized they have to be annotated with biological relevant information such as exon number and canonical transcript ID.
 
 ```{r}
-#annotateAmplicons(sce)
+# annotateAmplicons(sce)
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
@@ -141,7 +145,7 @@ plotAmpliconDistribution(sce)
 In the amplicon performance plot depicts normalized read counts per amplicon. This can help to identify low performing amplicons (Sarah) and get deeper insights into TODO. 
 
 ```{r}
-plotNormalizedReadCounts(sce)
+plotNormalizedReadCounts(sce = sce)
 ```
 
 Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
@@ -156,7 +160,6 @@ The variant analysis starts with variant filtering and is performed on criteria 
 
 
 ```{r}
-se.var <- readRDS('../inst/extdata/se_small.rds')
 filteres <- filterVariants(depth.threshold = 10,
                            genotype.quality.threshold = 30,
                            vaf.ref = 5, 
@@ -165,7 +168,7 @@ filteres <- filterVariants(depth.threshold = 10,
                            min.cell = 50,
                            min.mut.cell = 1,
                            se.var = se.var,
-                           sce = sce_filtered,
+                           sce = sce,
                            shiny = FALSE)
 se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered), 
                                            Genotype = t(filteres$genotype.matrix.filtered),
@@ -207,9 +210,6 @@ rowData(altExp(sce_filtered))[1:5,] %>%
   as.data.frame() %>% 
   datatable()
 ```
-
-
-
 
 To gain deeper insights into the VAF of filtered variants across the cells, a VAF heatmap with genotype and chromosome annotations is available.
 

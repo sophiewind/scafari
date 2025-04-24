@@ -102,7 +102,7 @@ h5ToSce <- function(h5_file) {
                                      Genoqual = genoqual.matrix,
                                      Depth = depth.matrix
                                      ),
-                      rowData  = variant.ids,
+                       rowData  = DataFrame(variant.ids),
                        colData = cells.var)
   return(list(sce_amp = sce, se_var = se))
 }

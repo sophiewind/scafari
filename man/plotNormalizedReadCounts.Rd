@@ -11,6 +11,11 @@ plotNormalizedReadCounts(sce)
 }
 \value{
 ggplot object visualizing the normalized read counts in a bar chart.
+
+\dontrun{
+# Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+plotNormalizedReadCounts(sce)
+}
 }
 \description{
 This function plots the normalize read counts in a bar chart.

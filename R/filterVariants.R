@@ -151,8 +151,7 @@ filterVariants <- function(depth.threshold = numeric(),
       variant_keep_tf <- cell_num_keep_tf & mut_cell_num_keep_tf  
       
       # TODO change
-      v_names <- variant.ids$cells.var
-      
+      v_names <- variant.ids[,1]
       # Second pass filtering
       filtered_variant_names <- v_names[variant_keep_tf]
       cell_variants_keep_tf <- rowSums(genotype.matrix != 3) > num_variants * min.cell / 100

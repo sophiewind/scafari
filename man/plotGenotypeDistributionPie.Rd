@@ -11,6 +11,12 @@ plotGenotypeDistributionPie(sce)
 }
 \value{
 ggplot object visualizing the genotype distribution in a pie chart.
+
+\dontrun{
+# Assume `sce` is a SingleCellExperiment object with variants in altExp()
+pie_chart <- plotGenotypeDistributionPie(sce)
+print(pie_chart)
+}
 }
 \description{
 This function generates a plot to visualize the genotype distribution.
