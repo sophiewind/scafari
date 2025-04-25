@@ -32,7 +32,9 @@ Requires:
     karyoploteR,
     biomaRt,
     clusterProfiler,
-    org.Hs.eg.db
+    org.Hs.eg.db,
+    SummarizedExperiment,
+    S4Vectors
 Imports:
     stringi,
     shiny,
@@ -57,7 +59,9 @@ Imports:
     karyoploteR,
     biomaRt,
     clusterProfiler,
-    org.Hs.eg.db
+    org.Hs.eg.db,
+    SummarizedExperiment,
+    S4Vectors
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown, BiocStyle
 biocViews: Software, ShinyApps, SingleCell
