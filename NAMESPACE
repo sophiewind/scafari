@@ -2,13 +2,13 @@
 import(shiny)
 
 # Import specific functions
-importFrom(dplyr, select, filter, mutate)
-importFrom(ggplot2, ggplot, aes, geom_line)
+importFrom(dplyr)
+import(ggplot2)
 importFrom(tibble, rownames_to_column)
 importFrom(stringr, str_detect)
 importFrom(reshape2, melt)
-importFrom(factoextra, fviz_cluster)
-importFrom(clusterProfiler, enrichGO)
+import(factoextra)
+import(clusterProfiler)
 
 # Import everything from a package (use sparingly)
 import(stringi)
