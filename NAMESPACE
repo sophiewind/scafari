@@ -28,7 +28,7 @@ import(ComplexHeatmap)
 import(karyoploteR)
 import(biomaRt)
 import(org.Hs.eg.db)
-
+import(S4Vectors)
 export(annotateAmplicons,
         annotateVariants,
         clusterVariantSelection,
