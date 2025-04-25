@@ -1,0 +1,47 @@
+# Import all functions from shiny
+import(shiny)
+
+# Import specific functions
+importFrom(dplyr, select, filter, mutate)
+importFrom(ggplot2, ggplot, aes, geom_line)
+importFrom(tibble, tibble)
+importFrom(stringr, str_detect)
+importFrom(reshape2, melt)
+importFrom(factoextra, fviz_cluster)
+importFrom(clusterProfiler, enrichGO)
+
+# Import everything from a package (use sparingly)
+import(stringi)
+import(DT)
+import(waiter)
+import(shinycssloaders)
+import(shinyjs)
+import(shinyBS)
+import(shinycustomloader)
+import(markdown)
+import(SingleCellExperiment)
+import(plotly)
+import(GenomicRanges)
+import(rhdf5)
+import(ComplexHeatmap)
+import(karyoploteR)
+import(biomaRt)
+import(org.Hs.eg.db)
+
+export(annotateAmplicons,
+        annotateVariants,
+        clusterVariantSelection,
+        filterVariants,
+        h5ToSce,
+        logLogPlot,
+        normalizeReadCounts,
+        plotAmpliconDistribution,
+        plotClusterGenotype,
+        plotClusterVAFMap,
+        plotClusterVAF,
+        plotElbow,
+        plotGenotypequalityPerGenotype,
+        plotGenotypeDistributionPie,
+        plotNormalizedReadCounts,
+        plotPanelUniformity,
+        plotVariantHeatmap)

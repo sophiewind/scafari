@@ -28,7 +28,8 @@ annotateAmplicons <- function(sce){
   if (genome_version == 'hg19') {
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
-    exons_path <- './input/mart_export_grch37_p13.txt'
+    exons_path <- './input/mart_export_grch37_p13.txt'#system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
+      #'./input/mart_export_grch37_p13.txt'
     
     # Check if the file exists
     if (!file.exists(exons_path)) {

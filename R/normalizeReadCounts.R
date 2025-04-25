@@ -3,10 +3,11 @@
 #'
 #' @param sce A SingleCellExperiment object that includes the assay data with read counts to be normalized. The metadata within the object may also be utilized for normalization purposes.
 #'
-#' @return Normalized read counts.
+#' @return SingleCellExperiment object  with normalized read counts.
 #'
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
-
+#' 
+#' @export
 normalizeReadCounts <- function(sce) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
@@ -53,7 +54,10 @@ normalizeReadCounts <- function(sce) {
   # Scale the normalized counts by a factor of 2
   read_counts_df_tmp <- read_counts_df_tmp * 2
   
+  
+  assays(sce, withDimnames = FALSE)$normalized.counts <- t(read_counts_df_tmp)
+  
   # Convert back to data frame and return
-  return(as.data.frame(t(read_counts_df_tmp)))
+  return(sce)
   
 }

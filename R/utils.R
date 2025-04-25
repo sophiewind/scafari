@@ -1,5 +1,5 @@
 # STAT -------------------------------------------------------------------------
-theme_default <- function() {
+theme_shiny <- function() {
   theme_minimal() +
     theme(
       panel.grid = element_blank(),
@@ -8,6 +8,14 @@ theme_default <- function() {
     )
 }
 
+theme_default <- function() {
+  theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      title = element_text(size = 12),
+      text = element_text(size = 10)
+    )
+}
 
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)

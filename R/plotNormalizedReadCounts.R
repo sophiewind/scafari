@@ -51,7 +51,7 @@ plotNormalizedReadCounts <- function(sce) {
       geom_bar(aes(x = reorder(Amplicon, -`Normalized mean read\ncounts per amplicon`), y = `Normalized mean read\ncounts per amplicon`), stat = 'identity') +
       labs(x = '') +
       theme_default() +
-      theme(axis.text.x = element_text(angle = -270, size = 10),
+      theme(axis.text.x = element_text(angle = -270, size = 8),
             axis.line = element_line())
     
     return(plot)
