@@ -24,7 +24,6 @@ Requires:
     shinycustomloader,
     factoextra,
     markdown,
-    SingleCellExperiment,
     plotly,
     GenomicRanges,
     rhdf5,
@@ -34,6 +33,7 @@ Requires:
     clusterProfiler,
     org.Hs.eg.db,
     SummarizedExperiment,
+    SingleCellExperiment,
     S4Vectors
 Imports:
     stringi,
@@ -51,7 +51,6 @@ Imports:
     shinycustomloader,
     factoextra,
     markdown,
-    SingleCellExperiment,
     plotly,
     GenomicRanges,
     rhdf5,
@@ -61,6 +60,7 @@ Imports:
     clusterProfiler,
     org.Hs.eg.db,
     SummarizedExperiment,
+    SingleCellExperiment,
     S4Vectors
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown, BiocStyle

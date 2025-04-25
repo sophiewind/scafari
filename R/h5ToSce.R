@@ -22,6 +22,8 @@
 #' print(result)
 #' }
 #' 
+#' @import SummarizedExperiment
+#' 
 #' @export
 h5ToSce <- function(h5_file) {
   # Process amplicon data ------------------------------------------------------
