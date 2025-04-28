@@ -69,7 +69,7 @@ BiocManager::install("scafari")
 
 A development version of scafari will be available on GitHub and can be installed as follows:
 
-```{r, eval=T}
+```{r, eval=F}
 install.packages("devtools")
 devtools::install_github("sophiewind/scafari")
 ```
@@ -79,7 +79,7 @@ devtools::install_github("sophiewind/scafari")
 A basic workflow analysis of scDNA-seq data is demonstrated in the following on an exemplary dataset.
 First we need to load scafari.
 
-```{r loading , eval=T}
+```{r loading , eval=T, warning=FALSE}
 library(scafari)
 ```
 
@@ -99,6 +99,8 @@ The analysis start with uploading the .h5 file. In the shiny app an interactive 
 Information from the .h5 file are loaded in an sce class object in this step. 
 
 ```{r}
+suppressPackageStartupMessages(library(SingleCellExperiment))
+
 # Load .h5 file
 h5 <- h5ToSce('../testdata/demo.h5')
 sce <- h5$sce_amp
@@ -109,7 +111,7 @@ After successful data upload the metadata including sequencing information can b
 
 ```{r}
 # Get metadata
-metadata(sce)
+sce@metadata
 ```
 
 Further, reads per TODO barcode can be visualized in a log-log plot.
@@ -128,7 +130,7 @@ sce <- normalizeReadCounts(sce = sce)
 After read counts are normalized they can be annotated with biological relevant information such as exon number and canonical transcript ID.
 
 ```{r}
-# annotateAmplicons(sce)
+annotateAmplicons(sce)
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
@@ -145,7 +147,7 @@ plotNormalizedReadCounts(sce = sce)
 
 Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, cache=TRUE}
 plotPanelUniformity(sce, interactive = FALSE)
 ```
 
@@ -155,6 +157,8 @@ The variant analysis starts with variant filtering and is performed on criteria 
 
 
 ```{r}
+suppressPackageStartupMessages(library(SummarizedExperiment))
+
 filteres <- filterVariants(depth.threshold = 10,
                            genotype.quality.threshold = 30,
                            vaf.ref = 5, 
@@ -173,11 +177,11 @@ se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered)
     
 # Filter out cells in sce object
 # Find the indices of the columns to keep
-indices_to_keep <- match(filteres$cells.keep, colData(sce)[[1]], nomatch = 0)
+indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)[[1]], nomatch = 0)
     
 # Subset the SCE using these indices
 sce_filtered <- sce[, indices_to_keep]
-altExp(sce_filtered, "variants") <- se.f
+SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
 ```
 
 After filtering the variants are annotated with biological information like gene names and clinical variant metrics. By default, annotation is performed via the Mission Bio API, which provides information on the names of the gene and the affected protein, the coding effect, the functional classification (e.g. intronic, coding), ClinVar information, the dbSNP ID and
@@ -185,6 +189,9 @@ the DANN (Deleterious Annotation of genetic variants using Neural Networks) scor
 The annotated variants can than be inspected.
 
 ```{r}
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(dplyr))
+
 # Load sce object with filtered variants
 # Check metadata 
 metadata(altExp(sce_filtered))
@@ -210,7 +217,7 @@ plotVariantHeatmap(sce = sce_filtered)
 The overall genotype distribution can be assessed in a genotype distribution pie chart.
 
 ```{r}
-plotGenotypeDistributionPie(sce = sce_filtered)
+#plotGenotypeDistributionPie(sce = sce_filtered)
 ```
 
 More detailed insights into the genotype and their quality can be obtained in a violin plot. 
@@ -233,7 +240,7 @@ variants.of.interest <- c("KIT:chr4:55599436:T/C",
 
 After selecting the variants of interest, the cells can be clustered based on their VAF. The clustering returns the k-means results and the clusterplot itself in a list object.
 
-```{r}
+```{r, fig.show='hide'}
 plot <- clusterVariantSelection(sce = sce_filtered,
                         variants.of.interest = variants.of.interest,
                         n.clust = 3)

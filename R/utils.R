@@ -1,4 +1,7 @@
 # STAT -------------------------------------------------------------------------
+#' Default shiny theme
+#' 
+#' @export
 theme_shiny <- function() {
   theme_minimal() +
     theme(
@@ -8,6 +11,9 @@ theme_shiny <- function() {
     )
 }
 
+#' Default ggplot scheme
+#' 
+#' @export
 theme_default <- function() {
   theme_minimal() +
     theme(
@@ -17,6 +23,9 @@ theme_default <- function() {
     )
 }
 
+#' Default ggplot colors
+#' 
+#' @export
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)
   hcl(h = hues, l = 65, c = 100)[1:n]
@@ -27,14 +36,7 @@ mycols <- c('WT' = "#414487FF", 'Hom' = "#D44292", 'Het' = "#F6A97A",
 mycols.ngt <- c(`WT` = "#414487FF", `Hom` = "#D44292", `Het` = "#F6A97A",
                 `Missing` = "#868686FF")
 
-theme_default <- function() {
-  theme_minimal() +
-    theme(
-      panel.grid = element_blank(),
-      title = element_text(size = 20),
-      text = element_text(size = 16)
-    )
-}
+
 
 colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
 

@@ -28,7 +28,7 @@ annotateAmplicons <- function(sce){
   if (genome_version == 'hg19') {
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
-    exons_path <- './input/mart_export_grch37_p13.txt'#system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
+    exons_path <- system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
       #'./input/mart_export_grch37_p13.txt'
     
     # Check if the file exists
@@ -50,7 +50,8 @@ annotateAmplicons <- function(sce){
     exons.gr <- makeGRangesFromDataFrame(exons, keep.extra.columns = T)
     
     # Extract canonical transcripts
-    known.canon <- read.delim('./input/UCSC_hg19_knownCanonical_chrom.bed', header = F, col.names = c('seqnames', 'start', 'end', 'Transcript.stable.ID.version', 'gene'))
+    canon.path <- system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
+    known.canon <- read.delim(canon.path, header = F, col.names = c('seqnames', 'start', 'end', 'Transcript.stable.ID.version', 'gene'))
     known.canon$Transcript.stable.ID.version <- gsub('\\..*', '', known.canon$Transcript.stable.ID.version)
     exons.gr$Transcript.stable.ID.version <- gsub('\\..*', '', exons.gr$Transcript.stable.ID.version)
     exons.gr.clean <- exons.gr[exons.gr$Transcript.stable.ID.version %in% known.canon$Transcript.stable.ID.version,]
@@ -89,7 +90,8 @@ annotateAmplicons <- function(sce){
     # MANE annotation
     message('hg38')
     message('MANE annotation is starting. This may take a while.\n')
-    mane.raw <- read.delim('./input/MANE.GRCh38.v1.3.ensembl_genomic.gff', skip = 2, header = F, sep = '\t')
+    mane.path <- system.file("extdata", "MANE.GRCh38.v1.3.ensembl_genomic.gff", package = "scafari")
+    mane.raw <- read.delim(mane.path, skip = 2, header = F, sep = '\t')
     
     message('Processing MANE\n')
     mane <- mane.raw %>% 

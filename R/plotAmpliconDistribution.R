@@ -13,6 +13,11 @@
 #'
 #' @export 
 plotAmpliconDistribution <- function(sce) {
+  # Check that the input is a SingleCellExperiment object
+  if (!inherits(sce, "SingleCellExperiment")) {
+    stop("The input must be a SingleCellExperiment object.")
+  }
+  
   gene_anno_df <- as.data.frame(rowData(sce))
   colnames(gene_anno_df) <- c('seqnames', 'start', 'end', 'id')
   # Ensure the input data is a data frame

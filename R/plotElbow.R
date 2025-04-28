@@ -18,7 +18,7 @@
 plotElbow <- function(sce, variants.of.interest){
   # Check if the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
-    stop("The 'sce' parameter must be a SingleCellExperiment object.")
+    stop("The input must be a SingleCellExperiment object.")
   }
   
   # Check if variants.of.interest is a vector
