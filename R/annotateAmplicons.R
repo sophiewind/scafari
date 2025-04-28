@@ -25,6 +25,13 @@ annotateAmplicons <- function(sce){
     stop("Failed to extract genome version from metadata: ", e$message)
   })
   
+  sample_name <- tryCatch({
+    metadata(sce)[['sample_name']]
+  }, error = function(e) {
+    stop("Failed to extract sample name from metadata: ", e$message)
+  })
+  
+  
   if (genome_version == 'hg19') {
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
@@ -50,14 +57,14 @@ annotateAmplicons <- function(sce){
     exons.gr <- makeGRangesFromDataFrame(exons, keep.extra.columns = T)
     
     # Extract canonical transcripts
-    canon.path <- system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
+    canon.path <- system.file("extdata", "UCSC_hg19_knownCanonical_chrom.bed", package = "scafari")
     known.canon <- read.delim(canon.path, header = F, col.names = c('seqnames', 'start', 'end', 'Transcript.stable.ID.version', 'gene'))
     known.canon$Transcript.stable.ID.version <- gsub('\\..*', '', known.canon$Transcript.stable.ID.version)
     exons.gr$Transcript.stable.ID.version <- gsub('\\..*', '', exons.gr$Transcript.stable.ID.version)
     exons.gr.clean <- exons.gr[exons.gr$Transcript.stable.ID.version %in% known.canon$Transcript.stable.ID.version,]
     
     # Change chr info to merge them
-    gene.anno.df.tmp <- gene.anno.df
+    gene.anno.df.tmp <- as.data.frame(rowData(sce))
     #gene.anno.df.tmp$seqnames <- gsub('chr', '', gene.anno.df()$seqnames)
     gene.anno.df.tmp <- gene.anno.df.tmp %>% dplyr::mutate(Gene = str_split_i(id, '_', 3))
     gene.anno.gr <- makeGRangesFromDataFrame(gene.anno.df.tmp, keep.extra.columns = T)
@@ -81,12 +88,12 @@ annotateAmplicons <- function(sce){
                 options = list(pageLength = 10, width = '100%',
                                dom = 'Bfrtip', 
                                buttons = list( 
-                                 list(extend = 'csv',   filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                 list(extend = 'excel', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                 list(extend = 'pdf', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                 list(extend = 'copy', filename =  paste0("scafari_panel_", metadata[['sample_name']])))))
+                                 list(extend = 'csv',   filename =  paste0("scafari_panel_", sample_name)),
+                                 list(extend = 'excel', filename =  paste0("scafari_panel_",sample_name)),
+                                 list(extend = 'pdf', filename =  paste0("scafari_panel_",sample_name)),
+                                 list(extend = 'copy', filename =  paste0("scafari_panel_",sample_name)))))
     return(df)
-  } else if (metadata[['genome_version']] == 'hg38'){
+  } else if (genome_version == 'hg38'){
     # MANE annotation
     message('hg38')
     message('MANE annotation is starting. This may take a while.\n')
@@ -122,10 +129,10 @@ annotateAmplicons <- function(sce){
                 options = list(pageLength = 10, width = '100%',
                                dom = 'Bfrtip', 
                                buttons = list( 
-                                 list(extend = 'csv',   filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                 list(extend = 'excel', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                 list(extend = 'pdf', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                 list(extend = 'copy', filename =  paste0("scafari_panel_", metadata[['sample_name']])))), rownames = F)
+                                 list(extend = 'csv',   filename =  paste0("scafari_panel_",sample_name)),
+                                 list(extend = 'excel', filename =  paste0("scafari_panel_",sample_name)),
+                                 list(extend = 'pdf', filename =  paste0("scafari_panel_",sample_name)),
+                                 list(extend = 'copy', filename =  paste0("scafari_panel_",sample_name)))), rownames = F)
     return(df)
   } else {
     message('No proper genome version')
