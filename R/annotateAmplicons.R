@@ -36,7 +36,6 @@ annotateAmplicons <- function(sce){
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
     exons_path <- system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
-      #'./input/mart_export_grch37_p13.txt'
     
     # Check if the file exists
     if (!file.exists(exons_path)) {
@@ -65,7 +64,6 @@ annotateAmplicons <- function(sce){
     
     # Change chr info to merge them
     gene.anno.df.tmp <- as.data.frame(rowData(sce))
-    #gene.anno.df.tmp$seqnames <- gsub('chr', '', gene.anno.df()$seqnames)
     gene.anno.df.tmp <- gene.anno.df.tmp %>% dplyr::mutate(Gene = str_split_i(id, '_', 3))
     gene.anno.gr <- makeGRangesFromDataFrame(gene.anno.df.tmp, keep.extra.columns = T)
     rm(gene.anno.df.tmp)
@@ -78,7 +76,7 @@ annotateAmplicons <- function(sce){
     mcols(gene.anno.gr)$`Canonical Transcript ID` <- '-'
     
     gene.anno.gr[queryHits(ov)]$`Exon` <- exons.gr.clean[subjectHits(ov)]$Exon  
-    gene.anno.gr[queryHits(ov)]$`Canonical Transcript ID` <- exons.gr.clean[subjectHits(ov)]$Transcript.stable.ID.version  # i think its wrong
+    gene.anno.gr[queryHits(ov)]$`Canonical Transcript ID` <- exons.gr.clean[subjectHits(ov)]$Transcript.stable.ID.version
     
     # Format for datatable
     df <- gene.anno.gr %>% as.data.frame() %>% 
