@@ -5,26 +5,26 @@ import(shiny)
 importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull)
 import(ggplot2)
 importFrom(tibble, rownames_to_column)
-importFrom(stringr, str_detect, str_match, str_split_i)
+importFrom(stringr, str_detect, str_match, str_split_i, str_extract)
 importFrom(reshape2, melt)
 importFrom(DT, datatable)
 importFrom(plotly, ggplotly)
 importFrom(grid, gpar)
-import(factoextra)
+importFrom(factoextra, fviz_cluster)
 
 # Import everything from a package (use sparingly)
-import(stringi)
+#import(stringi)
 import(waiter)
-import(shinycssloaders)
+importFrom(shinycssloaders, withSpinner)
 import(shinyjs)
 import(shinyBS)
-import(shinycustomloader)
+importFrom(shinycustomloader, withLoader)
 import(markdown)
 import(GenomicRanges)
 import(rhdf5)
 import(ComplexHeatmap)
 import(karyoploteR)
-import(biomaRt)
+importFrom(biomaRt, getBM, UseEnsembl)
 import(org.Hs.eg.db)
 import(S4Vectors)
 import(SingleCellExperiment)
@@ -42,7 +42,6 @@ export(annotateAmplicons,
         plotClusterVAF,
         plotElbow,
         plotGenotypequalityPerGenotype,
-        plotGenotypeDistributionPie,
         plotNormalizedReadCounts,
         plotPanelUniformity,
         plotVariantHeatmap,
