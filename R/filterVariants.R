@@ -58,10 +58,6 @@ filterVariants <- function(depth.threshold = numeric(),
     stop("sce must contain a 'normalized.counts' assay.")
   }
   
-  # Ensure variant IDs are present
-  # if (!"X" %in% names(rowData(se.var))) {
-  #   stop("se.var must contain a 'X' column in rowData for variant IDs.")
-  # }
   
   tryCatch({
     depth.matrix = t(se.var@assays@data$Depth)
@@ -89,8 +85,6 @@ filterVariants <- function(depth.threshold = numeric(),
         incProgress(1/5, detail = "Cell and Variant Filtering...")
         # First pass: Determine which entries to keep
         keep <- !(dp_tf | gq_tf | vaf_ref_tf | vaf_hom_tf | vaf_het_tf)
-        #genotype.matrix <- genotype_matrix()
-        #vaf.matrix <- vaf_matrix()
         genotype.matrix[!keep] <- 3
         vaf.matrix[genotype.matrix == 3] <- -1
         
@@ -101,8 +95,6 @@ filterVariants <- function(depth.threshold = numeric(),
         cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) {x %in% 0:2})) > num_cells * min.cell / 100
         mut_cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) { x %in% 1:2 })) > num_cells * min.mut.cell / 100
         variant_keep_tf <- cell_num_keep_tf & mut_cell_num_keep_tf  
-        
-        # TODO change
         v_names <- variant.ids[[1]]
         
         # Second pass filtering
@@ -120,13 +112,7 @@ filterVariants <- function(depth.threshold = numeric(),
         
         variant.ids.filtered <- (v_names[variant_keep_tf]) ## Achtung NA
         variant.ids.filtered <- variant.ids.filtered[!is.na(variant.ids.filtered)]
-        rownames(vaf.matrix.filtered) <- NULL
-        
-        
-        
-        
-        
-      })
+        rownames(vaf.matrix.filtered) <- NULL})
     } else {
       # Initial filtering flags
       dp_tf <- depth.matrix < depth.threshold
@@ -137,24 +123,20 @@ filterVariants <- function(depth.threshold = numeric(),
       
       # First pass: Determine which entries to keep
       keep <- !(dp_tf | gq_tf | vaf_ref_tf | vaf_hom_tf | vaf_het_tf)
-      #genotype.matrix <- genotype_matrix()
-      #vaf.matrix <- vaf_matrix()
       genotype.matrix[!keep] <- 3
       vaf.matrix[genotype.matrix == 3] <- -1
       
       # Filter based on cell and mutation counts
       num_cells <- nrow(genotype.matrix)
       num_variants <- ncol(genotype.matrix)
-      
       cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) {x %in% 0:2})) > num_cells * min.cell / 100
       mut_cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) { x %in% 1:2 })) > num_cells * min.mut.cell / 100
       variant_keep_tf <- cell_num_keep_tf & mut_cell_num_keep_tf  
-      
-      # TODO change
       v_names <- variant.ids[,1]
+      
       # Second pass filtering
       filtered_variant_names <- v_names[variant_keep_tf]
-      cell_variants_keep_tf <- rowSums(genotype.matrix != 3) > num_variants * min.cell / 100
+      cell_variants_keep_tf <- rowSums(genotype.matrix != 3) >num_variants  * min.cell / 100
       vaf.matrix.filtered <- vaf.matrix[cell_variants_keep_tf, variant_keep_tf]  
       genotype_matrix_filtered <- genotype.matrix[cell_variants_keep_tf, variant_keep_tf]  
       genoqual_matrix_filtered <- genoqual.matrix[cell_variants_keep_tf, variant_keep_tf]
