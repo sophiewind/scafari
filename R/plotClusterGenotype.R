@@ -80,10 +80,6 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust){
             #theme_default() +
             #labs(y = 'VAF', x = variant.of.interest)+
             facet_grid(~variable) +
-            theme(
-              panel.grid = element_blank(),
-              panel.background = element_blank(),
-              title = element_text(size = 20),
-              text = element_text(size = 18))
+            theme_default()
   return(p)
 }

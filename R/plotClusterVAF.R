@@ -73,12 +73,7 @@ plotClusterVAF <- function(sce, variants.of.interest, gg.clust){
     geom_jitter(aes(x = cluster, y = value, col = cluster), size = 1) +
     labs(y = 'VAF', x = 'cluster')+
     facet_grid(~variable) +
-    theme(
-      panel.grid = element_blank(),
-      panel.background = element_blank(),
-      title = element_text(size = 20),
-      text = element_text(size = 18)
-    )
+    theme_default()
   p
   return(p)
 }

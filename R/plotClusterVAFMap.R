@@ -96,17 +96,11 @@ plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust){
         type = "norm", 
         level = 0.95, 
         segments = 51,
-        na.rm = FALSE
-      ) +
+        na.rm = FALSE) +
       geom_point() +
       scale_color_gradientn(colors = colors, values = scales::rescale(breakpoints)) +
       geom_point() +
       facet_grid(~factor(variant, levels = sort(variants.of.interest))) +
-      theme(
-        panel.grid = element_blank(),
-        panel.background = element_blank(),
-        title = element_text(size = 20),
-        text = element_text(size = 18)) +
-      labs(x = gg.clust$labels$x, y = gg.clust$labels$y)
+      theme_default()
   return(p)
 }

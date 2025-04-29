@@ -156,7 +156,7 @@ plotPanelUniformity(sce, interactive = FALSE)
 The variant analysis starts with variant filtering and is performed on criteria such as sequencing depth, variant allele frequency (VAF), genoytpe data and genotype quality data. Further, the minimum percentage of cells that could be assigned with a genotype other than missing (wild type, heterozygous, homozygous) and the minimum percentage of cells with mutated genotypes (heterozygous, homozygous).
 
 
-```{r}
+```{r, cache =TRUE}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 
 filteres <- filterVariants(depth.threshold = 10,
@@ -203,8 +203,9 @@ sce_filtered <- annotateVariants(sce = sce_filtered)
 metadata(altExp(sce_filtered))
 
 # The annotations are stored in the rowData
-rowData(altExp(sce_filtered))[1:5,] %>% 
+rowData(altExp(sce_filtered)) %>% 
   as.data.frame() %>% 
+  head() %>% 
   datatable()
 ```
 
@@ -217,7 +218,8 @@ plotVariantHeatmap(sce = sce_filtered)
 The overall genotype distribution can be assessed in a genotype distribution pie chart.
 
 ```{r}
-#plotGenotypeDistributionPie(sce = sce_filtered)
+source('../R/plotGenotypeDistributionPie.R')
+plotGenotypeDistributionPie(sce = sce_filtered)
 ```
 
 More detailed insights into the genotype and their quality can be obtained in a violin plot. 
