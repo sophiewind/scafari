@@ -2,7 +2,8 @@
 import(shiny)
 
 # Import specific functions
-importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull)
+#importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull)
+import(dplyr)
 import(ggplot2)
 importFrom(tibble, rownames_to_column)
 importFrom(stringr, str_detect, str_match, str_split_i, str_extract)
