@@ -211,16 +211,10 @@ rowData(altExp(sce_filtered)) %>%
 
 To gain deeper insights into the VAF of filtered variants across the cells, a VAF heatmap with genotype and chromosome annotations is available.
 
-```{r}
+```{r, fig.height=8}
 plotVariantHeatmap(sce = sce_filtered)
 ```
 
-The overall genotype distribution can be assessed in a genotype distribution pie chart.
-
-```{r}
-source('../R/plotGenotypeDistributionPie.R')
-plotGenotypeDistributionPie(sce = sce_filtered)
-```
 
 More detailed insights into the genotype and their quality can be obtained in a violin plot. 
 
