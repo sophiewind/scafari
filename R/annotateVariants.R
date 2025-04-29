@@ -122,10 +122,17 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
       } else if(metadata[['genome_version']] == 'hg38'){
         snpmart <- useEnsembl(biomart = "snp", dataset="hsapiens_snp")
         
+        if ('annotated' %in% names(metadata(altExp(sce)))){
+          variant.ids.filtered <- rowData(altExp(sce))$id
+        } else {
+          variant.ids.filtered <- rowData(altExp(sce))[['X']]
+        }
+        
+        
         anno <- data.frame('refsnp_source' = c(), 'refsnp_id' = c(), 
                            'chr_name' = c(), 'chrom_start' = c(), 
                            'chrom_end' = c(), 'consequence_type_tv' = c(),
-                           'clinical_significance' = c(), 'ensembl_gene_name' = c(), 'id' = c())
+                           'clinical_significance' = c(), 'ENSEMBL' = c(), 'id' = c())
         
         for (var in variant.ids.filtered[1:3]){  
           message(paste0('annotate ', var))
@@ -134,7 +141,7 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
           tryCatch({
             anno.tmp <- getBM(
               attributes = c("refsnp_source", 'refsnp_id', 'chr_name', 'chrom_start', 'chrom_end',
-                             "consequence_type_tv", "clinical_significance", 'ensembl_gene_name'),
+                             "consequence_type_tv", "clinical_significance", 'ENSEMBL'),
               filters = 'chromosomal_region',
               values = var.tmp,
               mart = snpmart
@@ -149,8 +156,8 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
           anno <- rbind(anno, anno.tmp)
         }
         
-        lookup <- bitr(unique(anno$ensembl_gene_name), 'ENSEMBL', 'SYMBOL', org.Hs.eg.db)
-        colnames(anno)[colnames(anno) == 'ensembl_gene_name'] <- 'ENSEMBL'
+        lookup <- select(org.Hs.eg.db, keys = unique(anno$ensembl_gene_name), keytype = "ENSEMBL", columns = "SYMBOL")#bitr(unique(anno$ensembl_gene_name), 'ENSEMBL', 'SYMBOL', org.Hs.eg.db)
+        #colnames(anno)[colnames(anno) == 'ensembl_gene_name'] <- 'ENSEMBL'
         variant.ids.filtered.df.anno <- merge(anno, lookup, all = T) %>%
           
           dplyr::select(any_of(c('ID', 'SYMBOL', 'Position', 'consequence_type_tv',
@@ -265,10 +272,9 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
           anno <- rbind(anno, anno.tmp)
         }
         
-        lookup <- bitr(unique(anno$ensembl_gene_name), 'ENSEMBL', 'SYMBOL', org.Hs.eg.db)
-        colnames(anno)[colnames(anno) == 'ensembl_gene_name'] <- 'ENSEMBL'
+        lookup <- select(org.Hs.eg.db, keys = unique(anno$ensembl_gene_name), keytype = "ENSEMBL", columns = "SYMBOL")#bitr(unique(anno$ensembl_gene_name), 'ENSEMBL', 'SYMBOL', org.Hs.eg.db)
+        #colnames(anno)[colnames(anno) == 'ensembl_gene_name'] <- 'ENSEMBL'
         variant.ids.filtered.df.anno <- merge(anno, lookup, all = T) %>%
-          
           dplyr::select(any_of(c('ID', 'SYMBOL', 'Position', 'consequence_type_tv',
                                  'clinical_significance',
                                  'refsnp_id')))%>%
