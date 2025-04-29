@@ -9,7 +9,6 @@ License: LGPL-3  # TODO
 Encoding: UTF-8
 LazyData: false  # TODO
 Requires:     
-    stringi,
     shiny,
     shinycssloaders,
     DT,
@@ -35,7 +34,7 @@ Requires:
     SingleCellExperiment,
     S4Vectors
 Imports:
-    stringi,
+    magrittr,
     shiny,
     shinycssloaders,
     DT,
