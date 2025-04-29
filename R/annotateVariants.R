@@ -33,6 +33,11 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
     stop("`shiny` must be a numeric.")
   }
   
+  # Check if the SCE object has metadata
+  if (is.null(metadata(sce))) {
+    stop("The SingleCellExperiment object does not contain any metadata.")
+  }
+  
   variant.ids.filtered <- rowData(altExp(sce))
   
   # Check that the input is a SingleCellExperiment object
@@ -53,9 +58,15 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
     withProgress(message = 'Annotate Variants', value = 0, {
       
       if (check_MBAPI() == 'MissionBio' && metadata[['genome_version']] == 'hg19'){
+        if ('annotated' %in% names(metadata(altExp(sce)))){
+          var.vec <- rowData(altExp(sce))$id
+        } else {
+          var.vec <- rowData(altExp(sce))[['X']]
+        }
+        
         # Bring variants to MissionBio APIs variant format
-        var.mb <- apply(variant.ids.filtered, 1, function(x){str_match(x, "(chr[0-9XY]+):(\\d+):([ATGC]+)/([ATGC]+)") %>%
-            { paste(.[2], .[3], .[4], .[5], sep = "-") }})
+        matches <- str_match(var.vec, "(chr[0-9XY]+):(\\d+):([ATGC]+)/([ATGC]+)")
+        var.mb <- apply(matches, 1, function(x) paste(x[2], x[3], x[4], x[5], sep = "-"))
         variant.ids.filtered.df.anno <- data.frame(Gene = character(), Protein = character(), `Coding impact` = character(),
                                                    Function = character(), DANN = character(), ClinVar = character() , dbsnp = character())
         
@@ -164,12 +175,16 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
     
     # Without shiny logic
   } else {
-    message('no shiny')
-    
       if (check_MBAPI() == 'MissionBio' && metadata[['genome_version']] == 'hg19'){
+        if ('annotated' %in% names(metadata(altExp(sce)))){
+          var.vec <- rowData(altExp(sce))$id
+        } else {
+          var.vec <- rowData(altExp(sce))[['X']]
+        }
+        
         # Bring variants to MissionBio APIs variant format
-        var.mb <- apply(variant.ids.filtered, 1, function(x){str_match(x, "(chr[0-9XY]+):(\\d+):([ATGC]+)/([ATGC]+)") %>%
-            { paste(.[2], .[3], .[4], .[5], sep = "-") }})
+        matches <- str_match(var.vec, "(chr[0-9XY]+):(\\d+):([ATGC]+)/([ATGC]+)")
+        var.mb <- apply(matches, 1, function(x) paste(x[2], x[3], x[4], x[5], sep = "-"))
         variant.ids.filtered.df.anno <- data.frame(Gene = character(), Protein = character(), `Coding impact` = character(),
                                                    Function = character(), DANN = character(), ClinVar = character() , dbsnp = character())
         
