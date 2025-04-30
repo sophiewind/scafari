@@ -46,6 +46,7 @@ annotateAmplicons <- function(sce){
       exons$region_id <- amps$id[i]  # Include the region ID
       return(exons)
     }
+    num_cores <- detectCores() - 1
     
     # Use mclapply for parallel processing
     all_exon_data <- mclapply(1:nrow(amps), get_exon_data, mc.cores = num_cores)
