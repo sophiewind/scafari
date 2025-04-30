@@ -32,7 +32,8 @@ Requires:
     org.Hs.eg.db,
     SummarizedExperiment,
     SingleCellExperiment,
-    S4Vectors
+    S4Vectors,
+    parallel
 Imports:
     magrittr,
     shiny,
@@ -58,7 +59,8 @@ Imports:
     org.Hs.eg.db,
     SummarizedExperiment,
     SingleCellExperiment,
-    S4Vectors
+    S4Vectors,
+    parallel
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown, BiocStyle
 biocViews: Software, ShinyApps, SingleCell

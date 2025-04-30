@@ -13,6 +13,7 @@ importFrom(DT, datatable)
 importFrom(plotly, ggplotly)
 importFrom(grid, gpar)
 importFrom(factoextra, fviz_cluster)
+importFrom(parallel, mclapply)
 
 # Import everything from a package (use sparingly)
 #import(stringi)
