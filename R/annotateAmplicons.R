@@ -35,52 +35,63 @@ annotateAmplicons <- function(sce){
   if (genome_version == 'hg19') {
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
-    exons_path <- system.file("extdata", "mart_export_grch37_p13.txt", package = "scafari")
-    
-    # Check if the file exists
-    if (!file.exists(exons_path)) {
-      stop("The exon file does not exist at path: ", exons_path)
+    amps <- as.data.frame(rowData(sce))
+    get_exon_data <- function(i) {
+      exons <- getBM(
+        attributes = c("ensembl_exon_id","ensembl_transcript_id_version", "chromosome_name", "exon_chrom_start", "exon_chrom_end", "rank"),
+        filters = c("chromosome_name", "start", "end"),
+        values = list(gsub('chr', '', amps$seqnames[i]), amps$start[i], amps$end[i]),
+        mart = mart
+      )
+      exons$region_id <- amps$id[i]  # Include the region ID
+      return(exons)
     }
     
-    exons <- tryCatch({
-      read.delim(exons_path, header = TRUE, sep = '\t')
-    }, error = function(e) {
-      stop("Failed to read the exon information file: ", e$message)
-    })
+    # Use mclapply for parallel processing
+    all_exon_data <- mclapply(1:nrow(amps), get_exon_data, mc.cores = num_cores)
     
-    colnames(exons)[11] <- 'seqnames'
-    colnames(exons)[5] <- 'start'
-    colnames(exons)[6] <- 'end'
-    colnames(exons)[7] <- 'Exon'
-    exons$seqnames <- paste0('chr', exons$seqnames)
-    exons.gr <- makeGRangesFromDataFrame(exons, keep.extra.columns = T)
+    # Combine all exon data into a single data frame
+    all_exon_data <- do.call(rbind, all_exon_data)
+    head(all_exon_data)
+    
+    colnames(all_exon_data) <- c('exon_id', 'transcript', 'seqnames', 'start', 'end', 'str', 'rank', 'id')
+    all_exon_data$seqnames <- paste0('chr', all_exon_data$seqnames)
+    exons.gr <- makeGRangesFromDataFrame(all_exon_data, keep.extra.columns = T)
     
     # Extract canonical transcripts
-    canon.path <- system.file("extdata", "UCSC_hg19_knownCanonical_chrom.bed", package = "scafari")
-    known.canon <- read.delim(canon.path, header = F, col.names = c('seqnames', 'start', 'end', 'Transcript.stable.ID.version', 'gene'))
-    known.canon$Transcript.stable.ID.version <- gsub('\\..*', '', known.canon$Transcript.stable.ID.version)
-    exons.gr$Transcript.stable.ID.version <- gsub('\\..*', '', exons.gr$Transcript.stable.ID.version)
-    exons.gr.clean <- exons.gr[exons.gr$Transcript.stable.ID.version %in% known.canon$Transcript.stable.ID.version,]
+    canon.path <- system.file("extdata", "UCSC_hg19_knownCanonical_goldenPath.txt", package = "scafari")
+    known.canon <- read.delim(canon.path, header = F, col.names = c('seqnames', 'start', 'end', 'x', 'transcript'))
+    known.canon$transcript <- gsub('\\..*', '', known.canon$transcript)
+    exons.gr$transcript <- gsub('\\..*', '', exons.gr$transcript)
+    exons.gr.clean <- exons.gr[exons.gr$transcript %in% known.canon$transcript,]
+    gene.anno.gr <- makeGRangesFromDataFrame(amps)
     
-    # Change chr info to merge them
-    gene.anno.df.tmp <- as.data.frame(rowData(sce))
-    gene.anno.df.tmp <- gene.anno.df.tmp %>% dplyr::mutate(Gene = str_split_i(id, '_', 3))
-    gene.anno.gr <- makeGRangesFromDataFrame(gene.anno.df.tmp, keep.extra.columns = T)
-    rm(gene.anno.df.tmp)
-    exons.gr.clean <- exons.gr[exons.gr$Transcript.stable.ID.version %in%
-                                 known.canon$Transcript.stable.ID.version,]
-    ov <- findOverlaps(gene.anno.gr, exons.gr.clean, )
+    ov <- findOverlaps(gene.anno.gr, exons.gr.clean)
     
-    # Define transcript columns
-    mcols(gene.anno.gr)$`Exon` <- '-'
-    mcols(gene.anno.gr)$`Canonical Transcript ID` <- '-'
+    mcols(gene.anno.gr)['transcript'] <- '-'
+    gene.anno.gr[queryHits(ov)]$Exon <-     exons.gr.clean[subjectHits(ov)]$rank
+    gene.anno.gr[queryHits(ov)]$transcript <-     exons.gr.clean[subjectHits(ov)]$transcript
+    # but what if there are multiple????
+    # result <- exons.gr.clean %>% 
+    #   as.data.frame() %>%
+    #   group_by(id) %>%
+    #   summarize(
+    #     transcripts = paste(unique(transcript), collapse = ", "),
+    #     ranks = paste(unique(rank), collapse = ", "),
+    #     width = width,
+    #     .groups = "drop"  # Ungroups after summarizing
+    #   )
     
-    gene.anno.gr[queryHits(ov)]$`Exon` <- exons.gr.clean[subjectHits(ov)]$Exon  
-    gene.anno.gr[queryHits(ov)]$`Canonical Transcript ID` <- exons.gr.clean[subjectHits(ov)]$Transcript.stable.ID.version
+    # Merge with amps to find unannotated amps
+    # amps.anno <- merge(amps, result, by = 'id', all=TRUE) %>% 
+    #   replace(is.na(.), '-')
     
-    # Format for datatable
-    df <- gene.anno.gr %>% as.data.frame() %>% 
-      dplyr::select(seqnames, start, end, width, Gene, Exon, Canonical.Transcript.ID) %>%
+    #amps.anno <- amps.anno %>%  dplyr::mutate(Gene = str_split_i(id, '_', 3))
+    df <- gene.anno.gr %>%
+      as.data.frame()  %>% 
+      tibble::rownames_to_column('id') %>% 
+      dplyr::mutate(Gene = str_split_i(id, '_', 3)) %>% 
+      dplyr::select(seqnames, start, end, width, Gene, Exon, transcript) %>%
       `colnames<-`(c('Chromosome', 'Start', 'End', 'Amplicon length (bp)', 'Gene', 'Exon', 'Canonical Transcript ID')) %>%
       datatable(., rownames = F,  extensions = 'Buttons',
                 options = list(pageLength = 10, width = '100%',
@@ -95,30 +106,32 @@ annotateAmplicons <- function(sce){
     # MANE annotation
     message('hg38')
     message('MANE annotation is starting. This may take a while.\n')
-    mane.path <- system.file("extdata", "MANE.GRCh38.v1.3.ensembl_genomic.gff", package = "scafari")
-    mane.raw <- read.delim(mane.path, skip = 2, header = F, sep = '\t')
+    mane <- txdbmaker::makeTxDbFromGFF("https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/release_1.0/MANE.GRCh38.v1.0.ensembl_genomic.gff.gz")
+    mane.df <- exonsBy(mane, by = "tx", use.names = TRUE) %>%  as.data.frame()
     
     message('Processing MANE\n')
-    mane <- mane.raw %>% 
-      mutate(Exon = str_extract(V9, '(?<=exon_number=)\\d+'), 
-             Gene = str_extract(V9, '(?<=gene_name=)[^;]+'),  
-             `Transcript ID` = str_extract(V9, '(?<=transcript_id=)[^;]+'))  %>% 
-      filter(V3 == 'exon')
-    colnames(mane) <- c('seqnames','source', 'feature','start', 'end','score','strand', 'frame','Atrribute', 'Exon', 'Gene', 'Transcript ID')
+    # mane <- mane.gr %>% 
+    #   mutate(Exon = str_extract(exon_name, '(?<=exon_number=)\\d+'), 
+    #         # Gene = str_extract(V9, '(?<=gene_name=)[^;]+'),  
+    #         # `Transcript ID` = str_extract(V9, '(?<=transcript_id=)[^;]+')
+    #         )  %>% 
+    #   filter(V3 == 'exon')
+    # colnames(mane) <- c('seqnames','source', 'feature','start', 'end','score','strand', 'frame','Atrribute', 'Exon', 'Gene', 'Transcript ID')
     
     message('Annotating\n')
-    mane.gr <<- makeGRangesFromDataFrame(mane, keep.extra.columns = T, na.rm = T)
+    mane.gr <- makeGRangesFromDataFrame(mane.df, keep.extra.columns = T, na.rm = T)
     
     # Define transcript columns
-    gene.anno.gr <- gene.anno.gr
+    gene.anno.gr <- makeGRangesFromDataFrame(rowData(sce))
     mcols(gene.anno.gr)[["Exon"]] <- '-'
     mcols(gene.anno.gr)[["Transcript ID"]] <- '-'
     mcols(gene.anno.gr)[["Gene"]] <- '-'
     ov <- findOverlaps(gene.anno.gr, mane.gr)
     
-    mcols(gene.anno.gr)[queryHits(ov),]["Exon"] <- mcols(mane.gr)[subjectHits(ov),]["Exon"]
-    mcols(gene.anno.gr)[queryHits(ov),]["Transcript ID"] <- mcols(mane.gr)[subjectHits(ov),]["Transcript ID"]
-    mcols(gene.anno.gr)[queryHits(ov),]["Gene"] <- mcols(mane.gr)[subjectHits(ov),]["Gene"]
+    # Until here done
+    mcols(gene.anno.gr)[queryHits(ov),][["Exon"]] <- mcols(mane.gr)[subjectHits(ov),][["exon_rank"]]
+    mcols(gene.anno.gr)[queryHits(ov),]["Transcript ID"] <- mcols(mane.gr)[subjectHits(ov),]["group_name"]
+    #mcols(gene.anno.gr)[queryHits(ov),]["Gene"] <- mcols(mane.gr)[subjectHits(ov),]["Gene"]
     
     df <- gene.anno.gr %>% as.data.frame() %>% 
       dplyr::select(id, seqnames, start, end, width, Gene, Exon, `Transcript.ID`) %>% 
