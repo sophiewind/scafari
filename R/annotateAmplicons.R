@@ -115,16 +115,7 @@ annotateAmplicons <- function(sce){
     message('MANE annotation is starting. This may take a while.\n')
     mane <- txdbmaker::makeTxDbFromGFF("https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/release_1.0/MANE.GRCh38.v1.0.ensembl_genomic.gff.gz")
     mane.df <- exonsBy(mane, by = "tx", use.names = TRUE) %>%  as.data.frame()
-    
     message('Processing MANE\n')
-    # mane <- mane.gr %>% 
-    #   mutate(Exon = str_extract(exon_name, '(?<=exon_number=)\\d+'), 
-    #         # Gene = str_extract(V9, '(?<=gene_name=)[^;]+'),  
-    #         # `Transcript ID` = str_extract(V9, '(?<=transcript_id=)[^;]+')
-    #         )  %>% 
-    #   filter(V3 == 'exon')
-    # colnames(mane) <- c('seqnames','source', 'feature','start', 'end','score','strand', 'frame','Atrribute', 'Exon', 'Gene', 'Transcript ID')
-    
     message('Annotating\n')
     mane.gr <- makeGRangesFromDataFrame(mane.df, keep.extra.columns = T, na.rm = T)
     
@@ -138,9 +129,10 @@ annotateAmplicons <- function(sce){
     # Until here done
     mcols(gene.anno.gr)[queryHits(ov),][["Exon"]] <- mcols(mane.gr)[subjectHits(ov),][["exon_rank"]]
     mcols(gene.anno.gr)[queryHits(ov),]["Transcript ID"] <- mcols(mane.gr)[subjectHits(ov),]["group_name"]
-    #mcols(gene.anno.gr)[queryHits(ov),]["Gene"] <- mcols(mane.gr)[subjectHits(ov),]["Gene"]
-    
-    df <- gene.anno.gr %>% as.data.frame() %>% 
+    mcols(gene.anno.gr)["Gene"] <- str_match(names(gene.anno.gr), '^(.*_)(v\\d_)(.*)_\\d+')[,4]
+    df <- gene.anno.gr %>% as.data.frame()
+    df$id <- rownames(df)
+    df %>% 
       dplyr::select(id, seqnames, start, end, width, Gene, Exon, `Transcript.ID`) %>% 
       `colnames<-`(c('Amplicon ID', 'Chromosome', 'Start', 'End', 'Amplicon length (bp)', 'Gene', 'Exon', 'Canonical Transcript ID')) %>% 
       datatable(.,  extensions = 'Buttons',
