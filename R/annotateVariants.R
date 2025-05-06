@@ -58,6 +58,7 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
     withProgress(message = 'Annotate Variants', value = 0, {
       
       if (check_MBAPI() == 'MissionBio' && metadata[['genome_version']] == 'hg19'){
+        
         if ('annotated' %in% names(metadata(altExp(sce)))){
           var.vec <- rowData(altExp(sce))$id
         } else {
@@ -114,8 +115,8 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50){
         
         
         # Original variant ids as rownames
-        rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered
-        variant.ids.filtered.df.anno$id <- variant.ids.filtered
+        rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered$id
+        variant.ids.filtered.df.anno$id <- variant.ids.filtered[[1]]
         
       } else if(check_MBAPI() != 'MissionBio' && metadata[['genome_version']] == 'hg19'){
         stop("MissionBio API is not available.")
