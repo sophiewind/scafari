@@ -44,7 +44,7 @@ plotVariantHeatmap <- function(sce) {
     stop("The Genotype matrix is empty, cannot plot heatmap.")
   }
   
-  if (!'annotated' %in% names(metadata(altExp(sce_filtered)))){
+  if (!'annotated' %in% names(metadata(altExp(sce)))){
     stop('The variants are not annotated. Please do this using `annotateVariants()`')
   }
   
