@@ -22,17 +22,7 @@ createVariantUI <- function() {
     ),
     fluidRow(
       h2('Genotype of Filtered Variants'),
-      column(width=6,
-             withLoader(plotOutput("var_plot4")), loader = 'dnaspin'),
-      column(width=6,
-             withLoader(plotOutput("var_plot5")), loader = 'dnaspin')
+      withLoader(plotOutput("var_plot5")), loader = 'dnaspin')
     )
-  )
 }
 
-# createNumericInputWithPopover <- function(id, label, popoverContent, ...) {
-#   tagList(
-#     numericInput(id, label, ...),
-#     bsPopover(id, title = label, content = popoverContent, trigger = "hover")
-#   )
-# }

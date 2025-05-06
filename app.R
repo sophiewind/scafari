@@ -22,11 +22,9 @@ library(shinycustomloader)
 library(factoextra)
 library(markdown)
 library(SingleCellExperiment)
-h5closeAll()  
-
-
 library(scafari)
 
+h5closeAll()  
 
 # Define the UI
 ui <- navbarPage(
@@ -174,116 +172,110 @@ server <- function(input, output, session) {
   
   
   ## Read input -----------------------------------------------------------------
-  # Read metadata
-  metadata <- reactive({
-    req(h5_file())
-    return(unlist(h5read(h5_file(),"assays/dna_read_counts/metadata/")))
+  # # Read metadata
+  # metadata <- reactive({
+  #   req(h5_file())
+  #   return(unlist(h5read(h5_file(),"assays/dna_read_counts/metadata/")))
+  # })
+  # 
+  # # Read variant ids
+  # variant.ids <- reactive({
+  #   req(h5_file())
+  #   h5read(h5_file(), "assays/dna_variants/ca/id")
+  # })
+  # 
+  # variant.ids.anno <- reactive({
+  #   NULL
+  # })
+  # 
+  # # Read depth matrix
+  # depth_matrix <- reactive({
+  #   req(h5_file())
+  #   depth_data <- h5read(h5_file(), "assays/dna_variants/layers/DP")
+  #   return(as.data.frame((unlist(depth_data))))
+  # })
+  # 
+  # # Read genotype quality matrix
+  # genoqual_matrix <- reactive({
+  #   req(h5_file())
+  #   genoqual_data <- h5read(h5_file(), "assays/dna_variants/layers/GQ")
+  #   (as.data.frame(unlist(genoqual_data)))
+  # })
+  # 
+  # # Read genotype matrix
+  # genotype_matrix <- reactive({
+  #   req(h5_file())
+  #   genotype_data <- h5read(h5_file(), "assays/dna_variants/layers/NGT")
+  #   (as.data.frame(unlist(genotype_data)))
+  # })
+  # 
+  # # Read variant allele frequency matrix
+  # vaf_matrix <- reactive({
+  #   req(h5_file())
+  #   vaf_data <- h5read(h5_file(), "assays/dna_variants/layers/AF")
+  #   as.data.frame((unlist(vaf_data)))
+  # })
+  # 
+  # # Read amplicons
+  # amplicons <- reactive({
+  #   req(h5_file())
+  #   h5read(h5_file(), "assays/dna_read_counts/ca/id")
+  # })
+  # cells.rc <-  reactive({
+  #   req(h5_file())
+  #   h5read(h5_file(), "assays/dna_read_counts/ra/barcode")
+  # })
+  # cells.var <- reactive({
+  #   req(h5_file())
+  #   h5read(h5_file(), "//assays/dna_variants/ra/barcode")
+  # })
+  # 
+  # # Read read counts
+  # read.counts.df <- reactive({
+  #   req(h5_file())
+  #   read_counts_data <- h5read(h5_file(), "assays/dna_read_counts/layers/read_counts")
+  #   read_counts_df <- as.data.frame(t(read_counts_data))
+  #   colnames(read_counts_df) <- amplicons()  # Set column names to amplicons
+  #   return(read_counts_df)
+  # })
+  # 
+  # # Read gene annotations
+  # gene.anno.df <- reactive({
+  #   req(h5_file())
+  #   df <- data.frame(
+  #     seqnames = h5read(h5_file(), "/assays/dna_read_counts/ca/CHROM"),
+  #     start = h5read(h5_file(), "/assays/dna_read_counts/ca/start_pos"),
+  #     end = h5read(h5_file(), "/assays/dna_read_counts/ca/end_pos"),
+  #     id = h5read(h5_file(), "/assays/dna_read_counts/ca/id")
+  #   )
+  #   
+  #   # Check if seqnames starts with 'chr' and prepend 'chr' if not
+  #   df$seqnames <- ifelse(startsWith(df$seqnames, 'chr'), 
+  #                         df$seqnames, 
+  #                         paste0('chr', df$seqnames))
+  #   
+  #   return(df)
+  # })
+  
+  sce <- reactive({
+    req(input$upload$datapath)
+    sce_amp <- h5ToSce(input$upload$datapath)$sce_amp
+    norm <- normalizeReadCounts(sce = sce_amp)
+    return(norm)
+    })
+  
+  se.var <- reactive({
+    req(input$upload$datapath)
+    return(h5ToSce(input$upload$datapath)$se_var)
   })
 
-  # Read variant ids
-  variant.ids <- reactive({
-    req(h5_file())
-    h5read(h5_file(), "assays/dna_variants/ca/id")
-  })
-  
-  variant.ids.anno <- reactive({
-    NULL
-  })
-  
-  # Read depth matrix
-  depth_matrix <- reactive({
-    req(h5_file())
-    depth_data <- h5read(h5_file(), "assays/dna_variants/layers/DP")
-    return(as.data.frame((unlist(depth_data))))
-  })
-  
-  # Read genotype quality matrix
-  genoqual_matrix <- reactive({
-    req(h5_file())
-    genoqual_data <- h5read(h5_file(), "assays/dna_variants/layers/GQ")
-    (as.data.frame(unlist(genoqual_data)))
-  })
-  
-  # Read genotype matrix
-  genotype_matrix <- reactive({
-    req(h5_file())
-    genotype_data <- h5read(h5_file(), "assays/dna_variants/layers/NGT")
-    (as.data.frame(unlist(genotype_data)))
-  })
-  
-  # Read variant allele frequency matrix
-  vaf_matrix <- reactive({
-    req(h5_file())
-    vaf_data <- h5read(h5_file(), "assays/dna_variants/layers/AF")
-    as.data.frame((unlist(vaf_data)))
-  })
-  
-  # Read amplicons
-  amplicons <- reactive({
-    req(h5_file())
-    h5read(h5_file(), "assays/dna_read_counts/ca/id")
-  })
-  cells.rc <-  reactive({
-    req(h5_file())
-    h5read(h5_file(), "assays/dna_read_counts/ra/barcode")
-  })
-  cells.var <- reactive({
-    req(h5_file())
-    h5read(h5_file(), "//assays/dna_variants/ra/barcode")
-  })
-  
-  # Read read counts
-  read.counts.df <- reactive({
-    req(h5_file())
-    read_counts_data <- h5read(h5_file(), "assays/dna_read_counts/layers/read_counts")
-    read_counts_df <- as.data.frame(t(read_counts_data))
-    colnames(read_counts_df) <- amplicons()  # Set column names to amplicons
-    return(read_counts_df)
-  })
-  
-  # Read gene annotations
-  gene.anno.df <- reactive({
-    req(h5_file())
-    df <- data.frame(
-      seqnames = h5read(h5_file(), "/assays/dna_read_counts/ca/CHROM"),
-      start = h5read(h5_file(), "/assays/dna_read_counts/ca/start_pos"),
-      end = h5read(h5_file(), "/assays/dna_read_counts/ca/end_pos"),
-      id = h5read(h5_file(), "/assays/dna_read_counts/ca/id")
-    )
-    
-    # Check if seqnames starts with 'chr' and prepend 'chr' if not
-    df$seqnames <- ifelse(startsWith(df$seqnames, 'chr'), 
-                          df$seqnames, 
-                          paste0('chr', df$seqnames))
-    
-    return(df)
-  })
-  
-  sce <- reactiveVal()
-  
-  # Create the SingleCellExperiment object when data is ready
-  observe({
-    req(read.counts.df())
-    req(gene.anno.df())
-    req(metadata())
-    new_sce <- SingleCellExperiment(
-      assays = list(counts = t(read.counts.df())),
-      rowData = gene.anno.df(), #amplicons,
-      metadata = metadata(),
-      colData = cells.rc()
-    )
-    
-    sce(new_sce)
-  })
- 
   # Panel analyses--------------------------------------------------------------
   ## Normalize read counts -----------------------------------------------------
-  observe({
-    req(sce())
-    sce.to.norm <- sce()
-    norm <- normalizeReadCounts(sce = sce.to.norm)
-    sce(norm)
-  })
+  # observe({
+  #   req(sce())
+  #   sce.to.norm <- sce()
+  #   sce(norm)
+  # })
 
   
   # Variant analyses -----------------------------------------------------------
@@ -293,22 +285,9 @@ server <- function(input, output, session) {
   observeEvent(input$filter_btn, {
     plots_visible(TRUE)
     current_sce <- sce()
-    vaf_matrix <- vaf_matrix()
-    genotype_matrix <- genotype_matrix()
-    depth_matrix <- depth_matrix()
-    variant.ids <- variant.ids()
-    cell.var <- cells.var()
+    se.var <- se.var()
+    #vaf_matrix <- vaf_matrix()
     
-    se.var <- SummarizedExperiment(
-      assays = list(
-        VAF = vaf_matrix,
-        Genotype = genotype_matrix,
-        Genoqual = genoqual_matrix(),
-        Depth = depth_matrix
-      ),
-      rowData = variant.ids,
-      colData = as.data.frame(cell.var)
-    )
     
     filteres <- filterVariants(depth.threshold = 10,
                                genotype.quality.threshold = 30,
@@ -359,7 +338,7 @@ server <- function(input, output, session) {
       req(rv$sce_filtered) 
       
       plot(0,type='n',axes=FALSE,ann=FALSE)
-      mtext(length(variant.ids()), side = 3,line = -2, cex = 3, col = 'forestgreen')
+      mtext(dim(se.var())[1], side = 3,line = -2, cex = 3, col = 'forestgreen')
       mtext('Number of variants total', side = 3, line = -4, cex = 1.5)
       
       # # Print ean mapped reads per cell
@@ -604,7 +583,6 @@ server <- function(input, output, session) {
       req(current_variants())  # Ensure variants are selected
       req(is.numeric(input$n_clust) && input$n_clust >= 2)  # Re-check the condition
       variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
-      
       variants.of.interest <-  sort(variant.ids.filtered.gene)[current_variants()]
       
       # Print selected variants
@@ -806,7 +784,11 @@ server <- function(input, output, session) {
   
   # Sequencing log-log plot
   output$seq_plot3 <- renderPlot({
-    logLogPlot(sce())
+    logLogPlot(sce()) +
+      theme(
+        title = element_text(size = 20),
+        text = element_text(size = 16)
+      )
   })
   
   # Panel plot 1
@@ -828,11 +810,10 @@ server <- function(input, output, session) {
   # Panel plot 2
   output$panel_plot2 <- renderPlot({
     req(input$upload)
-    req(amplicons())
     sce_obj <- sce()
     metadata <- sce_obj@metadata
     
-    genes <- sapply(str_split(amplicons(), "_"), function(x) x[3])
+    genes <- sapply(str_split(rowData(sce())$id, "_"), function(x) x[3])
     plot(0,type='n',axes=FALSE,ann=FALSE)
     mtext(length(unique(genes)), side =3,line = -2, cex = 3, col = '#F66D7A')
     mtext('Number of Genes covered', side = 3, line = -4, cex = 1.5)
@@ -847,15 +828,27 @@ server <- function(input, output, session) {
   
   # Panel karyoplot
   output$panel_plot3 <- renderPlot({
-   plotAmpliconDistribution(sce = sce())
+   plotAmpliconDistribution(sce = sce())  +
+      theme(
+        title = element_text(size = 20),
+        text = element_text(size = 16)
+      )
   })
   
   output$panel_plot4 <- renderPlot({
-    plotNormalizedReadCounts(sce = sce())
+    plotNormalizedReadCounts(sce = sce()) +
+      theme(
+        title = element_text(size = 20),
+        text = element_text(size = 16)
+      )
   })
   
   output$panel_plot5 <- renderPlotly({
-    plotPanelUniformity(sce = sce(), interactive = FALSE)
+    plotPanelUniformity(sce = sce(), interactive = FALSE) +
+      theme(
+        title = element_text(size = 20),
+        text = element_text(size = 16)
+      )
   })
   
   
