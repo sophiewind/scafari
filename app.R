@@ -25,13 +25,7 @@ library(SingleCellExperiment)
 h5closeAll()  
 
 
-invisible(
-  suppressMessages(
-    suppressWarnings(
-      mapply(source, list.files('./R', pattern = '.R', full.names = TRUE))
-    )
-  )
-)
+library(scafari)
 
 
 # Define the UI
@@ -284,71 +278,76 @@ server <- function(input, output, session) {
  
   # Panel analyses--------------------------------------------------------------
   ## Normalize read counts -----------------------------------------------------
-  read.counts.df.norm <- reactive({
+  observe({
     req(sce())
-    withProgress(message = 'Normalize read counts', value = 0, {
-      incProgress(0.1)
-      normalized <- normalizeReadCounts(sce = sce())
-      incProgress(0.9)
-      normalized
-    })
+    sce.to.norm <- sce()
+    norm <- normalizeReadCounts(sce = sce.to.norm)
+    sce(norm)
   })
 
-  observeEvent(read.counts.df.norm(), {
-    current_sce <- sce()
-    read.counts.df.norm <- read.counts.df.norm()
-    assays(current_sce, withDimnames = FALSE)$normalized.counts <- read.counts.df.norm
-    sce(current_sce)
-  })
-  
   
   # Variant analyses -----------------------------------------------------------
   ## Variant filtering ---------------------------------------------------------
   # Filter variants after filter button hit  
+  rv <- reactiveValues(sce_filtered = NULL)
   observeEvent(input$filter_btn, {
-    plots_visible(TRUE) 
+    plots_visible(TRUE)
     current_sce <- sce()
-    read.counts.df.norm <- read.counts.df.norm()
     vaf_matrix <- vaf_matrix()
     genotype_matrix <- genotype_matrix()
     depth_matrix <- depth_matrix()
     variant.ids <- variant.ids()
     cell.var <- cells.var()
-    se.var <- SummarizedExperiment(assays = list(VAF = (vaf_matrix()), 
-                                                   Genotype = (genotype_matrix()),
-                                                   Genoqual = (genoqual_matrix()),
-                                                   Depth = (depth_matrix())),
-                                   rowData = variant.ids(),
-                                     colData = as.data.frame(cells.var()))
+    
+    se.var <- SummarizedExperiment(
+      assays = list(
+        VAF = vaf_matrix,
+        Genotype = genotype_matrix,
+        Genoqual = genoqual_matrix(),
+        Depth = depth_matrix
+      ),
+      rowData = variant.ids,
+      colData = as.data.frame(cell.var)
+    )
     
     filteres <- filterVariants(depth.threshold = 10,
                                genotype.quality.threshold = 30,
-                               vaf.ref = 5, 
-                               vaf.het =  35, 
-                               vaf.hom = 95, 
+                               vaf.ref = 5,
+                               vaf.het =  35,
+                               vaf.hom = 95,
                                min.cell = 50,
                                min.mut.cell = 1,
                                se.var = se.var,
                                sce = current_sce,
                                shiny = T)
-    se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered), 
-                                               Genotype = t(filteres$genotype.matrix.filtered),
-                                               Genoqual = t(filteres$genoqual.matrix.filtered)),
-                                 rowData = filteres$variant.ids.filtered,
-                                 colData = filteres$cells.keep)
     
-    # Filter out cells in sce object
-    # Find the indices of the columns to keep
     indices_to_keep <- match(filteres$cells.keep, colData(current_sce)[[1]], nomatch = 0)
     
-    # Subset the SCE using these indices
-    sce_filtered <- current_sce[, indices_to_keep]
-    altExp(sce_filtered, "variants") <- se.f
-    
-    ## Annotate variants -------------------------------------------------------
-    variant.ids.filtered.df.anno <- annotateVariants(sce_filtered, shiny = T)
-    rowData(altExp(sce_filtered)) <- variant.ids.filtered.df.anno
-
+    if(length(indices_to_keep) > 0) {
+      se.f <- SummarizedExperiment(
+        assays = list(
+          VAF = t(filteres$vaf.matrix.filtered), 
+          Genotype = t(filteres$genotype.matrix.filtered),
+          Genoqual = t(filteres$genoqual.matrix.filtered)
+        ),
+        rowData = filteres$variant.ids.filtered,
+        colData = filteres$cells.keep
+      )
+      
+      sce_filtered <- current_sce[, indices_to_keep, drop = FALSE]
+      SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
+      sce_filtered <- annotateVariants(sce = sce_filtered)
+      
+      # Update the reactive value
+      rv$sce_filtered <- sce_filtered
+    } else {
+      showModal(modalDialog(
+        title = "Warning",
+        "No cells passed the filtering criteria."
+      ))
+    }
+  
+  
     # Expose the visibility state
     output$plots_visible <- reactive({ plots_visible() })
     outputOptions(output, 'plots_visible', suspendWhenHidden=FALSE)
@@ -357,13 +356,14 @@ server <- function(input, output, session) {
     ## Plot: No of variants ----------------------------------------------------
     output$var_plot1 <- renderPlot({
       req(plots_visible()) 
+      req(rv$sce_filtered) 
       
       plot(0,type='n',axes=FALSE,ann=FALSE)
       mtext(length(variant.ids()), side = 3,line = -2, cex = 3, col = 'forestgreen')
       mtext('Number of variants total', side = 3, line = -4, cex = 1.5)
       
       # # Print ean mapped reads per cell
-      mtext(dim(altExp(sce_filtered))[1], side = 1,line = -4, cex = 3, col = 'dodgerblue')
+      mtext(dim(altExp(rv$sce_filtered))[1], side = 1,line = -4, cex = 3, col = 'dodgerblue')
       mtext('Number of variants filtered', side = 1, line = -2, cex = 1.5)
       
       # Draw box
@@ -380,7 +380,7 @@ server <- function(input, output, session) {
       mtext('Number of cells total', side = 3, line = -4, cex = 1.5)
       
       # Print ean mapped reads per cell
-      mtext(dim(altExp(sce_filtered))[2], side = 1,line = -4, cex = 3, col = 'dodgerblue')
+      mtext(dim(altExp(rv$sce_filtered))[2], side = 1,line = -4, cex = 3, col = 'dodgerblue')
       mtext('Number of cells filtered', side = 1, line = -2, cex = 1.5)
       
       # Draw box
@@ -389,7 +389,8 @@ server <- function(input, output, session) {
     
     ## Heatmap: VAF I ---------------------------------------------------------
     output$var_plot3 <- renderPlot({
-      plotVariantHeatmap(sce_filtered)
+      req(rv$sce_filtered)  # Ensures that the plot only renders when sce_filtered is available
+      plotVariantHeatmap(rv$sce_filtered)
     })
     
     output$legend <- renderPlot({
@@ -409,10 +410,7 @@ server <- function(input, output, session) {
       draw(lgd)
     })
     
-    ## Piechart: GT? ----------------------------------------------------------
-    output$var_plot4 <- renderPlot({
-      plotGenotypeDistributionPie(sce_filtered)
-    })
+
     
     ## Violin: GQ -------------------------------------------------------------
     output$var_plot5 <- renderPlot({
@@ -423,7 +421,7 @@ server <- function(input, output, session) {
     ## DT: overview filtered variants -----------------------------------------
     output$data_table_var <- renderDataTable({
       sample.name <- sce_filtered@metadata[['sample_name']]
-      variant.ids.filtered.df.anno %>%
+      rowData(altExp(sce_filtered))[1:5,] %>%
         as.data.frame() %>% 
         dplyr::select(-any_of('id')) %>% 
         replace(is.na(.), '-') %>% 
@@ -469,7 +467,8 @@ server <- function(input, output, session) {
     # Plots explore panel ------------------------------------------------------
     ## Heatmap: VAF II ---------------------------------------------------------
     output$hm_1 <- renderPlot({
-      plotVariantHeatmap(sce_filtered)
+      req(rv$sce_filtered)  # Ensures that the plot only renders when sce_filtered is available
+      plotVariantHeatmap(rv$sce_filtered)
     })
 
     # Reactive variable to store user selections
@@ -488,60 +487,63 @@ server <- function(input, output, session) {
       # Actualize heatmap
       output$hm_1 <- renderPlot({
         req(selected_variants())
-        req(sce_filtered)
-        
-        variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
-        selected_variants_id <- order(variant.ids.filtered.gene)[selected_variants()]
-        
-        # Load matrices
-        vaf_matrix_filtered <- as.data.frame(t(assay(altExp(sce_filtered, 'variants'), 'VAF')))
-        colnames(vaf_matrix_filtered) <- paste0(rowData(altExp(sce_filtered, 'variants'))$Gene, ':', rowData(altExp(sce_filtered, 'variants'))$id)
-        genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered), 'Genotype')))
-        colnames(genotype.matrix.filtered) <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
-        
-        
-        vaf.matrix.filtered.hm <- vaf_matrix_filtered[, selected_variants_id]  # Directly use selected_variants
-
-        column_ha = HeatmapAnnotation(chr = factor(str_extract(colnames(vaf.matrix.filtered.hm), 'chr(\\d|X|Y)+'),
-                                                   levels = chromosomes),
-                                      col = list(chr = chr_palette))
-
-        collect <- data.frame(row.names = '')
-
-        # GT matrix annotation (customize as needed)
-        df <- do.call(rbind, lapply(genotype.matrix.filtered, function(x) {
-          length(x) <- 4
-          return(x)
-        }))
-
-        # Transform numerical genotype to WT, Het, Ho,, Missing dataframe
-        gt.anno <- data.frame(WT = integer(), Het = integer(), Hom = integer(), Missing = integer())
-        for (col in 1:ncol(genotype.matrix.filtered)){
-          wt <- sum(genotype.matrix.filtered[, col] == 0)
-          het <- sum(genotype.matrix.filtered[, col] == 1)
-          hom <- sum(genotype.matrix.filtered[, col] == 2)
-          mis <- sum(genotype.matrix.filtered[, col] == 3)
-          gt.anno[col, ] <- c(wt, het, hom, mis)
-        }
-
-        # Force Het, Hom, Missing in the right order
-        gt.anno$Total <- rowSums(gt.anno)
-        proportions <- gt.anno %>%
-          dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
-          dplyr::select(-Total)
-        rownames(proportions) <- rownames(variant.ids.filtered.df.anno)
-
-        colors.vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
-        
-        # Create and render the Heatmap
-        Heatmap(matrix = vaf.matrix.filtered.hm,
-                name = 'VAF',
-                col = colors.vaf,
-                show_column_dend = TRUE,
-                show_row_dend = FALSE,
-                column_title = 'Filtered Variants',
-                row_title = 'Cells',
-                top_annotation = column_ha)
+        req(rv$sce_filtered)  # Ensures that the plot only renders when sce_filtered is available
+        sce_filtered <- rv$sce_filtered
+        output$hm_1 <- renderPlot({
+          variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
+          selected_variants_id <- order(variant.ids.filtered.gene)[selected_variants()]
+          
+          # Load matrices
+          vaf_matrix_filtered <- as.data.frame(t(assay(altExp(sce_filtered, 'variants'), 'VAF')))
+          colnames(vaf_matrix_filtered) <- paste0(rowData(altExp(sce_filtered, 'variants'))$Gene, ':', rowData(altExp(sce_filtered, 'variants'))$id)
+          genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered), 'Genotype')))
+          colnames(genotype.matrix.filtered) <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
+          row_data <- rowData(altExp(sce_filtered, 'variants'))
+          names <- paste0(row_data$Gene, ':', as.character(row_data$id))
+          
+          vaf.matrix.filtered.hm <- vaf_matrix_filtered[, selected_variants_id]  # Directly use selected_variants
+          
+          column_ha = HeatmapAnnotation(chr = factor(str_extract(colnames(vaf.matrix.filtered.hm), 'chr(\\d|X|Y)+'),
+                                                     levels = chromosomes),
+                                        col = list(chr = chr_palette))
+          
+          collect <- data.frame(row.names = '')
+          
+          # GT matrix annotation (customize as needed)
+          df <- do.call(rbind, lapply(genotype.matrix.filtered, function(x) {
+            length(x) <- 4
+            return(x)
+          }))
+          
+          # Transform numerical genotype to WT, Het, Ho,, Missing dataframe
+          gt.anno <- data.frame(WT = integer(), Het = integer(), Hom = integer(), Missing = integer())
+          for (col in 1:ncol(genotype.matrix.filtered)){
+            wt <- sum(genotype.matrix.filtered[, col] == 0)
+            het <- sum(genotype.matrix.filtered[, col] == 1)
+            hom <- sum(genotype.matrix.filtered[, col] == 2)
+            mis <- sum(genotype.matrix.filtered[, col] == 3)
+            gt.anno[col, ] <- c(wt, het, hom, mis)
+          }
+          
+          # Force Het, Hom, Missing in the right order
+          gt.anno$Total <- rowSums(gt.anno)
+          proportions <- gt.anno %>%
+            dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
+            dplyr::select(-Total)
+          rownames(proportions) <- names#+rownames(variant.ids.filtered.df.anno)
+          
+          colors.vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
+          
+          # Create and render the Heatmap
+          Heatmap(matrix = vaf.matrix.filtered.hm,
+                  name = 'VAF',
+                  col = colors.vaf,
+                  show_column_dend = TRUE,
+                  show_row_dend = FALSE,
+                  column_title = 'Filtered Variants',
+                  row_title = 'Cells',
+                  top_annotation = column_ha)
+        })
       })
     })
     
@@ -853,7 +855,7 @@ server <- function(input, output, session) {
   })
   
   output$panel_plot5 <- renderPlotly({
-    plotPanelUniformity(sce = sce())
+    plotPanelUniformity(sce = sce(), interactive = FALSE)
   })
   
   
@@ -917,101 +919,7 @@ server <- function(input, output, session) {
   
   ## Occurence of genes in panel -----------------------------------------------
   output$data_table_overview <- renderDataTable({
-    sce_obj <- sce()
-    metadata <- sce_obj@metadata
-    
-    if (metadata[['genome_version']] == 'hg19'){
-      # Prepare exon database -----------------------------------------------------
-      #Read Biomart Exon information and format them
-      exons <- read.delim('./input//mart_export_grch37_p13.txt', header = T, sep = '\t')
-      colnames(exons)[11] <- 'seqnames'
-      colnames(exons)[5] <- 'start'
-      colnames(exons)[6] <- 'end'
-      colnames(exons)[7] <- 'Exon'
-      exons$seqnames <- paste0('chr', exons$seqnames)
-      exons.gr <- makeGRangesFromDataFrame(exons, keep.extra.columns = T)
-      
-      # Extract canonical transcripts
-      known.canon <- read.delim('./input/UCSC_hg19_knownCanonical_chrom.bed', header = F, col.names = c('seqnames', 'start', 'end', 'Transcript.stable.ID.version', 'gene'))
-      known.canon$Transcript.stable.ID.version <- gsub('\\..*', '', known.canon$Transcript.stable.ID.version)
-      exons.gr$Transcript.stable.ID.version <- gsub('\\..*', '', exons.gr$Transcript.stable.ID.version)
-      exons.gr.clean <- exons.gr[exons.gr$Transcript.stable.ID.version %in% known.canon$Transcript.stable.ID.version,]
-      gene.anno.df()
-      
-      # Change chr info to merge them
-      gene.anno.df.tmp <- gene.anno.df()
-      #gene.anno.df.tmp$seqnames <- gsub('chr', '', gene.anno.df()$seqnames)
-      gene.anno.df.tmp <- gene.anno.df.tmp %>% dplyr::mutate(Gene = str_split_i(id, '_', 3))
-      gene.anno.gr <- makeGRangesFromDataFrame(gene.anno.df.tmp, keep.extra.columns = T)
-      rm(gene.anno.df.tmp)
-      exons.gr.clean <- exons.gr[exons.gr$Transcript.stable.ID.version %in%
-                                   known.canon$Transcript.stable.ID.version,]
-      ov <- findOverlaps(gene.anno.gr, exons.gr.clean, )
-      
-      # Define transcript columns
-      mcols(gene.anno.gr)$`Exon` <- '-'
-      mcols(gene.anno.gr)$`Canonical Transcript ID` <- '-'
-      
-      gene.anno.gr[queryHits(ov)]$`Exon` <- exons.gr.clean[subjectHits(ov)]$Exon  
-      gene.anno.gr[queryHits(ov)]$`Canonical Transcript ID` <- exons.gr.clean[subjectHits(ov)]$Transcript.stable.ID.version  # i think its wrong
-      
-      # Format for datatable
-      df <- gene.anno.gr %>% as.data.frame()
-      df %>% dplyr::select(seqnames, start, end, width, Gene, Exon, Canonical.Transcript.ID) %>%
-        `colnames<-`(c('Chromosome', 'Start', 'End', 'Amplicon length (bp)', 'Gene', 'Exon', 'Canonical Transcript ID')) %>%
-        datatable(., rownames = F,  extensions = 'Buttons',
-                  options = list(pageLength = 10, width = '100%',
-                                 dom = 'Bfrtip', 
-                                 buttons = list( 
-                                   list(extend = 'csv',   filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                   list(extend = 'excel', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                   list(extend = 'pdf', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                   list(extend = 'copy', filename =  paste0("scafari_panel_", metadata[['sample_name']])))))
-      
-    } else if (metadata[['genome_version']] == 'hg38'){
-      message('hg38')
-      
-      withProgress(message = 'MANE annotation', detail = 'This may take a while', value = 0, {
-        # MANE
-        incProgress(1/3, 'Reading in MANE')
-        mane.raw <- read.delim('./input/MANE.GRCh38.v1.3.ensembl_genomic.gff', skip = 2, header = F, sep = '\t')
-        
-        incProgress(1/3, 'Processing MANE')
-        mane <- mane.raw %>% mutate(Exon = str_extract(V9, '(?<=exon_number=)\\d+'), 
-                                    Gene = str_extract(V9, '(?<=gene_name=)[^;]+'),  
-                                    `Transcript ID` = str_extract(V9, '(?<=transcript_id=)[^;]+'))  %>% 
-          filter(V3 == 'exon')
-        colnames(mane) <- c('seqnames','source', 'feature','start', 'end','score','strand', 'frame','Atrribute', 'Exon', 'Gene', 'Transcript ID')
-        
-        incProgress(1/5, 'Annotating')
-        mane.gr <<- makeGRangesFromDataFrame(mane, keep.extra.columns = T, na.rm = T)
-        
-        # Define transcript columns
-        gene.anno.gr <<- gene.anno.gr
-        mcols(gene.anno.gr)[["Exon"]] <- '-'
-        mcols(gene.anno.gr)[["Transcript ID"]] <- '-'
-        mcols(gene.anno.gr)[["Gene"]] <- '-'
-        ov <- findOverlaps(gene.anno.gr, mane.gr)
-        
-        mcols(gene.anno.gr)[queryHits(ov),]["Exon"] <- mcols(mane.gr)[subjectHits(ov),]["Exon"]
-        mcols(gene.anno.gr)[queryHits(ov),]["Transcript ID"] <- mcols(mane.gr)[subjectHits(ov),]["Transcript ID"]
-        mcols(gene.anno.gr)[queryHits(ov),]["Gene"] <- mcols(mane.gr)[subjectHits(ov),]["Gene"]
-        
-        gene.anno.gr %>% as.data.frame() %>% 
-          dplyr::select(id, seqnames, start, end, width, Gene, Exon, `Transcript.ID`) %>% 
-          `colnames<-`(c('Amplicon ID', 'Chromosome', 'Start', 'End', 'Amplicon length (bp)', 'Gene', 'Exon', 'Canonical Transcript ID')) %>% 
-          datatable(.,  extensions = 'Buttons',
-                    options = list(pageLength = 10, width = '100%',
-                                   dom = 'Bfrtip', 
-                                   buttons = list( 
-                                     list(extend = 'csv',   filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                     list(extend = 'excel', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                     list(extend = 'pdf', filename =  paste0("scafari_panel_", metadata[['sample_name']])),
-                                     list(extend = 'copy', filename =  paste0("scafari_panel_", metadata[['sample_name']])))), rownames = F)
-      })
-    } else {
-      message('No proper genome version')
-    }
+    annotateAmplicons(sce = sce())
   })
 }
 
