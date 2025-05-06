@@ -36,6 +36,7 @@ annotateAmplicons <- function(sce){
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
     amps <- as.data.frame(rowData(sce))
+    mart <- useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl", GRCh=37)
     get_exon_data <- function(i) {
       exons <- getBM(
         attributes = c("ensembl_exon_id","ensembl_transcript_id_version", "chromosome_name", "exon_chrom_start", "exon_chrom_end", "rank"),
@@ -52,12 +53,15 @@ annotateAmplicons <- function(sce){
     all_exon_data <- mclapply(1:nrow(amps), get_exon_data, mc.cores = num_cores)
     
     # Combine all exon data into a single data frame
-    all_exon_data <- do.call(rbind, all_exon_data)
-    head(all_exon_data)
+    exon_data <- do.call(rbind, all_exon_data)
+    head(exon_data)
     
-    colnames(all_exon_data) <- c('exon_id', 'transcript', 'seqnames', 'start', 'end', 'str', 'rank', 'id')
-    all_exon_data$seqnames <- paste0('chr', all_exon_data$seqnames)
-    exons.gr <- makeGRangesFromDataFrame(all_exon_data, keep.extra.columns = T)
+    colnames(exon_data) <- c('exon_id', 'transcript', 'seqnames', 'start', 'end', 'rank', 'id')
+    exon_data$seqnames <- paste0('chr', exon_data$seqnames)
+    
+    # Filter out data with invalid annotation values
+    exon_data_clean <- exon_data[!startsWith(exon_data$exon_id, 'Error'),]
+    exons.gr <- makeGRangesFromDataFrame(exon_data_clean, keep.extra.columns = T)
     
     # Extract canonical transcripts
     canon.path <- system.file("extdata", "UCSC_hg19_knownCanonical_goldenPath.txt", package = "scafari")
@@ -70,6 +74,8 @@ annotateAmplicons <- function(sce){
     ov <- findOverlaps(gene.anno.gr, exons.gr.clean)
     
     mcols(gene.anno.gr)['transcript'] <- '-'
+    mcols(gene.anno.gr)['Exon'] <- '-'
+    
     gene.anno.gr[queryHits(ov)]$Exon <-     exons.gr.clean[subjectHits(ov)]$rank
     gene.anno.gr[queryHits(ov)]$transcript <-     exons.gr.clean[subjectHits(ov)]$transcript
     # but what if there are multiple????
