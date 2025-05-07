@@ -7,12 +7,12 @@ import(magrittr)
 import(dplyr)
 import(ggplot2)
 importFrom(tibble, rownames_to_column)
-importFrom(stringr, str_detect, str_match, str_split_i, str_extract)
+importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract, str_to_title)
 importFrom(reshape2, melt)
 importFrom(DT, datatable)
-importFrom(plotly, ggplotly)
+importFrom(plotly, ggplotly, plotlyOutput, renderPlotly)
 importFrom(grid, gpar)
-importFrom(factoextra, fviz_cluster)
+importFrom(factoextra, fviz_cluster, fviz_nbclust)
 importFrom(parallel, mclapply, detectCores)
 
 # Import everything from a package (use sparingly)
@@ -50,4 +50,5 @@ export(annotateAmplicons,
         plotVariantHeatmap,
         theme_default,
         theme_shiny,
-        gg_color_hue)
+        gg_color_hue,
+        launchScafariShiny)
