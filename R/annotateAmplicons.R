@@ -78,20 +78,6 @@ annotateAmplicons <- function(sce){
     
     gene.anno.gr[queryHits(ov)]$Exon <-     exons.gr.clean[subjectHits(ov)]$rank
     gene.anno.gr[queryHits(ov)]$transcript <-     exons.gr.clean[subjectHits(ov)]$transcript
-    # but what if there are multiple????
-    # result <- exons.gr.clean %>% 
-    #   as.data.frame() %>%
-    #   group_by(id) %>%
-    #   summarize(
-    #     transcripts = paste(unique(transcript), collapse = ", "),
-    #     ranks = paste(unique(rank), collapse = ", "),
-    #     width = width,
-    #     .groups = "drop"  # Ungroups after summarizing
-    #   )
-    
-    # Merge with amps to find unannotated amps
-    # amps.anno <- merge(amps, result, by = 'id', all=TRUE) %>% 
-    #   replace(is.na(.), '-')
     
     #amps.anno <- amps.anno %>%  dplyr::mutate(Gene = str_split_i(id, '_', 3))
     df <- gene.anno.gr %>%

@@ -12,15 +12,13 @@
 #' 
 #' 
 #' @examples
-#' \dontrun{
-#' h5_file_path <- system.file("extdata", "4-cell-lines-AML-multiomics.dna+protein.h5", package = "scafari")
+#' h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
 #'
 #' # Read the h5ToSce using readH5File
 #' result <- h5ToSce(h5_file_path)
 #'
 #' # Display the result
 #' print(result)
-#' }
 #' 
 #' @import SummarizedExperiment
 #' 

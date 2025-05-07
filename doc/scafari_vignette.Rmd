@@ -69,13 +69,12 @@ BiocManager::install("scafari")
 
 A development version of scafari will be available on GitHub and can be installed as follows:
 
-```{r, eval=F}
+```{r, eval=T}
 install.packages("devtools")
 devtools::install_github("sophiewind/scafari")
 ```
 
 ##  Getting started
-
 A basic workflow analysis of scDNA-seq data is demonstrated in the following on an exemplary dataset.
 First we need to load scafari.
 
@@ -130,7 +129,7 @@ sce <- normalizeReadCounts(sce = sce)
 After read counts are normalized they can be annotated with biological relevant information such as exon number and canonical transcript ID.
 
 ```{r}
-annotateAmplicons(sce)
+annotateAmplicons(sce = sce)
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
