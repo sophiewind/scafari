@@ -6,13 +6,15 @@
 -------------------------------
 This function takes a SingleCellExperiment object as input and performs variant annotation.}
 \usage{
-annotateVariants(sce, shiny = FALSE)
+annotateVariants(sce, shiny = FALSE, max.var = 50)
 }
 \arguments{
 \item{sce}{SingleCellExperiment object containing the single-cell data to be annotated.}
 
 \item{shiny}{A logical flag indicating whether the function is being run in a Shiny application
 context. Default is FALSE.}
+
+\item{max.var}{Maximum number of variants to annotate. By default this is 50 to avoid long runtime.}
 }
 \value{
 The function returns an annotated SingleCellExperiment object.
@@ -23,11 +25,8 @@ Function: annotateVariants
 This function takes a SingleCellExperiment object as input and performs variant annotation.
 }
 \examples{
-
-\dontrun{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 sce <- annotateVariants(sce, shiny = FALSE)
-}
 
 }
 \references{

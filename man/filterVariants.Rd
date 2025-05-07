@@ -57,6 +57,32 @@ Function: filterVariants
 -------------------------------
 This function takes a SingleCellExperiment object as input and performs variant filtering
 }
+\examples{
+filteres <- filterVariants(depth.threshold = 10,
+genotype.quality.threshold = 30,
+vaf.ref = 5, 
+vaf.het =  35, 
+vaf.hom = 95, 
+min.cell = 50,
+min.mut.cell = 1,
+se.var = se.var,
+sce = sce,
+shiny = FALSE)
+se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered), 
+                                           Genotype = t(filteres$genotype.matrix.filtered),
+                                           Genoqual = t(filteres$genoqual.matrix.filtered)),
+                             rowData = filteres$variant.ids.filtered,
+                             colData = filteres$cells.keep)
+
+# Filter out cells in sce object
+# Find the indices of the columns to keep
+indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)[[1]], nomatch = 0)
+
+# Subset the SCE using these indices
+sce_filtered <- sce[, indices_to_keep]
+
+
+}
 \references{
 https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
 }

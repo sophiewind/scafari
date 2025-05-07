@@ -10,10 +10,15 @@ normalizeReadCounts(sce)
 \item{sce}{A SingleCellExperiment object that includes the assay data with read counts to be normalized. The metadata within the object may also be utilized for normalization purposes.}
 }
 \value{
-Normalized read counts.
+SingleCellExperiment object  with normalized read counts.
 }
 \description{
 This function normalizes the read counts contained within a `SingleCellExperiment` object.
+}
+\examples{
+# Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+sce <- normalizeReadCounts(sce)
+
 }
 \references{
 https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima

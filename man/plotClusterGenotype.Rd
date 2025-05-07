@@ -15,8 +15,11 @@ plotClusterGenotype(sce, variants.of.interest, gg.clust)
 }
 \value{
 A ggplot object that visually represents the clustering of genotypes based on the specified variants and clustering information.
-
-\dontrun{
+}
+\description{
+This function generates a plot to visualize genotype in clusters based on selected variants of interest.
+}
+\examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp() and clusterplot is the output of clusterVariantSleection().
 plotClusterGenotype(sce = sce_filtered, 
                variants.of.interest = c("FLT3:chr13:28610183:A/G",
@@ -24,8 +27,5 @@ plotClusterGenotype(sce = sce_filtered,
                                         "TP53:chr17:7577427:G/A",
                                         "TET2:chr4:106158216:G/A"), 
                gg.clust = clusterplot$clusterplot)
-}
-}
-\description{
-This function generates a plot to visualize genotype in clusters based on selected variants of interest.
+
 }

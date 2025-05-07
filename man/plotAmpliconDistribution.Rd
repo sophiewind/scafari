@@ -11,12 +11,12 @@ plotAmpliconDistribution(sce)
 }
 \value{
 A ggplot object representing the distribution of amplicons.
-
-\dontrun{
-# Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
-plotAmpliconDistribution(sce)
-}
 }
 \description{
 This function generates a plot to visualize the distribution of amplicons within a `SingleCellExperiment` object.
+}
+\examples{
+# Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+plotAmpliconDistribution(sce)
+
 }

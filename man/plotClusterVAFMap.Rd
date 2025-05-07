@@ -16,8 +16,12 @@ plotClusterVAFMap(sce, variants.of.interest, gg.clust)
 }
 \value{
 A ggplot object that visually represents the VAF in the clusters with clusters in the background.
-
-\dontrun{
+}
+\description{
+plot Cluster VAF Map
+This function generates a plot to visualize variant allele frequency (VAF) in clusters based on selected variants of interest with clusters in the background.
+}
+\examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp() and clusterplot is the output of clusterVariantSleection().
 plotClusterVAFMap(sce = sce_filtered, 
                variants.of.interest = c("FLT3:chr13:28610183:A/G",
@@ -25,9 +29,5 @@ plotClusterVAFMap(sce = sce_filtered,
                                         "TP53:chr17:7577427:G/A",
                                         "TET2:chr4:106158216:G/A"), 
                gg.clust = clusterplot$clusterplot)
-}
-}
-\description{
-plot Cluster VAF Map
-This function generates a plot to visualize variant allele frequency (VAF) in clusters based on selected variants of interest with clusters in the background.
+
 }

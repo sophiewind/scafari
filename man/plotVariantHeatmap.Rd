@@ -21,10 +21,8 @@ This function generates a heatmap to visualize variant data within a
 distribution and frequency of variants across different samples or cells.
 }
 \examples{
-\dontrun{
 # Assume `sce` is a SingleCellExperiment object with an appropriate variant assay.
 variant_heatmap <- plotVariantHeatmap(sce)
 print(variant_heatmap)
-}
 
 }

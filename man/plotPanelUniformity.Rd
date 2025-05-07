@@ -4,12 +4,14 @@
 \alias{plotPanelUniformity}
 \title{Plot Panel Uniformity}
 \usage{
-plotPanelUniformity(sce)
+plotPanelUniformity(sce, interactive = FALSE)
 }
 \arguments{
 \item{sce}{A `SingleCellExperiment` object that contains single-cell data 
 with a 'counts' assay. This object should be pre-processed to ensure 
 the data is appropriate for uniformity analysis.}
+
+\item{interactive}{in interactive mode an plotly is returned.}
 }
 \value{
 A `ggplot` object visualizing the uniformity of panel reads.
@@ -20,10 +22,8 @@ in a `SingleCellExperiment` object. It uses read counts stored in the
 'counts' assay to visualize the distribution and variability of reads.
 }
 \examples{
-\dontrun{
 # Assume `sce` is a SingleCellExperiment object with 'counts' assay.
 uniformity_plot <- plotPanelUniformity(sce)
 print(uniformity_plot)
-}
 
 }

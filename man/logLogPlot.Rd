@@ -16,10 +16,8 @@ A ggplot object representing the log-log plot of read counts.
 This function generates a log-log plot of read counts using the data from a `SingleCellExperiment` object.
 }
 \examples{
-\dontrun{
 # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
 plot <- logLogPlot(sce)
 print(plot)
-}
 
 }
