@@ -6,10 +6,8 @@
 #'
 #' @return A ggplot object representing the distribution of amplicons.
 #' 
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
 #' plotAmpliconDistribution(sce)
-#'}
 #'
 #' @export 
 plotAmpliconDistribution <- function(sce) {

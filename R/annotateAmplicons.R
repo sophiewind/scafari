@@ -6,10 +6,9 @@
 #' 
 #' @return A dataframe containing annotated amplicons.
 #' 
-#' \dontrun{
+#' @examples
 #' # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
 #' annotated <- annotateAmplicons(sce)
-#'}
 #'
 #' @export
 annotateAmplicons <- function(sce){

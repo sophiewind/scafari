@@ -3,11 +3,13 @@ Type: Package
 Title: Analysis of scDNA-seq data
 Version: 0.99.0
 Authors@R: 
-	person("Sophie", "Wind", , "sophie.wind@uni-muenster.de", role = c("aut", "cre"),comment=c(ORCID="0009-0002-1174-8201"))
+	person("Sophie", "Wind", , 
+	 email = "sophie.wind@uni-muenster.de", 
+	 role = c("aut", "cre"),
+	 comment=c(ORCID="0009-0002-1174-8201"))
 Description: scafari 
 License: LGPL-3  # TODO
 Encoding: UTF-8
-LazyData: false  # TODO
 Requires:     
     shiny,
     shinycssloaders,

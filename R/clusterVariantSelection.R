@@ -10,7 +10,6 @@
 #' 
 #' @examples
 #' 
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 #' clusterplot <- clusterVariantSelection(sce = sce_filtered, 
 #'                                        variants.of.interest = c("FLT3:chr13:28610183:A/G",
@@ -18,7 +17,6 @@
 #'                                                                 "TP53:chr17:7577427:G/A",
 #'                                                                 "TET2:chr4:106158216:G/A"), 
 #'                                        n.clust = 4)
-#'}
 #'
 #' @export 
 clusterVariantSelection <- function(sce, variants.of.interest, n.clust){

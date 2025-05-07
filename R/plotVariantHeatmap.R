@@ -12,11 +12,9 @@
 #' presence across cells or groups.
 #'
 #' @examples
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with an appropriate variant assay.
 #' variant_heatmap <- plotVariantHeatmap(sce)
 #' print(variant_heatmap)
-#' }
 #'
 #' @export 
 plotVariantHeatmap <- function(sce) {

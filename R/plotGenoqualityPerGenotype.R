@@ -13,11 +13,9 @@
 #' across different genotypes.
 #'
 #' @examples
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with 'genotype_quality' assay.
 #' genotype_quality_plot <- plotGenotypequalityPerGenotype(sce)
 #' print(genotype_quality_plot)
-#' }
 #'
 #' @export 
 plotGenotypequalityPerGenotype <- function(sce) {

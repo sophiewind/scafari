@@ -11,11 +11,9 @@
 #' @return A `ggplot` object visualizing the uniformity of panel reads.
 #'
 #' @examples
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with 'counts' assay.
 #' uniformity_plot <- plotPanelUniformity(sce)
 #' print(uniformity_plot)
-#' }
 #'
 #' @export 
 plotPanelUniformity <- function(sce, interactive = FALSE) {
