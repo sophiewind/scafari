@@ -1,6 +1,6 @@
 # STAT -------------------------------------------------------------------------
 #' Default shiny theme
-#' 
+#'
 #' @export
 theme_shiny <- function() {
   theme_minimal() +
@@ -12,7 +12,7 @@ theme_shiny <- function() {
 }
 
 #' Default ggplot scheme
-#' 
+#'
 #' @export
 theme_default <- function() {
   theme_minimal() +
@@ -24,21 +24,25 @@ theme_default <- function() {
 }
 
 #' Default ggplot colors
-#' 
+#'
 #' @export
 gg_color_hue <- function(n) {
-  hues = seq(15, 375, length = n + 1)
+  hues <- seq(15, 375, length = n + 1)
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
-mycols <- c('WT' = "#414487FF", 'Hom' = "#D44292", 'Het' = "#F6A97A",
-            'Missing' = "#868686FF")
-mycols.ngt <- c(`WT` = "#414487FF", `Hom` = "#D44292", `Het` = "#F6A97A",
-                `Missing` = "#868686FF")
+mycols <- c(
+  "WT" = "#414487FF", "Hom" = "#D44292", "Het" = "#F6A97A",
+  "Missing" = "#868686FF"
+)
+mycols.ngt <- c(
+  `WT` = "#414487FF", `Hom` = "#D44292", `Het` = "#F6A97A",
+  `Missing` = "#868686FF"
+)
 
 
 
-colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
+colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292")) # TODO outsie
 
 
 # Chromosome color palette
@@ -54,7 +58,7 @@ chr_palette <- setNames(colors, chromosomes)
 #' @param file and path to the h5 file
 #'
 #' @return boolean if h5 is valid
-checkH5 <- function(h5_file){
+checkH5 <- function(h5_file) {
   paths_to_check <- c(
     "/assays/dna_variants/layers/DP",
     "/assays/dna_variants/layers/GQ",
@@ -67,17 +71,16 @@ checkH5 <- function(h5_file){
     "/assays/dna_read_counts/ca/end_pos"
   )
   h5_structure <- h5ls(h5_file)
-  full_paths <- paste(h5_structure$group, h5_structure$name, sep="/")
+  full_paths <- paste(h5_structure$group, h5_structure$name, sep = "/")
   missing_paths <- character(0)
   for (path in paths_to_check) {
-    shinyjs::html("text", paste0('Checking ', path, '<br>'), add = F)
-    
-    
+    shinyjs::html("text", paste0("Checking ", path, "<br>"), add = FALSE)
+
+
     if (!(path %in% full_paths)) {
       missing_paths <- c(missing_paths, path)
       print()
-      shinyjs::html("text",paste0(path, ' is missing!<br>'), add = F)
-      
+      shinyjs::html("text", paste0(path, " is missing!<br>"), add = FALSE)
     }
     Sys.sleep(0.01)
   }
@@ -96,22 +99,25 @@ checkH5 <- function(h5_file){
 #'
 #' @return boolean if MissionBio API is currently available
 check_MBAPI <- function() {
-  tryCatch({
-    response <- httr::GET('https://api.missionbio.io/annotations/v1/variants?ids=17:7578211:7578211')
-    status <- httr::status_code(response)
-    if (status >= 200 && status < 300) {
-      data = jsonlite::fromJSON(rawToChar(response$content))
-      if (length(data) > 2){
-        return('MissionBio')
+  tryCatch(
+    {
+      response <- httr::GET("https://api.missionbio.io/annotations/v1/variants?ids=17:7578211:7578211")
+      status <- httr::status_code(response)
+      if (status >= 200 && status < 300) {
+        data <- jsonlite::fromJSON(rawToChar(response$content))
+        if (length(data) > 2) {
+          return("MissionBio")
+        }
+      } else {
+        return("Biomart")
+        stop(paste("URL not available. Status code:", status))
       }
-    } else {
-      return('Biomart')
-      stop(paste("URL not available. Status code:", status))
+    },
+    error = function(e) {
+      return("Biomart")
+      stop(paste("Error accessing URL:", e$message))
     }
-  }, error = function(e) {
-    return('Biomart')
-    stop(paste("Error accessing URL:", e$message))
-  })
+  )
 }
 
 
@@ -121,8 +127,6 @@ check_MBAPI <- function() {
 
 
 
-getMetadata <- function(){
-  
+getMetadata <- function() {
+
 }
-
-

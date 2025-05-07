@@ -7,9 +7,7 @@ Authors@R:
 	 email = "sophie.wind@uni-muenster.de", 
 	 role = c("aut", "cre"),
 	 comment=c(ORCID="0009-0002-1174-8201"))
-Description: Scafari is a Shiny application designed for the analysis of single-cell DNA sequencing 
-(scDNA-seq) data provided in .h5 file format. The analysis process is structured into the four key steps "Sequencing", "Panel", "Variants", 
-and "Explore Variants".
+Description: Scafari is a Shiny application designed for the analysis of single-cell DNA sequencing (scDNA-seq) data provided in .h5 file format. The analysis process is structured into the four key steps "Sequencing", "Panel", "Variants", and "Explore Variants".
 License: LGPL-3  # TODO
 Encoding: UTF-8
 Requires:     
