@@ -1,32 +1,6 @@
-# Load necessary packages
-library(shiny)
-library(shinycssloaders)
-library(DT)
-library(dplyr)
-library(waiter)
-library(ggplot2)
-library(plotly)
-library(GenomicRanges)
-library(tibble)
-library(rhdf5)
-library(ComplexHeatmap)
-library(karyoploteR)
-library(stringr)
-library(reshape2)
-library(biomaRt)  
-library(clusterProfiler)  
-library(org.Hs.eg.db)  
-library(shinyjs) 
-library(shinyBS) 
-library(shinycustomloader) 
-library(factoextra)
-library(markdown)
-library(SingleCellExperiment)
-library(scafari)
-
-h5closeAll()  
+#' Launch the Scafari Shiny App
+#'
+#' @export
 launchScafariShiny <- function(){
   shiny::shinyApp(ui = app_ui(), server = app_server)
 }
-
-launchScafariShiny()
