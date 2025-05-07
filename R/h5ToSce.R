@@ -20,6 +20,13 @@
 #' # Display the result
 #' print(result)
 #' 
+#' @return A list with the SingleCellExperiment and the SummarizedExperiment 
+#' object representing the amplicon and the varaint analysis.
+#' \describe{
+#'   \item{sce_amp}{SingleCellExperiment with amplicon experiment.}
+#'   \item{se_var}{SummarizedExperiment with variants eexperiment}
+#' }
+#' 
 #' @import SummarizedExperiment
 #' 
 #' @export
