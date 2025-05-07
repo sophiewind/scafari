@@ -27,99 +27,104 @@ library(scafari)
 h5closeAll()  
 
 # Define the UI
-ui <- navbarPage(
-  use_waiter(),  # Include waiter in the UI
-  useShinyjs(),  # Enable shinyjs
-  
-  # Upload tab -----------------------------------------------------------------
-  tabPanel("Upload",
-           fluidPage(
-             width = 3,  # Set sidebar width to 3 columns (out of 12)
-             h3("Data Upload"),
-             fileInput("upload", "Upload HDF5 File", accept = '.h5'),
-             verbatimTextOutput("class_output"),
-             verbatimTextOutput("file_contents"),  # Output area for file contents  
-             div(id = "text"),
-             tableOutput("files"))),
-  
-  # Sequencing tab -------------------------------------------------------------
-  tabPanel("Sequencing",
-           fluidPage(
-             # Conditional display based on file upload
-             conditionalPanel(
-               condition = "output.file_ready",  # Check if a file is uploaded
-               createSequencingUI(),
-             ),
-             # Message displayed when the file is not uploaded
-             conditionalPanel(
-               condition = "!output.file_ready",  # Check if no file is uploaded
-               fluidRow(
-                 style = "text-align: center; margin-top: 50px;", 
-                 p(style = "color: black;", "Please upload a file to view sequencing information.")                   )
-             ),
-             hr(),
-           )
-  ),
-  
-  # Panel tab ------------------------------------------------------------------
-  tabPanel("Panel",
-           fluidPage(
-             conditionalPanel(
-               condition = "output.file_ready",
-               createPanelUI(),
-             ),
-             # Message displayed when the file is not uploaded
-             conditionalPanel(
-               condition = "!output.file_ready",  # Check if no file is uploaded
-               fluidRow(
-                 style = "text-align: center; margin-top: 50px;", 
-                 p(style = "color: black;", "Please upload a file to view sequencing information.")                   )
-             ),
-             hr(),
-          )
-  ),
-  
-  # Variants tab ---------------------------------------------------------------
-  tabPanel("Variants",
-           fluidPage(
-             wellPanel(fluidRow(
-               createFilteringUI()
-             )
-             ),
-             conditionalPanel(
-               condition = "output.plots_visible == true",
-               createVariantUI(),
-           )
-           )
-  ),
-  
-  # Explore Variants tab -------------------------------------------------------
-  tabPanel("Explore profiles",
-           fluidPage(
-             createExploreVariantSelectionUI(),
-             conditionalPanel(
-               condition = "output.continue == true",
-               h1('Identify cell clusters'),
-               h2('Select number of clusters'),
-               withLoader(plotOutput("kneeplot")), loader = 'dnaspin',
-               fluidRow(
-                 numericInput("n_clust", "Number of clusters:", value = 3, min = 0, max = 10, step = 1), 
-                 
-                 div(style = "display:inline-block; float:center", 
-                     actionButton('kmeans_btn', label = 'Start kmeans', icon = icon('play'), 
-                                  style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
-                 ),
-                 hr()
+app_ui <- function() {
+  navbarPage(
+    use_waiter(),  # Include waiter in the UI
+    useShinyjs(),  # Enable shinyjs
+    
+    # Upload tab -----------------------------------------------------------------
+    tabPanel("Upload",
+             fluidPage(
+               width = 3,  # Set sidebar width to 3 columns (out of 12)
+               h3("Data Upload"),
+               fileInput("upload", "Upload HDF5 File", accept = '.h5'),
+               verbatimTextOutput("class_output"),
+               verbatimTextOutput("file_contents"),   
+               div(id = "text"),
+               tableOutput("files"))),
+    
+    # Sequencing tab -----------------------------------------------------------
+    tabPanel("Sequencing",
+             fluidPage(
+               # Conditional display based on file upload
+               conditionalPanel(
+                 condition = "output.file_ready",  
+                 createSequencingUI(),
                ),
-               createExploreVariantUI(),
+               # Message displayed when the file is not uploaded
+               conditionalPanel(
+                 condition = "!output.file_ready", 
+                 fluidRow(
+                   style = "text-align: center; margin-top: 50px;", 
+                   p(style = "color: black;", 
+                     "Please upload a file to view sequencing information."))
+               ),
+               hr(),
              )
-           ),
-           hr(),
+    ),
+    
+    # Panel tab ----------------------------------------------------------------
+    tabPanel("Panel",
+             fluidPage(
+               conditionalPanel(
+                 condition = "output.file_ready",
+                 createPanelUI(),
+               ),
+               # Message displayed when the file is not uploaded
+               conditionalPanel(
+                 condition = "!output.file_ready", 
+                 fluidRow(
+                   style = "text-align: center; margin-top: 50px;", 
+                   p(style = "color: black;", 
+                     "Please upload a file to view sequencing information."))
+               ),
+               hr(),
+            )
+    ),
+    
+    # Variants tab ---------------------------------------------------------------
+    tabPanel("Variants",
+             fluidPage(
+               wellPanel(fluidRow(
+                 createFilteringUI()
+               )
+               ),
+               conditionalPanel(
+                 condition = "output.plots_visible == true",
+                 createVariantUI(),
+             )
+             )
+    ),
+    
+    # Explore Variants tab -------------------------------------------------------
+    tabPanel("Explore profiles",
+             fluidPage(
+               createExploreVariantSelectionUI(),
+               conditionalPanel(
+                 condition = "output.continue == true",
+                 h1('Identify cell clusters'),
+                 h2('Select number of clusters'),
+                 withLoader(plotOutput("kneeplot")), loader = 'dnaspin',
+                 fluidRow(
+                   numericInput("n_clust", "Number of clusters:", value = 3, 
+                                min = 0, max = 10, step = 1), 
+                   div(style = "display:inline-block; float:center", 
+                       actionButton('kmeans_btn', label = 'Start kmeans', 
+                                    icon = icon('play'), 
+                                    style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                   ),
+                   hr()
+                 ),
+                 createExploreVariantUI(),
+               )
+             ),
+             hr(),
+    )
   )
-)
+}
 
 # Server -----------------------------------------------------------------------
-server <- function(input, output, session) {
+app_server <- function(input, output, session) {
   set.seed(1)
   
   # Setup reactivity -----------------------------------------------------------
@@ -170,93 +175,7 @@ server <- function(input, output, session) {
   })
   outputOptions(output, "file_ready", suspendWhenHidden = FALSE) 
   
-  
-  ## Read input -----------------------------------------------------------------
-  # # Read metadata
-  # metadata <- reactive({
-  #   req(h5_file())
-  #   return(unlist(h5read(h5_file(),"assays/dna_read_counts/metadata/")))
-  # })
-  # 
-  # # Read variant ids
-  # variant.ids <- reactive({
-  #   req(h5_file())
-  #   h5read(h5_file(), "assays/dna_variants/ca/id")
-  # })
-  # 
-  # variant.ids.anno <- reactive({
-  #   NULL
-  # })
-  # 
-  # # Read depth matrix
-  # depth_matrix <- reactive({
-  #   req(h5_file())
-  #   depth_data <- h5read(h5_file(), "assays/dna_variants/layers/DP")
-  #   return(as.data.frame((unlist(depth_data))))
-  # })
-  # 
-  # # Read genotype quality matrix
-  # genoqual_matrix <- reactive({
-  #   req(h5_file())
-  #   genoqual_data <- h5read(h5_file(), "assays/dna_variants/layers/GQ")
-  #   (as.data.frame(unlist(genoqual_data)))
-  # })
-  # 
-  # # Read genotype matrix
-  # genotype_matrix <- reactive({
-  #   req(h5_file())
-  #   genotype_data <- h5read(h5_file(), "assays/dna_variants/layers/NGT")
-  #   (as.data.frame(unlist(genotype_data)))
-  # })
-  # 
-  # # Read variant allele frequency matrix
-  # vaf_matrix <- reactive({
-  #   req(h5_file())
-  #   vaf_data <- h5read(h5_file(), "assays/dna_variants/layers/AF")
-  #   as.data.frame((unlist(vaf_data)))
-  # })
-  # 
-  # # Read amplicons
-  # amplicons <- reactive({
-  #   req(h5_file())
-  #   h5read(h5_file(), "assays/dna_read_counts/ca/id")
-  # })
-  # cells.rc <-  reactive({
-  #   req(h5_file())
-  #   h5read(h5_file(), "assays/dna_read_counts/ra/barcode")
-  # })
-  # cells.var <- reactive({
-  #   req(h5_file())
-  #   h5read(h5_file(), "//assays/dna_variants/ra/barcode")
-  # })
-  # 
-  # # Read read counts
-  # read.counts.df <- reactive({
-  #   req(h5_file())
-  #   read_counts_data <- h5read(h5_file(), "assays/dna_read_counts/layers/read_counts")
-  #   read_counts_df <- as.data.frame(t(read_counts_data))
-  #   colnames(read_counts_df) <- amplicons()  # Set column names to amplicons
-  #   return(read_counts_df)
-  # })
-  # 
-  # # Read gene annotations
-  # gene.anno.df <- reactive({
-  #   req(h5_file())
-  #   df <- data.frame(
-  #     seqnames = h5read(h5_file(), "/assays/dna_read_counts/ca/CHROM"),
-  #     start = h5read(h5_file(), "/assays/dna_read_counts/ca/start_pos"),
-  #     end = h5read(h5_file(), "/assays/dna_read_counts/ca/end_pos"),
-  #     id = h5read(h5_file(), "/assays/dna_read_counts/ca/id")
-  #   )
-  #   
-  #   # Check if seqnames starts with 'chr' and prepend 'chr' if not
-  #   df$seqnames <- ifelse(startsWith(df$seqnames, 'chr'), 
-  #                         df$seqnames, 
-  #                         paste0('chr', df$seqnames))
-  #   
-  #   return(df)
-  # })
-  
+  # Panel analyses--------------------------------------------------------------
   sce <- reactive({
     req(input$upload$datapath)
     sce_amp <- h5ToSce(input$upload$datapath)$sce_amp
@@ -269,15 +188,6 @@ server <- function(input, output, session) {
     return(h5ToSce(input$upload$datapath)$se_var)
   })
 
-  # Panel analyses--------------------------------------------------------------
-  ## Normalize read counts -----------------------------------------------------
-  # observe({
-  #   req(sce())
-  #   sce.to.norm <- sce()
-  #   sce(norm)
-  # })
-
-  
   # Variant analyses -----------------------------------------------------------
   ## Variant filtering ---------------------------------------------------------
   # Filter variants after filter button hit  
@@ -286,9 +196,6 @@ server <- function(input, output, session) {
     plots_visible(TRUE)
     current_sce <- sce()
     se.var <- se.var()
-    #vaf_matrix <- vaf_matrix()
-    
-    
     filteres <- filterVariants(depth.threshold = 10,
                                genotype.quality.threshold = 30,
                                vaf.ref = 5,
@@ -300,8 +207,8 @@ server <- function(input, output, session) {
                                sce = current_sce,
                                shiny = T)
     
-    indices_to_keep <- match(filteres$cells.keep, colData(current_sce)[[1]], nomatch = 0)
-    
+    indices_to_keep <- match(filteres$cells.keep, colData(current_sce)[[1]],
+                             nomatch = 0)
     if(length(indices_to_keep) > 0) {
       se.f <- SummarizedExperiment(
         assays = list(
@@ -326,7 +233,6 @@ server <- function(input, output, session) {
       ))
     }
   
-  
     # Expose the visibility state
     output$plots_visible <- reactive({ plots_visible() })
     outputOptions(output, 'plots_visible', suspendWhenHidden=FALSE)
@@ -342,7 +248,8 @@ server <- function(input, output, session) {
       mtext('Number of variants total', side = 3, line = -4, cex = 1.5)
       
       # # Print ean mapped reads per cell
-      mtext(dim(altExp(rv$sce_filtered))[1], side = 1,line = -4, cex = 3, col = 'dodgerblue')
+      mtext(dim(altExp(rv$sce_filtered))[1], side = 1,line = -4, cex = 3, 
+            col = 'dodgerblue')
       mtext('Number of variants filtered', side = 1, line = -2, cex = 1.5)
       
       # Draw box
@@ -359,7 +266,8 @@ server <- function(input, output, session) {
       mtext('Number of cells total', side = 3, line = -4, cex = 1.5)
       
       # Print ean mapped reads per cell
-      mtext(dim(altExp(rv$sce_filtered))[2], side = 1,line = -4, cex = 3, col = 'dodgerblue')
+      mtext(dim(altExp(rv$sce_filtered))[2], side = 1,line = -4, cex = 3, 
+            col = 'dodgerblue')
       mtext('Number of cells filtered', side = 1, line = -2, cex = 1.5)
       
       # Draw box
@@ -368,7 +276,7 @@ server <- function(input, output, session) {
     
     ## Heatmap: VAF I ---------------------------------------------------------
     output$var_plot3 <- renderPlot({
-      req(rv$sce_filtered)  # Ensures that the plot only renders when sce_filtered is available
+      req(rv$sce_filtered)
       plotVariantHeatmap(rv$sce_filtered)
     })
     
@@ -390,7 +298,6 @@ server <- function(input, output, session) {
     })
     
 
-    
     ## Violin: GQ -------------------------------------------------------------
     output$var_plot5 <- renderPlot({
       plotGenotypequalityPerGenotype(sce_filtered)
@@ -400,30 +307,34 @@ server <- function(input, output, session) {
     ## DT: overview filtered variants -----------------------------------------
     output$data_table_var <- renderDataTable({
       sample.name <- sce_filtered@metadata[['sample_name']]
+      file.out <- paste0("scafari_variants_", sample.name)
       rowData(altExp(sce_filtered))[1:5,] %>%
         as.data.frame() %>% 
         dplyr::select(-any_of('id')) %>% 
         replace(is.na(.), '-') %>% 
         rownames_to_column(var = 'Variant') %>% 
-        tidyr::separate(Variant, c('Chromosome', 'Position', 'Alt', 'Ref'), sep = ':|/', remove = F) %>%
-        dplyr::mutate(Protein = ifelse(str_detect(Protein, '\\?'), Gene, Protein)) %>%
+        tidyr::separate(Variant, c('Chromosome', 'Position', 'Alt', 'Ref'), 
+                        sep = ':|/', remove = F) %>%
+        dplyr::mutate(Protein = ifelse(str_detect(Protein, '\\?'), 
+                                       Gene, Protein)) %>%
         dplyr::relocate(Gene, .before = Chromosome) %>%
         arrange(Gene) %>%
         datatable(.,  extensions = 'Buttons',
                   options = list(pageLength = 25, width = '95%',
                                  dom = 'Bfrtip',
                                  buttons = list( 
-                                   list(extend = 'csv',   filename =  paste0("scafari_variants_", sample.name)),
-                                   list(extend = 'excel', filename =  paste0("scafari_variants_", sample.name)),
-                                   list(extend = 'pdf', filename =  paste0("scafari_variants_", sample.name)),
-                                   list(extend = 'copy', filename =  paste0("scafari_variants_", sample.name)))),
+                                   list(extend = 'csv',   filename =  ),
+                                   list(extend = 'excel', filename =  file.out),
+                                   list(extend = 'pdf', filename =  file.out),
+                                   list(extend = 'copy', filename =  file.out))),
                   rownames = F)
     })
     
     
     ## DT: select variants of interest -----------------------------------------
     output$data_table_var2 <- renderDataTable({
-      sort(paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)) %>%
+      sort(paste0(rowData(altExp(sce_filtered))$Gene, ':', 
+                  rowData(altExp(sce_filtered))$id)) %>%
         as.data.frame() %>%
         datatable(., 
                   options = list(pageLength = 25, width = '95%',
@@ -436,7 +347,8 @@ server <- function(input, output, session) {
     
     # Text: selected variants of interest --------------------------------------
     output$selected_rows <- renderPrint({
-      cat((sort(paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)) %>% 
+      cat((sort(paste0(rowData(altExp(sce_filtered))$Gene, ':', 
+                       rowData(altExp(sce_filtered))$id)) %>% 
              as.data.frame() %>% 
              mutate(id = paste0(Gene, ':', rownames(.))) %>%
              dplyr::select(id) %>%
@@ -495,7 +407,8 @@ server <- function(input, output, session) {
           }))
           
           # Transform numerical genotype to WT, Het, Ho,, Missing dataframe
-          gt.anno <- data.frame(WT = integer(), Het = integer(), Hom = integer(), Missing = integer())
+          gt.anno <- data.frame(WT = integer(), Het = integer(), 
+                                Hom = integer(), Missing = integer())
           for (col in 1:ncol(genotype.matrix.filtered)){
             wt <- sum(genotype.matrix.filtered[, col] == 0)
             het <- sum(genotype.matrix.filtered[, col] == 1)
@@ -511,7 +424,8 @@ server <- function(input, output, session) {
             dplyr::select(-Total)
           rownames(proportions) <- names#+rownames(variant.ids.filtered.df.anno)
           
-          colors.vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
+          colors.vaf <- circlize::colorRamp2(c(0, 50, 100), 
+                                             c("#414487FF", "#F6A97A", "#D44292"))
           
           # Create and render the Heatmap
           Heatmap(matrix = vaf.matrix.filtered.hm,
@@ -537,7 +451,8 @@ server <- function(input, output, session) {
       ## Elbow plot preparation ------------------------------------------------
       req(selected_variants()) 
       # TODO maybe define reactive
-      variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
+      variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, 
+                                          ':', rowData(altExp(sce_filtered))$id)
       
       # Update current_variants with the selected variants
       current_variants(selected_variants())  
@@ -571,7 +486,7 @@ server <- function(input, output, session) {
     observe({
       if (is.numeric(input$n_clust) && input$n_clust >= 2) {
         enable("kmeans_btn")  # Enable button if valid
-        runjs('document.getElementById("error_message").innerHTML = ""')  # Clear error message
+        runjs('document.getElementById("error_message").innerHTML = ""')
       } else {
         disable("kmeans_btn")  # Disable button if not valid
         runjs('document.getElementById("error_message").innerHTML = "Please enter a numeric value greater than 2."')
@@ -582,7 +497,8 @@ server <- function(input, output, session) {
     observeEvent(input$kmeans_btn, {
       req(current_variants())  # Ensure variants are selected
       req(is.numeric(input$n_clust) && input$n_clust >= 2)  # Re-check the condition
-      variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, ':', rowData(altExp(sce_filtered))$id)
+      variant.ids.filtered.gene <- paste0(rowData(altExp(sce_filtered))$Gene, 
+                                          ':', rowData(altExp(sce_filtered))$id)
       variants.of.interest <-  sort(variant.ids.filtered.gene)[current_variants()]
       
       # Print selected variants
@@ -609,7 +525,7 @@ server <- function(input, output, session) {
       
       # Make colorpalette
       chromosomes <- c(paste0("chr", 1:21), "chrX", "chrY")
-      colors.vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  # TODO outsie
+      colors.vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))  
       
       vaf.matrix.filtered <-  as.data.frame(t(assay(altExp(sce_filtered, 'variants'), 'VAF')))
       colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce_filtered, 'variants'))$Gene, ':', rowData(altExp(sce_filtered, 'variants'))$id)
@@ -631,7 +547,6 @@ server <- function(input, output, session) {
         return(x)
       }))
       
-      # TODO is this used
       gt.anno <- data.frame(WT = integer(),
                             Het = integer(),
                             Hom = integer(),
@@ -647,7 +562,7 @@ server <- function(input, output, session) {
       gt.anno$Total <- rowSums(gt.anno)
       proportions <- gt.anno %>%
         dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
-        dplyr::select(-Total)# TODO check
+        dplyr::select(-Total)
       rownames(proportions) <- variant.ids.filtered.gene #rownames(variant.ids.filtered.df.anno)
       
       # Genotype annotation
@@ -677,13 +592,13 @@ server <- function(input, output, session) {
       req(k2())
       req(plots_visible_2)
       vaf_violin(plotClusterVAF(sce_filtered,
-                                                          variants.of.interest = variants.of.interest,
-                                                          gg.clust = gg.clust()))
+                                variants.of.interest = variants.of.interest,
+                                gg.clust = gg.clust()))
       ## Bar: Explore variants -------------------------------------------------
       req(k2()) 
       ana_bar(plotClusterGenotype(sce_filtered,
                                   variants.of.interest = variants.of.interest,
-                          gg.clust = gg.clust()))
+                                  gg.clust = gg.clust()))
       
       ## Map: Explore variants colored by VAF ----------------------------------
       req(k2())
@@ -691,8 +606,8 @@ server <- function(input, output, session) {
       variants.of.interest = variants.of.interest
       gg.clust = gg.clust()
       vaf_map(plotClusterVAFMap(sce_filtered,
-                                                     variants.of.interest = variants.of.interest,
-                                                     gg.clust = gg.clust()))
+                                variants.of.interest = variants.of.interest,
+                                gg.clust = gg.clust()))
     })
     
     # End of Explore variants Panel plots
@@ -701,7 +616,6 @@ server <- function(input, output, session) {
       req(k2()) 
       return(k2())  # Render the k-means result stored in k2
     })
-    
     
     # Expose the visibility state
     output$plots_visible_2 <- reactive({ plots_visible_2() })
@@ -770,11 +684,15 @@ server <- function(input, output, session) {
     metadata <- sce_obj@metadata
 
     plot(0,type='n',axes=FALSE,ann=FALSE)
-    mtext(paste0(round(as.numeric(metadata[['avg_panel_uniformity']])*100, digits = 2), ''), side = 3,line = -2, cex = 3, col = '#22A484FF')
+    mtext(paste0(round(as.numeric(metadata[['avg_panel_uniformity']])*100, 
+                       digits = 2), ''), side = 3,line = -2, cex = 3, 
+          col = '#22A484FF')
     mtext('Panel uniformity (%)', side = 3, line = -4, cex = 1.5)
     
     # Print ean mapped reads per cell  # TODO check bei anderen, ob richtig!!
-    mtext(round((as.numeric(metadata[['n_read_pairs_mapped_to_cells']])/as.numeric(metadata[['n_read_pairs']])*100), digits = 2), side = 1,line = -4, cex = 3, col = '#22A484FF')
+    mtext(round((as.numeric(metadata[['n_read_pairs_mapped_to_cells']])/
+                   as.numeric(metadata[['n_read_pairs']])*100), digits = 2), 
+          side = 1,line = -4, cex = 3, col = '#22A484FF')
     mtext('Read pairs assigned to cells (%)', side = 1, line = -2, cex = 1.5)
     
     # Draw box
@@ -820,10 +738,12 @@ server <- function(input, output, session) {
     
     # Print ean mapped reads per cell
     mtext(floor(as.numeric(metadata[['n_read_pairs_mapped_to_cells']])/
-                  as.numeric(metadata[['n_cells']])/as.numeric(metadata[['n_amplicons']])), side = 1,line = -4, cex = 3, col = '#22A484FF')  # TODO dyn
-    mtext('Average read pairs per \namplicon and cell', side = 1, line = -0.5, cex = 1.5)
+                  as.numeric(metadata[['n_cells']])/
+                  as.numeric(metadata[['n_amplicons']])), side = 1,line = -4, 
+          cex = 3, col = '#22A484FF') 
+    mtext('Average read pairs per \namplicon and cell', side = 1, line = -0.5, 
+          cex = 1.5)
     box(which = 'outer', lty = 'solid', col = 'grey')
-    #https://support.missionbio.com/hc/en-us/articles/360044185393-What-causes-a-low-of-mapped-reads-to-cells
   })
   
   # Panel karyoplot
@@ -916,5 +836,5 @@ server <- function(input, output, session) {
   })
 }
 
-# Run the application
-shinyApp(ui = ui, server = server)
+# # Run the application
+# shinyApp(ui = ui, server = server)
