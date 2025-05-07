@@ -7,11 +7,9 @@
 #' @return A ggplot object representing the log-log plot of read counts.
 #' 
 #' @examples
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
 #' plot <- logLogPlot(sce)
 #' print(plot)
-#' }
 #'
 #' @export
 

@@ -5,6 +5,7 @@
 #' 
 #' @return ggplot object with elbow plot.
 #' 
+#' @examples
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp().
 #' plotElbow(sce = sce_filtered, 
 #'                variants.of.interest = c("FLT3:chr13:28610183:A/G",

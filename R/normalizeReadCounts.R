@@ -7,6 +7,10 @@
 #'
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
 #' 
+#' @examples
+#' # Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+#' sce <- normalizeReadCounts(sce)
+#' 
 #' @export
 normalizeReadCounts <- function(sce) {
  # Check that the input is a SingleCellExperiment object

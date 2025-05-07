@@ -10,11 +10,8 @@
 #' @return The function returns an annotated SingleCellExperiment object.
 #' 
 #' @examples
-#' 
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 #' sce <- annotateVariants(sce, shiny = FALSE)
-#'}
 #'
 #' @export
 #' 

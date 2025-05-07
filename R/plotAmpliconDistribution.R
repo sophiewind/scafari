@@ -6,6 +6,7 @@
 #'
 #' @return A ggplot object representing the distribution of amplicons.
 #' 
+#' @examples
 #' # Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
 #' plotAmpliconDistribution(sce)
 #'

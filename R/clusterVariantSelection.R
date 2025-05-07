@@ -9,7 +9,6 @@
 #' @return A list with k-means results and a ggplot-object.
 #' 
 #' @examples
-#' 
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 #' clusterplot <- clusterVariantSelection(sce = sce_filtered, 
 #'                                        variants.of.interest = c("FLT3:chr13:28610183:A/G",
