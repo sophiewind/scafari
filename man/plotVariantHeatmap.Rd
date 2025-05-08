@@ -22,7 +22,8 @@ distribution and frequency of variants across different samples or cells.
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with an appropriate variant assay.
-variant_heatmap <- plotVariantHeatmap(sce)
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+variant_heatmap <- plotVariantHeatmap(sce_filtered)
 print(variant_heatmap)
 
 }

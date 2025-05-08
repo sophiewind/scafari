@@ -17,6 +17,9 @@ This function generates a log-log plot of read counts using the data from a `Sin
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
+h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+h5 <- h5ToSce(h5_file_path)
+sce <- h5$sce_amp
 plot <- logLogPlot(sce)
 print(plot)
 

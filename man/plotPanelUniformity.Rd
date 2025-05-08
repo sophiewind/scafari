@@ -23,6 +23,10 @@ in a `SingleCellExperiment` object. It uses read counts stored in the
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with 'counts' assay.
+h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+h5 <- h5ToSce(h5_file_path)
+sce <- h5$sce_amp
+sce <- normalizeReadCounts(sce = sce)
 uniformity_plot <- plotPanelUniformity(sce)
 print(uniformity_plot)
 

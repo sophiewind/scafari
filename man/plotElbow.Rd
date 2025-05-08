@@ -19,6 +19,7 @@ This function takes a SingleCellExperiment object and variants of interest as in
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp().
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
 plotElbow(
   sce = sce_filtered,
   variants.of.interest = c(

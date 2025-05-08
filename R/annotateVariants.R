@@ -10,9 +10,11 @@
 #' @return The function returns an annotated SingleCellExperiment object.
 #'
 #' @examples
+#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
-#' sce <- annotateVariants(sce, shiny = FALSE)
-#'
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+#' sce <- annotateVariants(sce_filtered, shiny = FALSE)
+#'}
 #' @export
 #'
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima

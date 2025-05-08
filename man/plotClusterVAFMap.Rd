@@ -23,6 +23,8 @@ This function generates a plot to visualize variant allele frequency (VAF) in cl
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp() and clusterplot is the output of clusterVariantSleection().
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", package = "scafari"))
 plotClusterVAFMap(
   sce = sce_filtered,
   variants.of.interest = c(
@@ -33,5 +35,4 @@ plotClusterVAFMap(
   ),
   gg.clust = clusterplot$clusterplot
 )
-
 }

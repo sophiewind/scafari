@@ -58,6 +58,7 @@ Function: filterVariants
 This function takes a SingleCellExperiment object as input and performs variant filtering
 }
 \examples{
+\dontrun{
 filteres <- filterVariants(depth.threshold = 10,
 genotype.quality.threshold = 30,
 vaf.ref = 5, 
@@ -80,7 +81,7 @@ indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)
 
 # Subset the SCE using these indices
 sce_filtered <- sce[, indices_to_keep]
-
+}
 
 }
 \references{

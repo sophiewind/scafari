@@ -9,6 +9,8 @@
 #'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp() and clusterplot is the output of clusterVariantSleection().
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+#' clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", package = "scafari"))
 #' plotClusterVAFMap(
 #'   sce = sce_filtered,
 #'   variants.of.interest = c(
@@ -19,7 +21,8 @@
 #'   ),
 #'   gg.clust = clusterplot$clusterplot
 #' )
-#'
+
+
 #' @export
 plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust) {
   if (!inherits(sce, "SingleCellExperiment")) {

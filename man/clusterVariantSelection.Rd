@@ -25,6 +25,7 @@ This function takes selected variants and performs clustering on them.
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp()
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
 clusterplot <- clusterVariantSelection(
   sce = sce_filtered,
   variants.of.interest = c(

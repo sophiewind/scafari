@@ -24,6 +24,7 @@
 #' } 
 #' 
 #' @examples
+#' \dontrun{
 #' filteres <- filterVariants(depth.threshold = 10,
 #' genotype.quality.threshold = 30,
 #' vaf.ref = 5, 
@@ -46,11 +47,9 @@
 #' 
 #' # Subset the SCE using these indices
 #' sce_filtered <- sce[, indices_to_keep]
-#' 
+#' }
 #' 
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
-
-
 filterVariants <- function(depth.threshold = numeric(),
                            genotype.quality.threshold = numeric(),
                            vaf.ref = numeric(),

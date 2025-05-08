@@ -17,6 +17,9 @@ This function normalizes the read counts contained within a `SingleCellExperimen
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+h5 <- h5ToSce(h5_file_path)
+sce <- h5$sce_amp
 sce <- normalizeReadCounts(sce)
 
 }

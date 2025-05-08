@@ -21,6 +21,8 @@ This function generates a plot to visualize genotype in clusters based on select
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp() and clusterplot is the output of clusterVariantSleection().
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", package = "scafari"))
 plotClusterGenotype(
   sce = sce_filtered,
   variants.of.interest = c(
