@@ -11,7 +11,7 @@
 #' annotated <- annotateAmplicons(sce)
 #'
 #' @export
-annotateAmplicons <- function(sce) {
+annotateAmplicons <- function(sce, known.canon) {
   # Check if the SCE object has metadata
   if (is.null(metadata(sce))) {
     stop("The SingleCellExperiment object does not contain any metadata.")
@@ -69,7 +69,7 @@ annotateAmplicons <- function(sce) {
     exons.gr <- makeGRangesFromDataFrame(exon_data_clean, keep.extra.columns = TRUE)
 
     # Extract canonical transcripts
-    canon.path <- system.file("extdata", "UCSC_hg19_knownCanonical_goldenPath.txt", package = "scafari")
+    canon.path <- known.canon
     known.canon <- read.delim(canon.path, header = FALSE, col.names = c("seqnames", "start", "end", "x", "transcript"))
     known.canon$transcript <- gsub("\\..*", "", known.canon$transcript)
     exons.gr$transcript <- gsub("\\..*", "", exons.gr$transcript)

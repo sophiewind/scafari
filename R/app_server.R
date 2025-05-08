@@ -1,7 +1,5 @@
 # Server -----------------------------------------------------------------------
 app_server <- function(input, output, session) {
-  set.seed(1)
-
   # Setup reactivity -----------------------------------------------------------
   plots_visible <- reactiveVal(FALSE)
   plots_visible_2 <- reactiveVal(FALSE)

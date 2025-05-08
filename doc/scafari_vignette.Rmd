@@ -101,7 +101,8 @@ Information from the .h5 file are loaded in an sce class object in this step.
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
 # Load .h5 file
-h5 <- h5ToSce('../testdata/demo.h5')
+h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+h5 <- h5ToSce(h5_file_path)
 sce <- h5$sce_amp
 se.var <- h5$se_var
 ```
@@ -128,8 +129,22 @@ sce <- normalizeReadCounts(sce = sce)
 
 After read counts are normalized they can be annotated with biological relevant information such as exon number and canonical transcript ID.
 
+Therefore, known canonicals should be provided. They can be dowloaded like it is shown here: 
+
+```{r, eval=FALSE}
+url <- "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/knownCanonical.txt.gz"
+destfile <- "knownCanonical.txt.gz"
+
+# Download the file
+download.file(url, destfile)
+R.utils::gunzip(destfile, remove = FALSE)  # This creates 'knownCanonical.txt'
+```
+
+
+
 ```{r}
-annotateAmplicons(sce = sce)
+# Decompress the file
+annotateAmplicons(sce = sce, known.canon = "./UCSC_hg19_knownCanonical_goldenPath.txt")
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
@@ -155,8 +170,8 @@ plotPanelUniformity(sce, interactive = FALSE)
 The variant analysis starts with variant filtering and is performed on criteria such as sequencing depth, variant allele frequency (VAF), genoytpe data and genotype quality data. Further, the minimum percentage of cells that could be assigned with a genotype other than missing (wild type, heterozygous, homozygous) and the minimum percentage of cells with mutated genotypes (heterozygous, homozygous).
 
 
-```{r, cache =TRUE}
-suppressPackageStartupMessages(library(SummarizedExperiment))
+```{r, cache = TRUE, message = FALSE}
+library(SummarizedExperiment)
 
 filteres <- filterVariants(depth.threshold = 10,
                            genotype.quality.threshold = 30,
@@ -234,6 +249,8 @@ variants.of.interest <- c("KIT:chr4:55599436:T/C",
 
 
 After selecting the variants of interest, the cells can be clustered based on their VAF. The clustering returns the k-means results and the clusterplot itself in a list object.
+For stable k-means clustering a seed can be used `set.seed(1)`.
+
 
 ```{r, fig.show='hide'}
 plot <- clusterVariantSelection(sce = sce_filtered,
