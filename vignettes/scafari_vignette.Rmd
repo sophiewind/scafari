@@ -59,7 +59,6 @@ To run scafari, you need R (Version 4.4 or higher).
 # Running scafari
 ## Installation
 
-
 A development version of scafari will be available on GitHub and can be installed as follows:
 
 ```{r, eval=F}
@@ -68,7 +67,7 @@ devtools::install_github("sophiewind/scafari")
 ```
 
 ##  Getting started
-A basic workflow analysis of scDNA-seq data is demonstrated in the following on an exemplary dataset.
+A basic workflow analysis of scDNA-seq data is demonstrated in the following on an exemplary dataset. 
 First we need to load scafari.
 
 ```{r loading , eval=T, warning=FALSE}
@@ -76,7 +75,7 @@ library(scafari)
 ```
 
 Once the package is installed and have been loaded, the analysis can start.
-scafari is available as R package and shiny GUI. You can run the shiny version by RStudio executing the function `TODO()`.
+scafari is available as R package and shiny GUI. You can run the shiny version by RStudio executing the function `launchScafariShiny()`.
 The scafari worklow can be split into four main parts.
 
 1. Sequencing information and quality control
@@ -90,8 +89,8 @@ These parts are represented in the four tabs of the shiny app and several functi
 The analysis start with uploading the .h5 file. In the shiny app an interactive upload is provided on the starting page.
 Information from the .h5 file are loaded in an sce class object in this step. 
 
-```{r}
-suppressPackageStartupMessages(library(SingleCellExperiment))
+```{r, message=FALSE}
+library(SingleCellExperiment)
 
 # Load .h5 file
 h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
@@ -155,7 +154,7 @@ plotNormalizedReadCounts(sce = sce)
 
 Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
 
-```{r, warning=FALSE, cache=TRUE}
+```{r, warning=FALSE}
 plotPanelUniformity(sce, interactive = FALSE)
 ```
 
@@ -164,7 +163,7 @@ plotPanelUniformity(sce, interactive = FALSE)
 The variant analysis starts with variant filtering and is performed on criteria such as sequencing depth, variant allele frequency (VAF), genoytpe data and genotype quality data. Further, the minimum percentage of cells that could be assigned with a genotype other than missing (wild type, heterozygous, homozygous) and the minimum percentage of cells with mutated genotypes (heterozygous, homozygous).
 
 
-```{r, cache = TRUE, message = FALSE}
+```{r, message = FALSE}
 library(SummarizedExperiment)
 
 filteres <- filterVariants(depth.threshold = 10,
