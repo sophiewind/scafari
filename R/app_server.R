@@ -100,7 +100,7 @@ app_server <- function(input, output, session) {
 
       sce_filtered <- current_sce[, indices_to_keep, drop = FALSE]
       SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
-      sce_filtered <- annotateVariants(sce = sce_filtered)
+      sce_filtered <- annotateVariants(sce = sce_filtered, shiny = TRUE)
 
       # Update the reactive value
       rv$sce_filtered <- sce_filtered
