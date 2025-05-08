@@ -1,7 +1,9 @@
 # STAT -------------------------------------------------------------------------
 #' Default shiny theme
 #'
-#' @export
+#' @return gg color scheme
+#'
+#' @keywords internal
 theme_shiny <- function() {
   theme_minimal() +
     theme(
@@ -12,8 +14,10 @@ theme_shiny <- function() {
 }
 
 #' Default ggplot scheme
-#'
-#' @export
+#' 
+#' @return gg color scheme
+#' 
+#' @keywords internal
 theme_default <- function() {
   theme_minimal() +
     theme(
@@ -25,7 +29,9 @@ theme_default <- function() {
 
 #' Default ggplot colors
 #'
-#' @export
+#' @return gg colors for plotting
+#'
+#' @keywords internal
 gg_color_hue <- function(n) {
   hues <- seq(15, 375, length = n + 1)
   hcl(h = hues, l = 65, c = 100)[1:n]
@@ -53,11 +59,14 @@ colors <- gg_color_hue(length(chromosomes))
 
 # Create a named list for the color palette
 chr_palette <- setNames(colors, chromosomes)
+
 # Upload -----------------------------------------------------------------------
-# Check h5
+#' Check h5
 #' @param file and path to the h5 file
 #'
 #' @return boolean if h5 is valid
+#' 
+#' @export
 checkH5 <- function(h5_file) {
   paths_to_check <- c(
     "/assays/dna_variants/layers/DP",
@@ -95,9 +104,11 @@ checkH5 <- function(h5_file) {
 
 
 
-# Check if MissionBio is accessible
+#' Check if MissionBio is accessible
 #'
 #' @return boolean if MissionBio API is currently available
+#' 
+#'  @export
 check_MBAPI <- function() {
   tryCatch(
     {
@@ -118,15 +129,4 @@ check_MBAPI <- function() {
       stop(paste("Error accessing URL:", e$message))
     }
   )
-}
-
-
-
-
-# Variants ---------------------------------------------------------------------
-
-
-
-getMetadata <- function() {
-
 }

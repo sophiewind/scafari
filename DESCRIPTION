@@ -7,10 +7,10 @@ Authors@R:
 	 email = "sophie.wind@uni-muenster.de", 
 	 role = c("aut", "cre"),
 	 comment=c(ORCID="0009-0002-1174-8201"))
-Description: Scafari is a Shiny application designed for the analysis of single-cell DNA sequencing (scDNA-seq) data provided in .h5 file format. The analysis process is structured into the four key steps "Sequencing", "Panel", "Variants", and "Explore Variants".
-License: LGPL-3  # TODO
+Description: Scafari is a Shiny application designed for the analysis of single-cell DNA sequencing (scDNA-seq) data provided in .h5 file format. The analysis process is structured into the four key steps "Sequencing", "Panel", "Variants", and "Explore Variants". It supports various analyses and visualizations.
+License: LGPL-3
 Encoding: UTF-8
-Requires:     
+Requires: 
     shiny,
     shinycssloaders,
     DT,
@@ -64,8 +64,13 @@ Imports:
     S4Vectors,
     parallel
 VignetteBuilder: knitr
-Suggests: knitr, rmarkdown, BiocStyle
+Suggests: 
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    testthat (>= 3.0.0)
 biocViews: Software, ShinyApps, SingleCell
 BugReports: https://github.com/sophiewind/scafari/issues
 URL: https://github.com/sophiewind/scafari
 RoxygenNote: 7.3.2
+Config/testthat/edition: 3

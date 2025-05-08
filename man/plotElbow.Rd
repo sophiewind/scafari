@@ -19,10 +19,13 @@ This function takes a SingleCellExperiment object and variants of interest as in
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp().
-plotElbow(sce = sce_filtered, 
-               variants.of.interest = c("FLT3:chr13:28610183:A/G",
-                                        "KIT:chr4:55599436:T/C",
-                                        "TP53:chr17:7577427:G/A",
-
-                                        "TET2:chr4:106158216:G/A"))
+plotElbow(
+  sce = sce_filtered,
+  variants.of.interest = c(
+    "FLT3:chr13:28610183:A/G",
+    "KIT:chr4:55599436:T/C",
+    "TP53:chr17:7577427:G/A",
+    "TET2:chr4:106158216:G/A"
+  )
+)
 }
