@@ -11,29 +11,18 @@ You can use bioconductor/bioconductor_docker (https://hub.docker.com/r/bioconduc
 
 # Installation
 
-To install scafari, download the repository. 
+To install scafari, open R and install the package.
 
-`git clone https://github.com/sophiewind/scafari.git`
+```
+install.packages("devtools")
+devtools::install_github("sophiewind/scafari")
+```
 
-# Running scafari
+scafari is available as R package and as shiny app. A detailed description how to use the R packages is in the vignette in `/vignettes` directory.
 
+# Running the scafari shiny app
 
-## Locally
-
-- Change directory to scafari: `cd scafari/`
-- If you run scafari for the first time run setup.R to install the necessary packages: `Rscript setup.R`
-- Now scafari is ready to run: `R -e "shiny::runApp('./app.R')"`
-  - The libraries are loaded in the beginning of the run, this can take some time
-  - When the libraries are loaded following line appears: `Listening on http://127.0.0.1:xxxx`. Click on the link, than your browser will connect to the shiny app
-
-## With docker
-
-- Change directory to scafari: `cd scafari/`
-- Build docker image: `docker build -t scafari:1 .`  (this can take some time (☕))
-- Start the container: `docker run -d -p 8885:8787 -e PASSWORD=pw --name scafari.docker -v $(pwd)/input:/home/rstudio/input:ro -v $(pwd)/R:/home/rstudio/R:ro scafari:1`
-- Connect to the docker using your browser and navigate to [http://localhost:8885/](http://localhost:8885/) to access the application.
-- Login (user: `rstudio`, password: `pw`)
-- Start the app in the R console `shiny::runApp('./app.R')`
+- launch the app using `launchScafariShiny()`
 
 
 # Input

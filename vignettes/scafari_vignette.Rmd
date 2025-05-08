@@ -59,13 +59,6 @@ To run scafari, you need R (Version 4.4 or higher).
 # Running scafari
 ## Installation
 
-scafari is available through Bioconductor. In R, enter the following commands to install scafari:
-
-```{r, eval=F}
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
-BiocManager::install("scafari")
-```
 
 A development version of scafari will be available on GitHub and can be installed as follows:
 
