@@ -20,10 +20,7 @@ Function: annotateAmplicons
 This function takes a SingleCellExperiment object as input and annotates the stored amplicons.
 }
 \examples{
-\dontrun{
 # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
-h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
-sce <- h5ToSce(h5_file_path)
-annotated <- annotateAmplicons(sce)
-}
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+annotated <- annotateAmplicons(sce_filtered)
 }

@@ -137,7 +137,7 @@ R.utils::gunzip(destfile, remove = FALSE)  # This creates 'knownCanonical.txt'
 
 
 ```{r}
-try(annotateAmplicons(sce = sce, known.canon = "./UCSC_hg19_knownCanonical_goldenPath.txt"))
+annotateAmplicons(sce = sce, known.canon = "./UCSC_hg19_knownCanonical_goldenPath.txt")
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.

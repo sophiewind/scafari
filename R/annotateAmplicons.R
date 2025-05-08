@@ -7,12 +7,9 @@
 #' @return A dataframe containing annotated amplicons.
 #'
 #' @examples
-#' \dontrun{
 #' # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
-#' h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
-#' sce <- h5ToSce(h5_file_path)
-#' annotated <- annotateAmplicons(sce)
-#' }
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+#' annotated <- annotateAmplicons(sce_filtered)
 #' @export
 annotateAmplicons <- function(sce, known.canon) {
   # Check if the SCE object has metadata
@@ -44,48 +41,68 @@ annotateAmplicons <- function(sce, known.canon) {
     # Prepare exon database -----------------------------------------------------
     # Read Biomart Exon information and format them
     amps <- as.data.frame(rowData(sce))
-    mart <- useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl", GRCh = 37)
-    get_exon_data <- function(i) {
-      exons <- getBM(
-        attributes = c("ensembl_exon_id", "ensembl_transcript_id_version", "chromosome_name", "exon_chrom_start", "exon_chrom_end", "rank"),
-        filters = c("chromosome_name", "start", "end"),
-        values = list(gsub("chr", "", amps$seqnames[i]), amps$start[i], amps$end[i]),
-        mart = mart
-      )
-      exons$region_id <- amps$id[i] # Include the region ID
-      return(exons)
-    }
-    num_cores <- detectCores() - 1
-
-    # Use mclapply for parallel processing
-    all_exon_data <- mclapply(1:nrow(amps), get_exon_data, mc.cores = num_cores)
-
-    # Combine all exon data into a single data frame
-    exon_data <- do.call(rbind, all_exon_data)
-    head(exon_data)
-
-    colnames(exon_data) <- c("exon_id", "transcript", "seqnames", "start", "end", "rank", "id")
-    exon_data$seqnames <- paste0("chr", exon_data$seqnames)
-
-    # Filter out data with invalid annotation values
-    exon_data_clean <- exon_data[!startsWith(exon_data$exon_id, "Error"), ]
-    exons.gr <- makeGRangesFromDataFrame(exon_data_clean, keep.extra.columns = TRUE)
-
-    # Extract canonical transcripts
-    canon.path <- known.canon
-    known.canon <- read.delim(canon.path, header = FALSE, col.names = c("seqnames", "start", "end", "x", "transcript"))
-    known.canon$transcript <- gsub("\\..*", "", known.canon$transcript)
-    exons.gr$transcript <- gsub("\\..*", "", exons.gr$transcript)
-    exons.gr.clean <- exons.gr[exons.gr$transcript %in% known.canon$transcript, ]
-    gene.anno.gr <- makeGRangesFromDataFrame(amps)
-
-    ov <- findOverlaps(gene.anno.gr, exons.gr.clean)
-
-    mcols(gene.anno.gr)["transcript"] <- "-"
-    mcols(gene.anno.gr)["Exon"] <- "-"
-
-    gene.anno.gr[queryHits(ov)]$Exon <- exons.gr.clean[subjectHits(ov)]$rank
-    gene.anno.gr[queryHits(ov)]$transcript <- exons.gr.clean[subjectHits(ov)]$transcript
+    try(mart <- useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl", GRCh = 37))
+    if (!exists('mart')){
+      message('Ensemble is not accessible at the moment.')
+      amps %>% 
+        as.data.frame() %>% 
+        dplyr::mutate(Gene = str_split_i(id, "_", 3)) %>%
+        `colnames<-`(c("Chromosome", "Start", "End", "Amplicon", "Gene")) %>%
+        datatable(.,
+                  rownames = FALSE, extensions = "Buttons",
+                  options = list(
+                    pageLength = 10, width = "100%",
+                    dom = "Bfrtip",
+                    buttons = list(
+                      list(extend = "csv", filename = paste0("scafari_panel_", sample_name)),
+                      list(extend = "excel", filename = paste0("scafari_panel_", sample_name)),
+                      list(extend = "pdf", filename = paste0("scafari_panel_", sample_name)),
+                      list(extend = "copy", filename = paste0("scafari_panel_", sample_name))
+                    )
+                  )
+                )
+    } else {
+      get_exon_data <- function(i) {
+        exons <- getBM(
+          attributes = c("ensembl_exon_id", "ensembl_transcript_id_version", "chromosome_name", "exon_chrom_start", "exon_chrom_end", "rank"),
+          filters = c("chromosome_name", "start", "end"),
+          values = list(gsub("chr", "", amps$seqnames[i]), amps$start[i], amps$end[i]),
+          mart = mart
+        )
+        exons$region_id <- amps$id[i] # Include the region ID
+        return(exons)
+      }
+      num_cores <- detectCores() - 1
+  
+      # Use mclapply for parallel processing
+      all_exon_data <- mclapply(1:nrow(amps), get_exon_data, mc.cores = num_cores)
+  
+      # Combine all exon data into a single data frame
+      exon_data <- do.call(rbind, all_exon_data)
+      head(exon_data)
+  
+      colnames(exon_data) <- c("exon_id", "transcript", "seqnames", "start", "end", "rank", "id")
+      exon_data$seqnames <- paste0("chr", exon_data$seqnames)
+  
+      # Filter out data with invalid annotation values
+      exon_data_clean <- exon_data[!startsWith(exon_data$exon_id, "Error"), ]
+      exons.gr <- makeGRangesFromDataFrame(exon_data_clean, keep.extra.columns = TRUE)
+  
+      # Extract canonical transcripts
+      canon.path <- known.canon
+      known.canon <- read.delim(canon.path, header = FALSE, col.names = c("seqnames", "start", "end", "x", "transcript"))
+      known.canon$transcript <- gsub("\\..*", "", known.canon$transcript)
+      exons.gr$transcript <- gsub("\\..*", "", exons.gr$transcript)
+      exons.gr.clean <- exons.gr[exons.gr$transcript %in% known.canon$transcript, ]
+      gene.anno.gr <- makeGRangesFromDataFrame(amps)
+  
+      ov <- findOverlaps(gene.anno.gr, exons.gr.clean)
+  
+      mcols(gene.anno.gr)["transcript"] <- "-"
+      mcols(gene.anno.gr)["Exon"] <- "-"
+  
+      gene.anno.gr[queryHits(ov)]$Exon <- exons.gr.clean[subjectHits(ov)]$rank
+      gene.anno.gr[queryHits(ov)]$transcript <- exons.gr.clean[subjectHits(ov)]$transcript
 
     # amps.anno <- amps.anno %>%  dplyr::mutate(Gene = str_split_i(id, '_', 3))
     df <- gene.anno.gr %>%
@@ -108,6 +125,7 @@ annotateAmplicons <- function(sce, known.canon) {
         )
       )
     return(df)
+    }
   } else if (genome_version == "hg38") {
     # MANE annotation
     message("hg38")

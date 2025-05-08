@@ -58,7 +58,12 @@ Function: filterVariants
 This function takes a SingleCellExperiment object as input and performs variant filtering
 }
 \examples{
-\dontrun{
+library(SummarizedExperiment)
+h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+h5 <- h5ToSce(h5_file_path)
+sce <- h5$sce_amp
+se.var <- h5$se_var
+sce <- normalizeReadCounts(sce = sce)
 filteres <- filterVariants(depth.threshold = 10,
 genotype.quality.threshold = 30,
 vaf.ref = 5, 
@@ -81,7 +86,6 @@ indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)
 
 # Subset the SCE using these indices
 sce_filtered <- sce[, indices_to_keep]
-}
 
 }
 \references{

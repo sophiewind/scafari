@@ -25,11 +25,9 @@ Function: annotateVariants
 This function takes a SingleCellExperiment object as input and performs variant annotation.
 }
 \examples{
-\dontrun{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
 sce <- annotateVariants(sce_filtered, shiny = FALSE)
-}
 }
 \references{
 https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
