@@ -10,6 +10,8 @@ annotateAmplicons(sce, known.canon)
 }
 \arguments{
 \item{sce}{SingleCellExperiment object containing the single-cell data.}
+
+\item{known.canon}{Path to jnown canonicals (see vignette)}
 }
 \value{
 A dataframe containing annotated amplicons.

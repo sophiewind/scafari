@@ -7,7 +7,7 @@
 checkH5(h5_file)
 }
 \arguments{
-\item{file}{and path to the h5 file}
+\item{h5_file}{and path to the h5 file}
 }
 \value{
 boolean if h5 is valid

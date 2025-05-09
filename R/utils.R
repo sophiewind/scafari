@@ -62,7 +62,7 @@ chr_palette <- setNames(colors, chromosomes)
 
 # Upload -----------------------------------------------------------------------
 #' Check h5
-#' @param file and path to the h5 file
+#' @param h5_file and path to the h5 file
 #'
 #' @return boolean if h5 is valid
 #' 
