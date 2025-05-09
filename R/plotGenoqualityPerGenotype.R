@@ -14,7 +14,8 @@
 #'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with 'genotype_quality' assay.
-#' genotype_quality_plot <- plotGenotypequalityPerGenotype(sce)
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+#' genotype_quality_plot <- plotGenotypequalityPerGenotype(sce_filtered)
 #' print(genotype_quality_plot)
 #'
 #' @export 
