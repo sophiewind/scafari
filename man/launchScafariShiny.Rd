@@ -13,7 +13,7 @@ shiny app
 Launch the Scafari Shiny App
 }
 \examples{
-\dontrun{
+\donttest{
 launchScafariShiny()
 }
 
