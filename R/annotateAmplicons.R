@@ -3,6 +3,7 @@
 #' This function takes a SingleCellExperiment object as input and annotates the stored amplicons.
 #'
 #' @param sce SingleCellExperiment object containing the single-cell data.
+#' @param known.canon Path to jnown canonicals (see vignette)
 #'
 #' @return A dataframe containing annotated amplicons.
 #'
