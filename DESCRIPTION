@@ -62,7 +62,13 @@ Imports:
     SummarizedExperiment,
     SingleCellExperiment,
     S4Vectors,
-    parallel
+    parallel,
+    httr,
+    jsonlite, 
+    scales,
+    tidyr,
+    txdbmaker,
+    circlize
 VignetteBuilder: knitr
 Suggests: 
     knitr,

@@ -29,7 +29,7 @@ plotAmpliconDistribution <- function(sce) {
   
   # Prepare GRanges from gene annotation data frame
   gene_anno_gr <- gene_anno_df %>%
-    mutate(Gene = sapply(strsplit(id, '_'), function(x) x[3])) %>% # Assuming str_split_i() splits by '_'
+    mutate(Gene = vapply(strsplit(id, '_'), function(x) x[3], character(1))) %>%
     makeGRangesFromDataFrame(keep.extra.columns = TRUE)
   
   # Create a karyotype plot
@@ -40,7 +40,7 @@ plotAmpliconDistribution <- function(sce) {
   
   # Prepare GRanges object for gene labels (avoid overplotting)
   amp_genes <- gene_anno_df %>%
-    mutate(Gene = sapply(strsplit(id, '_'), function(x) x[3])) %>%
+    mutate(Gene = vapply(strsplit(id, '_'), function(x) x[3], character(1))) %>%
     group_by(Gene) %>%
     slice(1) %>%
     ungroup() %>%

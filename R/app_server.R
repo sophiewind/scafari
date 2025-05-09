@@ -434,8 +434,10 @@ app_server <- function(input, output, session) {
       plots_visible_2(TRUE)
 
       ### Cluster plot ---------------------------------------------------------
-      req(plots_visible_2()) # Ensure plots are visible and the data is available
-      cluster.res <- clusterVariantSelection(sce_filtered, variants.of.interest, input$n_clust)
+      req(plots_visible_2()) # Ensure plots are visible and the data available
+      cluster.res <- clusterVariantSelection(sce_filtered,
+                                             variants.of.interest, 
+                                             input$n_clust)
       k2(cluster.res[["k_means"]])
       gg.clust(cluster.res[["clusterplot"]])
 
@@ -445,22 +447,28 @@ app_server <- function(input, output, session) {
 
       # Make colorpalette
       chromosomes <- c(paste0("chr", 1:21), "chrX", "chrY")
-      colors.vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D44292"))
+      colors.vaf <- circlize::colorRamp2(c(0, 50, 100), 
+                                         c("#414487FF", "#F6A97A", "#D44292"))
 
-      vaf.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered, "variants"), "VAF")))
-      colnames(vaf.matrix.filtered) <- paste0(rowData(altExp(sce_filtered, "variants"))$Gene, ":", rowData(altExp(sce_filtered, "variants"))$id)
+      vaf.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered, 
+                                                          "variants"), "VAF")))
+      colnames(vaf.matrix.filtered) <- 
+        paste0(rowData(altExp(sce_filtered,"variants"))$Gene, 
+               ":", rowData(altExp(sce_filtered, 
+               "variants"))$id)
 
-      genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered), "Genotype")))
-      colnames(genotype.matrix.filtered) <- paste0(rowData(altExp(sce_filtered))$Gene, ":", rowData(altExp(sce_filtered))$id)
+      genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered), 
+                                                        "Genotype")))
+      colnames(genotype.matrix.filtered) <- 
+        paste0(rowData(altExp(sce_filtered))$Gene, ":", 
+               rowData(altExp(sce_filtered))$id)
 
-      # Here you don't need to call current_variants() or selected_variants() directly
-      vaf.matrix.filtered.hm <- vaf.matrix.filtered[, variants.of.interest] # Use current_variants directly
+      vaf.matrix.filtered.hm <- vaf.matrix.filtered[, variants.of.interest]
       column_ha <- HeatmapAnnotation(
-        chr = factor(str_extract(colnames(vaf.matrix.filtered.hm), "chr(\\d|X|Y)+"),
-          levels = chromosomes
-        ),
-        col = list(chr = chr_palette)
-      )
+        chr = factor(str_extract(colnames(vaf.matrix.filtered.hm), 
+                                 "chr(\\d|X|Y)+"),
+          levels = chromosomes),
+        col = list(chr = chr_palette))
       collect <- data.frame(row.names = "")
 
       # GT matrix annotation
@@ -475,6 +483,7 @@ app_server <- function(input, output, session) {
         Hom = integer(),
         Missing = integer()
       )
+      
       for (col in 1:ncol(genotype.matrix.filtered)) {
         wt <- sum(genotype.matrix.filtered[, col] == 0)
         het <- sum(genotype.matrix.filtered[, col] == 1)
@@ -487,7 +496,7 @@ app_server <- function(input, output, session) {
       proportions <- gt.anno %>%
         dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
         dplyr::select(-Total)
-      rownames(proportions) <- variant.ids.filtered.gene # rownames(variant.ids.filtered.df.anno)
+      rownames(proportions) <- variant.ids.filtered.gene
 
       # Genotype annotation
       anno.bar <- anno_barplot(proportions,
@@ -673,11 +682,13 @@ app_server <- function(input, output, session) {
     metadata <- sce_obj@metadata
 
     plot(0, type = "n", axes = FALSE, ann = FALSE)
-    mtext(metadata[["panel_name"]], side = 3, line = -2, cex = 3, col = "#22A884FF")
+    mtext(metadata[["panel_name"]], side = 3, line = -2, cex = 3, 
+          col = "#22A884FF")
     mtext("Panel used", side = 3, line = -4, cex = 1.5)
 
     # Print ean mapped reads per cell
-    mtext(metadata[["n_amplicons"]], side = 1, line = -4, cex = 3, col = "#22A884FF")
+    mtext(metadata[["n_amplicons"]], side = 1, line = -4, cex = 3, 
+          col = "#22A884FF")
     mtext("Number of amplicons", side = 1, line = -2, cex = 1.5)
     box(which = "outer", lty = "solid", col = "grey")
   })
@@ -688,7 +699,8 @@ app_server <- function(input, output, session) {
     sce_obj <- sce()
     metadata <- sce_obj@metadata
 
-    genes <- sapply(str_split(rowData(sce())$id, "_"), function(x) x[3])
+    genes <- vapply(str_split(rowData(sce)$id, "_"), function(x) x[3], 
+                    character(1))
     plot(0, type = "n", axes = FALSE, ann = FALSE)
     mtext(length(unique(genes)), side = 3, line = -2, cex = 3, col = "#F66D7A")
     mtext("Number of Genes covered", side = 3, line = -4, cex = 1.5)
@@ -747,15 +759,23 @@ app_server <- function(input, output, session) {
       mutate(rowname = gsub("_", " ", rowname)) %>%
       mutate(rowname = str_to_title(rowname)) %>%
       datatable(.,
-        extension = "Buttons",
+        extensions = "Buttons",
         options = list(
           pageLength = 6,
           dom = "Bt",
           buttons = list(
-            list(extend = "csv", filename = paste0("scafari_sequencing_sample_", metadata[["sample_name"]])),
-            list(extend = "excel", filename = paste0("scafari_sequencing_sample_", metadata[["sample_name"]])),
-            list(extend = "pdf", filename = paste0("scafari_sequencing_sample_", metadata[["sample_name"]])),
-            list(extend = "copy", filename = paste0("scafari_sequencing_sample_", metadata[["sample_name"]]))
+            list(extend = "csv", filename = 
+                   paste0("scafari_sequencing_sample_", 
+                          metadata[["sample_name"]])),
+            list(extend = "excel", filename = 
+                   paste0("scafari_sequencing_sample_", 
+                          metadata[["sample_name"]])),
+            list(extend = "pdf", filename = 
+                   paste0("scafari_sequencing_sample_", 
+                          metadata[["sample_name"]])),
+            list(extend = "copy", filename = 
+                   paste0("scafari_sequencing_sample_", 
+                          metadata[["sample_name"]]))
           )
         ),
         colnames = rep("", ncol(.)), rownames = FALSE
@@ -767,8 +787,10 @@ app_server <- function(input, output, session) {
     metadata <- sce_obj@metadata
     rbind(
       "Total read pairs" = c(paste((as.numeric(metadata[["n_read_pairs"]])))),
-      "Read pairs trimmed" = c(paste((as.numeric(metadata[["n_read_pairs_trimmed"]])))),
-      "Read pairs with valid barcodes" = c(paste(round(as.numeric(metadata[["n_read_pairs_valid_cell_barcodes"]]))))
+      "Read pairs trimmed" = 
+        c(paste((as.numeric(metadata[["n_read_pairs_trimmed"]])))),
+      "Read pairs with valid barcodes" = 
+        c(paste(round(as.numeric(metadata[["n_read_pairs_valid_cell_barcodes"]]))))
     ) %>%
       datatable(.,
         extensions = "Buttons",
@@ -799,10 +821,14 @@ app_server <- function(input, output, session) {
           width = "100%",
           dom = "Bt",
           buttons = list(
-            list(extend = "csv", filename = paste0("scafari_sequencing_mapping", metadata[["sample_name"]])),
-            list(extend = "excel", filename = paste0("scafari_sequencing_mapping", metadata[["sample_name"]])),
-            list(extend = "pdf", filename = paste0("scafari_sequencing_mapping", metadata[["sample_name"]])),
-            list(extend = "copy", filename = paste0("scafari_sequencing_mapping", metadata[["sample_name"]]))
+            list(extend = "csv", filename = paste0("scafari_sequencing_mapping", 
+                                                   metadata[["sample_name"]])),
+            list(extend = "excel", filename = paste0("scafari_sequencing_mapping", 
+                                                     metadata[["sample_name"]])),
+            list(extend = "pdf", filename = paste0("scafari_sequencing_mapping",
+                                                   metadata[["sample_name"]])),
+            list(extend = "copy", filename = paste0("scafari_sequencing_mapping", 
+                                                    metadata[["sample_name"]]))
           )
         ),
         class = "display",
