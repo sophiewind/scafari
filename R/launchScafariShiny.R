@@ -1,7 +1,7 @@
 #' Launch the Scafari Shiny App
 #' 
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' launchScafariShiny()
 #' }
 #' 
