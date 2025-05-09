@@ -1,7 +1,4 @@
-# Import all functions from shiny
 import(shiny)
-
-# Import specific functions
 importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull, rename, 
            group_by, summarize, summarise, across, sample_n, slice)
 importFrom(magrittr, "%>%")
@@ -20,13 +17,11 @@ importFrom(tidyr, separate, pivot_longer)
 importFrom(scales, rescale)
 importFrom(jsonlite, fromJSON)
 importFrom(circlize, colorRamp2)
-
-#import(stringi)
 importFrom(waiter, use_waiter)
 importFrom(shinycssloaders, withSpinner)
 importFrom(shinyjs, useShinyjs)
-import(shinyBS)
 importFrom(shinycustomloader, withLoader)
+import(shinyBS)
 import(markdown)
 import(GenomicRanges)
 import(rhdf5)
