@@ -1,6 +1,5 @@
 app_ui <- function() {
   navbarPage(
-    use_waiter(), # Include waiter in the UI
     useShinyjs(), # Enable shinyjs
 
     # Upload tab -----------------------------------------------------------------
@@ -86,24 +85,78 @@ app_ui <- function() {
         conditionalPanel(
           condition = "output.continue == true",
           h1("Identify cell clusters"),
-          h2("Select number of clusters"),
-          withLoader(plotOutput("kneeplot")), loader = "dnaspin",
-          fluidRow(
-            numericInput("n_clust", "Number of clusters:",
-              value = 3,
-              min = 0, max = 10, step = 1
-            ),
-            div(
-              style = "display:inline-block; float:center",
-              actionButton("kmeans_btn",
-                label = "Start kmeans",
-                icon = icon("play"),
-                style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-              )
-            ),
-            hr()
+          h2("Select clustering method"),
+          
+          radioButtons(
+            "radio",
+            "Select option",
+            choices = list("k-means" = "kmeans", "leiden" = "leiden", "DBSCAN" = "dbscan"),
+            selected = "kmeans"
           ),
-          createExploreVariantUI(),
+          
+          withLoader(plotOutput("kneeplot"), loader = "dnaspin"),
+          
+          # Panel for k-means
+          conditionalPanel(
+            condition = "input.radio == 'kmeans'",
+            fluidRow(
+              numericInput("n_clust", "Number of clusters:",
+                           value = 3, min = 0, max = 10, step = 1
+              ),
+              div(
+                style = "display:inline-block; float:center",
+                actionButton("kmeans_btn",
+                             label = "Start kmeans",
+                             icon = icon("play"),
+                             style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                )
+              ),
+              hr()
+            )
+          ),
+          
+          # Panel for Leiden
+          conditionalPanel(
+            condition = "input.radio == 'leiden'",
+            fluidRow(
+              numericInput("resolution", "Resolution parameter:",
+                           value = 0.5, min = 0, max = 1, step = 0.01
+              ),
+              div(
+                style = "display:inline-block; float:center",
+                actionButton("leiden_btn",
+                             label = "Start Leiden",
+                             icon = icon("play"),
+                             style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                )
+              ),
+              hr()
+            )
+          ),
+          
+          # Panel for DBSCAN
+          conditionalPanel(
+            condition = "input.radio == 'dbscan'",
+            fluidRow(
+              numericInput("minPts", "minPts:",
+                           value = 5, min = 1, max = 100, step = 1
+              ),
+              numericInput("eps", "eps.value:",
+                           value = 0.5, min = 0, max = 5, step = 0.1
+              ),
+              div(
+                style = "display:inline-block; float:center",
+                actionButton("dbscan_btn",
+                             label = "Start DBSCAN",
+                             icon = icon("play"),
+                             style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                )
+              ),
+              hr()
+            )
+          ),
+          
+          createExploreVariantUI()
         )
       ),
       hr(),
