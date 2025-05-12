@@ -606,9 +606,6 @@ app_server <- function(input, output, session) {
     })
   })
 
-  # Create a waiter object
-  w <- Waiter$new(id = "file", html = spin_3(), color = "rgba(255,255,255,0.8)")
-
   output$text1 <- renderText({
     paste("You have selected", input$var)
   })
