@@ -745,7 +745,6 @@ app_server <- function(input, output, session) {
       )
   })
 
-
   # Tables ---------------------------------------------------------------------
   output$data_table_sample <- renderDataTable({
     sce_obj <- sce()
