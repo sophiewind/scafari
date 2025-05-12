@@ -696,7 +696,7 @@ app_server <- function(input, output, session) {
     sce_obj <- sce()
     metadata <- sce_obj@metadata
 
-    genes <- vapply(str_split(rowData(sce)$id, "_"), function(x) x[3], 
+    genes <- vapply(str_split(rowData(sce_obj)$id, "_"), function(x) x[3], 
                     character(1))
     plot(0, type = "n", axes = FALSE, ann = FALSE)
     mtext(length(unique(genes)), side = 3, line = -2, cex = 3, col = "#F66D7A")
