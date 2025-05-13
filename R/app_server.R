@@ -413,7 +413,7 @@ app_server <- function(input, output, session) {
     vaf_hm <- reactiveVal(NULL)
     vaf_violin <- reactiveVal(NULL)
     vaf_map <- reactiveVal(NULL)
-    
+    method <- reactiveVal("kmeans")  # Initialize with a default method
     observe({
       if (is.numeric(input$n_clust) && input$n_clust >= 2) {
         enable("kmeans_btn") # Enable button if valid
@@ -423,6 +423,12 @@ app_server <- function(input, output, session) {
         runjs('document.getElementById("error_message").innerHTML = "Please enter a numeric value greater than 2."')
       }
     })
+    
+    # Observe changes in the radio button and update the method
+    observeEvent(input$radio, {
+      method(input$radio)
+    })
+    
     
     # Observe the k-means button event
     observeEvent(input$kmeans_btn, {
