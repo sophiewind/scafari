@@ -390,6 +390,21 @@ app_server <- function(input, output, session) {
       print(kneeplot_data()) # Render the plot
     })
     
+    output$edgeplot <- renderPlot({
+      # condition to run your specific branch, could be based on user input or button press
+      # Assuming your choice is if 'method' variable allows for other conditions
+      
+      variants.of.interest <- c(
+        "FLT3:chr13:28610183:A/G",
+        "KIT:chr4:55599436:T/C",
+        "TP53:chr17:7577427:G/A",
+        "TET2:chr4:106158216:G/A"
+      )
+      
+      plotDensityEdge(sce_filtered, variants.of.interest)
+      
+    })
+    
     ## Clustering --------------------------------------------------------------
     # Define reactive variables for k2 and gg.clust
     k2 <- reactiveVal(NULL)
@@ -433,6 +448,7 @@ app_server <- function(input, output, session) {
         "</ul>"
       ))
       
+      
       plots_visible_2(TRUE)
       
       ### Cluster plot ---------------------------------------------------------
@@ -451,7 +467,6 @@ app_server <- function(input, output, session) {
         gg.clust(cluster.res[["clusterplot"]])
         
       } else if (method == 'leiden'){
-        browser()
         cluster.res <- clusterVariantSelection(sce_filtered,
                                               variants.of.interest = c(
                                                  "FLT3:chr13:28610183:A/G",
@@ -466,6 +481,8 @@ app_server <- function(input, output, session) {
         k2(cluster.res[[1]])
         gg.clust(cluster.res[["clusterplot"]])
       } else {
+        
+        
         cluster.res <- clusterVariantSelection(sce_filtered,
                                                variants.of.interest = c(
                                                  "FLT3:chr13:28610183:A/G",
@@ -475,7 +492,6 @@ app_server <- function(input, output, session) {
                                                )
                                                , 
                                                method ='dbscan',
-                                               minPts = 15,
                                                eps = 0.2)
         k2(cluster.res[[1]])
         gg.clust(cluster.res[["clusterplot"]])
