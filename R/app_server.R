@@ -357,6 +357,7 @@ app_server <- function(input, output, session) {
     current_variants <- reactiveVal(NULL)
     kneeplot_data <- reactiveVal(NULL)
     print.var <- reactiveVal(NULL)
+    print.clust <- reactiveVal(NULL)
     
     # Observer für den continue_var Button
     observeEvent(input$continue_var, {
@@ -454,6 +455,18 @@ app_server <- function(input, output, session) {
         "</ul>"
       ))
       
+      # Print clustering
+      print.clust(paste0(
+        "<ul>",
+        paste0(
+          "<li>",
+          "clustering: ", 
+          method,
+          "</li>",
+          collapse = ""
+        ),
+        "</ul>"
+      ))
       
       plots_visible_2(TRUE)
       
@@ -461,28 +474,17 @@ app_server <- function(input, output, session) {
       req(plots_visible_2()) # Ensure plots are visible and the data available
       if (method == 'kmeans'){
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               variants.of.interest =  c(
-                                                 "FLT3:chr13:28610183:A/G",
-                                                 "KIT:chr4:55599436:T/C",
-                                                 "TP53:chr17:7577427:G/A",
-                                                 "TET2:chr4:106158216:G/A"
-                                               )
-                                               , 
-                                               input$n_clust)
+                                               variants.of.interest =  variants.of.interest,   
+                                               method = 'k-means', 
+                                               n.clust = input$n_clust)
         k2(cluster.res[[1]])
         gg.clust(cluster.res[["clusterplot"]])
         
       } else if (method == 'leiden'){
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                              variants.of.interest = c(
-                                                 "FLT3:chr13:28610183:A/G",
-                                                 "KIT:chr4:55599436:T/C",
-                                                 "TP53:chr17:7577427:G/A",
-                                                 "TET2:chr4:106158216:G/A"
-                                               )
-                                               , 
+                                              variants.of.interest = variants.of.interest,
                                                method ='leiden',
-                                               resolution = 0.0001
+                                               resolution = input$resolution
                                                )
         k2(cluster.res[[1]])
         gg.clust(cluster.res[["clusterplot"]])
@@ -490,15 +492,10 @@ app_server <- function(input, output, session) {
         
         
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               variants.of.interest = c(
-                                                 "FLT3:chr13:28610183:A/G",
-                                                 "KIT:chr4:55599436:T/C",
-                                                 "TP53:chr17:7577427:G/A",
-                                                 "TET2:chr4:106158216:G/A"
-                                               )
-                                               , 
+                                               variants.of.interest,
                                                method ='dbscan',
-                                               eps = 0.2)
+                                               eps = input$eps, 
+                                               min.pts = input$minPts)
         k2(cluster.res[[1]])
         gg.clust(cluster.res[["clusterplot"]])
       }
@@ -668,10 +665,16 @@ app_server <- function(input, output, session) {
     output$selected_rows_2 <- renderUI({
       HTML(print.var())
     })
+    
+    output$selected_method <- renderUI({
+      HTML(print.clust())
+    })
+    
   })
   
   output$text1 <- renderText({
     paste("You have selected", input$var)
+    paste("You have selected", input$radio)
   })
   
   

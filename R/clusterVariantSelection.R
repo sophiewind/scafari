@@ -6,7 +6,7 @@
 #' @param n.clust An integer specifying the number of clusters.
 #' @param resolution The resolution parameter to use. Higher resolutions lead to more smaller communities, while lower resolutions lead to fewer larger communities.
 #' @param eps.value Size (radius) of the epsilon neighborhood. Can be omitted if x is a frNN object.
-#' @param minPts Number of minimum points required in the eps neighborhood for core points (including the point itself). By default cell number/100.
+#' @param min.pts Number of minimum points required in the eps neighborhood for core points (including the point itself). By default cell number/100.
 #' @return A list with clustering results and a ggplot-object.
 #' 
 #' @references https://cran.r-project.org/web/packages/dbscan/readme/README.html#ref-hahsler2019dbscan
@@ -29,7 +29,7 @@
 clusterVariantSelection <- function(sce, variants.of.interest, n.clust, 
                                     method = 'k-means', 
                                     eps.value = 0.2, 
-                                    resolution = NULL) {
+                                    resolution = NULL, min.pts = NULL) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
     stop("The input must be a SingleCellExperiment object.")
@@ -105,8 +105,8 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
       adjacency_matrix[i, neighborhood$nn.idx[i, ]] <- 1
     }
     
-    knn_graph <- graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
-    leiden_results <- cluster_leiden(knn_graph, resolution = resolution)
+    knn_graph <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
+    leiden_results <- igraph::cluster_leiden(knn_graph, resolution = resolution)
     
     # Viewing and plotting the clusters
     cluster <- leiden_results$membership
@@ -144,7 +144,7 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
     pca_result <- prcomp(df, center = TRUE, scale. = TRUE)
     pca_scores <- pca_result$x
     cluster_data <- as.data.frame(cbind(pca_scores, dbscan_result$cluster))
-    
+    cluster_data$V5 <- cluster_data$V5 +1
     # Change colnames so that there are comparable between clustering methods
     colnames(cluster_data)[1:2] <- c('x', 'y')
     colnames(cluster_data)[5] <- 'cluster'

@@ -6,6 +6,8 @@ createExploreVariantUI <- function() {
       h2('Cluster cells by VAF'),
       h4('Variants included in Clustering:'),
       uiOutput("selected_rows_2"),
+      h4('Clustering method used:'),
+      uiOutput("selected_method"),
       fluidRow(withLoader(plotOutput("cluster_plot", height = "800px"), loader = 'dnaspin')),
       
       h2('\n'),

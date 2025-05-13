@@ -94,6 +94,7 @@ app_ui <- function() {
             selected = "kmeans"
           ),
           
+          h2("Setup clustering parameters"),
           
           # Panel for k-means
           conditionalPanel(
