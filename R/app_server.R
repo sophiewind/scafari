@@ -439,7 +439,7 @@ app_server <- function(input, output, session) {
       req(plots_visible_2()) # Ensure plots are visible and the data available
       if (method == 'kmeans'){
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               c(
+                                               variants.of.interest =  c(
                                                  "FLT3:chr13:28610183:A/G",
                                                  "KIT:chr4:55599436:T/C",
                                                  "TP53:chr17:7577427:G/A",
@@ -451,9 +451,9 @@ app_server <- function(input, output, session) {
         gg.clust(cluster.res[["clusterplot"]])
         
       } else if (method == 'leiden'){
-        #browser()
+        browser()
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               c(
+                                              variants.of.interest = c(
                                                  "FLT3:chr13:28610183:A/G",
                                                  "KIT:chr4:55599436:T/C",
                                                  "TP53:chr17:7577427:G/A",
@@ -467,7 +467,7 @@ app_server <- function(input, output, session) {
         gg.clust(cluster.res[["clusterplot"]])
       } else {
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               c(
+                                               variants.of.interest = c(
                                                  "FLT3:chr13:28610183:A/G",
                                                  "KIT:chr4:55599436:T/C",
                                                  "TP53:chr17:7577427:G/A",
@@ -556,25 +556,25 @@ app_server <- function(input, output, session) {
                                ))
       )
       # Add cluster annoation
-      colors <- gg_color_hue(input$n_clust)
-      color_palette <- setNames(colors, as.character(seq(1, input$n_clust)))
+      colors <- gg_color_hue(length(unique(gg.clust()$data$cluster)))
+      color_palette <- setNames(colors, as.character(seq(1, length(colors))))
       row_annot <- rowAnnotation(
-        cluster = as.factor(k2()$cluster),
+        cluster = as.factor(gg.clust()$data$cluster),
         col = list(cluster = color_palette)
       )
-      # vaf_hm(Heatmap(
-      #   matrix = vaf.matrix.filtered.hm,
-      #   name = "VAF",
-      #   col = colors.vaf,
-      #   show_column_dend = TRUE,
-      #   show_row_dend = FALSE,
-      #   column_title = "Filtered Variants",
-      #   row_title = "Cells",
-      #   top_annotation = column_ha,
-      #   left_annotation = row_annot,
-      #   row_split = as.factor(k2()$cluster)
-      # ))
-      # 
+      vaf_hm(Heatmap(
+        matrix = vaf.matrix.filtered.hm,
+        name = "VAF",
+        col = colors.vaf,
+        show_column_dend = TRUE,
+        show_row_dend = FALSE,
+        column_title = "Filtered Variants",
+        row_title = "Cells",
+        top_annotation = column_ha,
+        left_annotation = row_annot,
+        row_split = as.factor(gg.clust()$data$cluster)
+      ))
+
       ## Violin: Explore variants ----------------------------------------------
       req(k2())
       req(plots_visible_2)
