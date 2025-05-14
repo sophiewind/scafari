@@ -3,6 +3,8 @@ app_server <- function(input, output, session) {
   # Setup reactivity -----------------------------------------------------------
   plots_visible <- reactiveVal(FALSE)
   plots_visible_2 <- reactiveVal(FALSE)
+  #plots_visible_3 <- reactiveVal(FALSE)
+  
   continue <- reactiveVal(FALSE)
   
   shinyjs::disable("filter_btn")
@@ -414,6 +416,8 @@ app_server <- function(input, output, session) {
     vaf_hm <- reactiveVal(NULL)
     vaf_violin <- reactiveVal(NULL)
     vaf_map <- reactiveVal(NULL)
+    errorMessage <- reactiveVal(NULL)
+    
     method <- reactiveVal("kmeans")  # Initialize with a default method
     observe({
       if (is.numeric(input$n_clust) && input$n_clust >= 2) {
@@ -468,39 +472,66 @@ app_server <- function(input, output, session) {
         "</ul>"
       ))
       
+      errorMessage(NULL)
       plots_visible_2(TRUE)
       
       ### Cluster plot ---------------------------------------------------------
       req(plots_visible_2()) # Ensure plots are visible and the data available
-      if (method == 'kmeans'){
-        cluster.res <- clusterVariantSelection(sce_filtered,
-                                               variants.of.interest =  variants.of.interest,   
-                                               method = 'k-means', 
-                                               n.clust = input$n_clust)
-        k2(cluster.res[[1]])
-        gg.clust(cluster.res[["clusterplot"]])
-        
-      } else if (method == 'leiden'){
-        cluster.res <- clusterVariantSelection(sce_filtered,
-                                              variants.of.interest = variants.of.interest,
-                                               method ='leiden',
-                                               resolution = input$resolution
-                                               )
-        k2(cluster.res[[1]])
-        gg.clust(cluster.res[["clusterplot"]])
-      } else {
-        
-        
-        cluster.res <- clusterVariantSelection(sce_filtered,
-                                               variants.of.interest,
-                                               method ='dbscan',
-                                               eps = input$eps, 
-                                               min.pts = input$minPts)
-        k2(cluster.res[[1]])
-        gg.clust(cluster.res[["clusterplot"]])
-      }
+      
+      # Within the observer in your Shiny server
+      observeEvent(input$kmeans_btn, {
+        tryCatch({
+          cluster.res <- NULL
+          if (method == 'kmeans'){
+            cluster.res <- clusterVariantSelection(sce_filtered, 
+                                                   variants.of.interest, 
+                                                   method = 'k-means', 
+                                                   n.clust = input$n_clust)
+          } else if (method == 'leiden'){
+            cluster.res <- clusterVariantSelection(sce_filtered, 
+                                                   variants.of.interest, 
+                                                   method = 'leiden', 
+                                                   resolution = input$resolution)
+          } else {
+            cluster.res <- clusterVariantSelection(sce_filtered, 
+                                                   variants.of.interest, 
+                                                   method = 'dbscan', 
+                                                   eps = input$eps, 
+                                                   min.pts = input$minPts)
+          }
+          
+          k2(cluster.res[[1]])
+          gg.clust(cluster.res[["clusterplot"]])
+          
+          # Check for cluster plot message
+          if (is.character(cluster.res$clusterplot)) {
+            output$cluster_plot <- renderText({
+              cluster.res$clusterplot  # Display message as text in plot area
+            })
+          } else {
+            output$cluster_plot <- renderPlot({
+              print(cluster.res$clusterplot)
+            })
+          }
+          
+        }, error = function(e) {
+          errorMessage(paste("Error during clustering:", e$message))
+          showNotification(
+            ui = paste("Error during clustering:", e$message),
+            type = "error",
+            duration = 5
+          )
+        })
+      })
       
       outputOptions(output, "plots_visible_2", suspendWhenHidden = FALSE)
+      
+      # Only show other plots if clustering was successfull
+      # if (class(cluster.res$clusterplot)[1] == 'gg'){
+      #   plots_visible_3(TRUE)
+      #   outputOptions(output, "plots_visible_3", suspendWhenHidden = FALSE)
+      # }
+      
       
       # Render the cluster plot using the reactive variable
       output$cluster_plot <- renderPlot({
@@ -596,7 +627,7 @@ app_server <- function(input, output, session) {
 
       ## Violin: Explore variants ----------------------------------------------
       req(k2())
-      req(plots_visible_2)
+      #req(plots_visible_3)
       violin <- plotClusterVAF(sce_filtered,
                                variants.of.interest = variants.of.interest,
                                gg.clust = gg.clust()
@@ -644,6 +675,10 @@ app_server <- function(input, output, session) {
     output$plots_visible_2 <- reactive({
       plots_visible_2()
     })
+    # 
+    # output$plots_visible_3 <- reactive({
+    #   plots_visible_3()
+    # })
     
     
     output$vaf_hm <- renderPlot({

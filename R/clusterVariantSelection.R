@@ -87,50 +87,40 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
     
     # Leiden ---------------------------------------------------------------------
   } else if (method == 'leiden'){
-    if (is.null(resolution)) {
-      stop("Parameter 'resolution' must be provided when using 'Leiden' clustering.")
-    }
-    
-    pca_result <- prcomp(df, center = TRUE, scale. = TRUE)
-    pc_scores <- pca_result$x 
-    summary(pca_result)
-    pca_result$rotation
-    
-    # Use RANN for KNN graph construction
-    neighborhood <- RANN::nn2(pc_scores)
-    
-    # Build adjacency matrix
-    adjacency_matrix <- matrix(0, ncol = nrow(pc_scores), nrow = nrow(pc_scores))
-    for (i in seq_len(nrow(pc_scores))) {
-      adjacency_matrix[i, neighborhood$nn.idx[i, ]] <- 1
-    }
-    
-    knn_graph <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
-    leiden_results <- igraph::cluster_leiden(knn_graph, resolution = resolution)
-    
-    # Viewing and plotting the clusters
-    cluster <- leiden_results$membership
-    if (length(unique(cluster)) > 15){
-      stop('This parameter seetings lead to more than 15 clusters. 
-              Please adjust the resolution. The `plotEdgeDensity()`
-              method can be used to find the optimal value.')
-    }
-    cluster_data <- as.data.frame(cbind(pc_scores, cluster))
-    cluster_data$cluster <- as.factor(cluster_data$cluster)
-    
-    # Change colnames so that there are comparable between clustering methods
-    colnames(cluster_data)[1:2] <- c('x', 'y')
-    
-    clust_plot <- ggplot(cluster_data, aes(x = x, y = y, color = cluster)) +
-      geom_point() + 
-      labs(x = paste0('PC1 (', round(summary(pca_result)$importance[2,1], 3)*100, '%)'),
-           y = paste0('PC1 (', round(summary(pca_result)$importance[2,2], 3)*100, '%)')) +
-      stat_ellipse(aes(fill = cluster), 
-                   alpha = .25, geom = 'polygon') +
-      theme_default()
-    print(clust_plot)
-    return(list(leiden_results = leiden_results, clusterplot = clust_plot))
-    
+      if (is.null(resolution)) {
+        stop("Parameter 'resolution' must be provided when using 'Leiden' clustering.")
+      }
+      
+      pca_result <- prcomp(df, center = TRUE, scale. = TRUE)
+      pc_scores <- pca_result$x 
+      # Use RANN for KNN graph construction
+      neighborhood <- RANN::nn2(pc_scores)
+      adjacency_matrix <- matrix(0, ncol = nrow(pc_scores), nrow = nrow(pc_scores))
+      for (i in seq_len(nrow(pc_scores))) {
+        adjacency_matrix[i, neighborhood$nn.idx[i, ]] <- 1
+      }
+      
+      knn_graph <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
+      leiden_results <- igraph::cluster_leiden(knn_graph, resolution = resolution)
+      
+      cluster <- leiden_results$membership
+      if (length(unique(cluster)) > 15) {
+        return(list(leiden_results = NULL, clusterplot = "Too many clusters (>15). Adjust resolution."))
+      }
+      
+      cluster_data <- as.data.frame(cbind(pc_scores, cluster))
+      cluster_data$cluster <- as.factor(cluster_data$cluster)
+      colnames(cluster_data)[1:2] <- c('x', 'y')
+      
+      clust_plot <- ggplot(cluster_data, aes(x = x, y = y, color = cluster)) +
+        geom_point() + 
+        labs(x = paste0('PC1 (', round(summary(pca_result)$importance[2,1], 3)*100, '%)'),
+             y = paste0('PC2 (', round(summary(pca_result)$importance[2,2], 3)*100, '%)')) +
+        stat_ellipse(aes(fill = cluster), alpha = .25, geom = 'polygon') +
+        theme_default()
+      
+      return(list(leiden_results = leiden_results, clusterplot = clust_plot))
+      
     # DBSCAN ---------------------------------------------------------------------
   } else if (method == 'dbscan'){
     # Set the parameters for DBSCAN
@@ -144,10 +134,12 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
     pca_result <- prcomp(df, center = TRUE, scale. = TRUE)
     pca_scores <- pca_result$x
     cluster_data <- as.data.frame(cbind(pca_scores, dbscan_result$cluster))
-    cluster_data$V5 <- cluster_data$V5 +1
+    
+    # Bring cluster from 0 to n to 1 to n + 1
+    cluster_data[, ncol(cluster_data)] <- cluster_data[, ncol(cluster_data)] + 1
     # Change colnames so that there are comparable between clustering methods
     colnames(cluster_data)[1:2] <- c('x', 'y')
-    colnames(cluster_data)[5] <- 'cluster'
+    colnames(cluster_data)[ncol(cluster_data)] <- 'cluster'
     
     cluster_data$cluster <- as.factor(cluster_data$cluster)
     clust_plot <- ggplot(cluster_data, aes(x = x, y = y, color = cluster)) +

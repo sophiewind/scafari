@@ -8,21 +8,32 @@ createExploreVariantUI <- function() {
       uiOutput("selected_rows_2"),
       h4('Clustering method used:'),
       uiOutput("selected_method"),
-      fluidRow(withLoader(plotOutput("cluster_plot", height = "800px"), loader = 'dnaspin')),
       
-      h2('\n'),
-      fluidRow(withLoader(plotOutput("vaf_hm", height = "800px"), loader = 'dnaspin')),
-      hr(),
-      h2('Explore variant profiles'),
-      h3('VAF in clusters'),
-      fluidRow(withLoader(plotOutput("vaf_violin"), loader = 'dnaspin')),
+      fluidRow(
+        withLoader(
+          uiOutput("cluster_plot"),  
+          loader = 'dnaspin'
+        )
+      ),
       
-      h3('VAF distribution map'),
-      fluidRow(withLoader(plotOutput("vaf_map"), loader = 'dnaspin')),
+     # conditionalPanel(
+        #condition = "output.plots_visible_3 == true",
       
-      h3('Numerical genotype in clusters'),
-      fluidRow(withLoader(plotOutput('ana_bar'), loader = 'dnaspin')),
+        h2('\n'),
+        fluidRow(withLoader(plotOutput("vaf_hm", height = "800px"), 
+                            loader = 'dnaspin')),
+        hr(),
+        
+        h2('Explore variant profiles'),
+        h3('VAF in clusters'),
+        fluidRow(withLoader(plotOutput("vaf_violin"), loader = 'dnaspin')),
+        
+        h3('VAF distribution map'),
+        fluidRow(withLoader(plotOutput("vaf_map"), loader = 'dnaspin')),
+        
+        h3('Numerical genotype in clusters'),
+        fluidRow(withLoader(plotOutput('ana_bar'), loader = 'dnaspin'))
+     # )
     )
   ) 
 }
-
