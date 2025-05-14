@@ -1,5 +1,6 @@
 createExploreVariantUI <- function() {
   tagList(
+    useShinyjs(),
     conditionalPanel(
       condition = "output.plots_visible_2 == true",
       
@@ -17,7 +18,7 @@ createExploreVariantUI <- function() {
       ),
       
      # conditionalPanel(
-        #condition = "output.plots_visible_3 == true",
+     #    condition = "output.plots_visible_3 == true",
       
         h2('\n'),
         fluidRow(withLoader(plotOutput("vaf_hm", height = "800px"), 
@@ -33,7 +34,7 @@ createExploreVariantUI <- function() {
         
         h3('Numerical genotype in clusters'),
         fluidRow(withLoader(plotOutput('ana_bar'), loader = 'dnaspin'))
-     # )
+      #)
     )
   ) 
 }
