@@ -15,7 +15,6 @@ app_server <- function(input, output, session) {
   options(shiny.maxRequestSize = 500 * 1024^2)
   
   # End of setting up  ---------------------------------------------------------
-  
   # Process input --------------------------------------------------------------
   ## Check input ----------------------------------------------------------------
   h5_file <- reactive({
@@ -383,6 +382,12 @@ app_server <- function(input, output, session) {
       
       # Compute the kneeplot data only upon clicking continue_var
       # Store the plot in the reactive variable
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      
       kneeplot_data(plotElbow(sce_filtered, current_variant_ids))
     })
     
@@ -396,14 +401,6 @@ app_server <- function(input, output, session) {
     output$edgeplot <- renderPlot({
       # condition to run your specific branch, could be based on user input or button press
       # Assuming your choice is if 'method' variable allows for other conditions
-      
-      variants.of.interest <- c(
-        "FLT3:chr13:28610183:A/G",
-        "KIT:chr4:55599436:T/C",
-        "TP53:chr17:7577427:G/A",
-        "TET2:chr4:106158216:G/A"
-      )
-      
       plotDensityEdge(sce_filtered, variants.of.interest, input$min.pts)
       
     })
@@ -436,7 +433,7 @@ app_server <- function(input, output, session) {
     # Observe the k-means button event
     observeEvent(input$kmeans_btn, {
       req(current_variants()) # Ensure variants are selected
-      req(is.numeric(input$n_clust) && input$n_clust >= 2) # Re-check the condition
+      req(is.numeric(input$n_clust) && input$n_clust >= 2) 
       req(method())
       method <- method()
       
@@ -479,13 +476,15 @@ app_server <- function(input, output, session) {
       req(plots_visible_2()) # Ensure plots are visible and the data available
       if (method == 'kmeans'){
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               variants.of.interest =  variants.of.interest,   
+                                               variants.of.interest =  
+                                                 variants.of.interest,   
                                                method = 'k-means', 
                                                n.clust = input$n_clust)
       } else if (method == 'leiden'){
         browser()
         cluster.res <- clusterVariantSelection(sce_filtered,
-                                               variants.of.interest = variants.of.interest,
+                                               variants.of.interest = 
+                                                 variants.of.interest,
                                                method ='leiden',
                                                resolution = input$resolution
         )
@@ -516,7 +515,8 @@ app_server <- function(input, output, session) {
         plots_visible_3(TRUE) # Set visibility to TRUE if valid
       } else {
         plots_visible_3(FALSE) # Set visibility to FALSE otherwise
-        showNotification("gg.clust() did not return a valid ggplot object. Plots will not be generated.", type = "error")
+        showNotification("gg.clust() did not return a valid ggplot object. 
+                         Plots will not be generated.", type = "error")
       }
     })
     
@@ -528,7 +528,6 @@ app_server <- function(input, output, session) {
       validate(
         need(is_valid_ggplot(gg.clust()), paste0(gg.clust()[[1]]))
       )
-      
       print(gg.clust())
     })
     
