@@ -538,9 +538,102 @@ app_server <- function(input, output, session) {
     })
     
     
-    # output$vaf_hm <- renderPlot({
-    #   print(vaf_hm())
-    # })
+    output$vaf_hm <- renderPlot({
+      req(k2())
+      req(plots_visible_2())  # Make sure it is called as a reactive function
+      req(gg_clust_valid())
+      req(current_variants())
+      
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      
+      # Make colorpalette
+      chromosomes <- c(paste0("chr", 1:21), "chrX", "chrY")
+      colors.vaf <- circlize::colorRamp2(c(0, 50, 100),
+                                         c("#414487FF", "#F6A97A", "#D44292"))
+
+      vaf.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered,
+                                                          "variants"), "VAF")))
+      colnames(vaf.matrix.filtered) <-
+        paste0(rowData(altExp(sce_filtered,"variants"))$Gene,
+               ":", rowData(altExp(sce_filtered,
+                                   "variants"))$id)
+
+      genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered),
+                                                        "Genotype")))
+      colnames(genotype.matrix.filtered) <-
+        paste0(rowData(altExp(sce_filtered))$Gene, ":",
+               rowData(altExp(sce_filtered))$id)
+
+      vaf.matrix.filtered.hm <- vaf.matrix.filtered[, variants.of.interest]
+      column_ha <- HeatmapAnnotation(
+        chr = factor(str_extract(colnames(vaf.matrix.filtered.hm),
+                                 "chr(\\d|X|Y)+"),
+                     levels = chromosomes),
+        col = list(chr = chr_palette))
+      collect <- data.frame(row.names = "")
+
+      # GT matrix annotation
+      df <- do.call(rbind, lapply(genotype.matrix.filtered[, variants.of.interest], function(x) {
+        length(x) <- 4
+        return(x)
+      }))
+
+      gt.anno <- data.frame(
+        WT = integer(),
+        Het = integer(),
+        Hom = integer(),
+        Missing = integer()
+      )
+
+      for (col in 1:ncol(genotype.matrix.filtered)) {
+        wt <- sum(genotype.matrix.filtered[, col] == 0)
+        het <- sum(genotype.matrix.filtered[, col] == 1)
+        hom <- sum(genotype.matrix.filtered[, col] == 2)
+        mis <- sum(genotype.matrix.filtered[, col] == 3)
+        gt.anno[col, ] <- c(wt, het, hom, mis)
+      }
+
+      gt.anno$Total <- rowSums(gt.anno)
+      proportions <- gt.anno %>%
+        dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
+        dplyr::select(-Total)
+      rownames(proportions) <- variant.ids.filtered.gene
+
+      # Genotype annotation
+      anno.bar <- anno_barplot(proportions,
+                               bar_width = 1, height = unit(3, "cm"),
+                               gp = gpar(fill = c(
+                                 WT = "#414487FF",
+                                 Het = "#F6A97A",
+                                 Hom = "#D44292",
+                                 Missing = "grey"
+                               ))
+      )
+      # Add cluster annoation
+      colors <- gg_color_hue(length(unique(gg.clust()$data$cluster)))
+      color_palette <- setNames(colors, as.character(seq(1, length(colors))))
+      row_annot <- rowAnnotation(
+        cluster = as.factor(gg.clust()$data$cluster),
+        col = list(cluster = color_palette)
+      )
+      vaf_hm(Heatmap(
+        matrix = vaf.matrix.filtered.hm,
+        name = "VAF",
+        col = colors.vaf,
+        show_column_dend = TRUE,
+        show_row_dend = FALSE,
+        column_title = "Filtered Variants",
+        row_title = "Cells",
+        top_annotation = column_ha,
+        left_annotation = row_annot,
+        row_split = as.factor(gg.clust()$data$cluster)
+      ))
+      print(vaf_hm())
+    })
     
     output$vaf_violin <- renderPlot({
       ## Violin: Explore variants ----------------------------------------------
