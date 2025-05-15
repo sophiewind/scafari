@@ -522,6 +522,11 @@ app_server <- function(input, output, session) {
     output$cluster_plot <- renderPlot({
       req(plots_visible_2())  # Make sure it is called as a reactive function
       req(gg.clust())
+      
+      validate(
+        need(is_valid_ggplot(gg.clust()), paste0(gg.clust()[[1]]))
+      )
+      
       print(gg.clust())
     })
     

@@ -127,7 +127,13 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
           x = paste0('PC1 (', round(summary(pca_result)$importance[2,1], 3) * 100, '%)'),
           y = paste0('PC2 (', round(summary(pca_result)$importance[2,2], 3) * 100, '%)')
         ) +
-        stat_ellipse(aes(fill = cluster), alpha = .25, geom = 'polygon') +
+        # tryCatch(
+        #   stat_ellipse(aes(fill = cluster), alpha = .25, geom = 'polygon'),
+        #   error = function(e) {
+        #     message("Ellipse computation failed, plotting without ellipses.")
+        #     NULL
+        #   }
+        # ) +
         theme_default()
       
       return(list(leiden_results = leiden_results, clusterplot = clust_plot))
