@@ -404,7 +404,7 @@ app_server <- function(input, output, session) {
         "TET2:chr4:106158216:G/A"
       )
       
-      plotDensityEdge(sce_filtered, variants.of.interest)
+      plotDensityEdge(sce_filtered, variants.of.interest, input$min.pts)
       
     })
     
@@ -439,6 +439,7 @@ app_server <- function(input, output, session) {
       req(is.numeric(input$n_clust) && input$n_clust >= 2) # Re-check the condition
       req(method())
       method <- method()
+      
       variant.ids.filtered.gene <- paste0(
         rowData(altExp(sce_filtered))$Gene,
         ":", rowData(altExp(sce_filtered))$id
