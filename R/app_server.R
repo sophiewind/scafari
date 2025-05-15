@@ -3,6 +3,8 @@ app_server <- function(input, output, session) {
   # Setup reactivity -----------------------------------------------------------
   plots_visible <- reactiveVal(FALSE)
   plots_visible_2 <- reactiveVal(FALSE)
+  plots_visible_3 <- reactiveVal(FALSE)
+  
   continue <- reactiveVal(FALSE)
   
   shinyjs::disable("filter_btn")
@@ -507,14 +509,13 @@ app_server <- function(input, output, session) {
     }
     
     # Create a reactive expression to check validity of gg.clust
-    gg_clust_valid <- reactive({
+    observeEvent(gg.clust(), {
       gg_clust_result <- gg.clust()
       if (is_valid_ggplot(gg_clust_result)) {
-        return(gg_clust_result)
+        plots_visible_3(TRUE) # Set visibility to TRUE if valid
       } else {
-        # Handle invalid ggplot case
+        plots_visible_3(FALSE) # Set visibility to FALSE otherwise
         showNotification("gg.clust() did not return a valid ggplot object. Plots will not be generated.", type = "error")
-        return(NULL)
       }
     })
     
@@ -542,11 +543,17 @@ app_server <- function(input, output, session) {
       plots_visible_2()
     })
     
+    output$plots_visible_3 <- reactive({
+      plots_visible_3()
+    })
+    
+    # Notify Shiny of this output's suspension behavior to manage conditional logic
+    outputOptions(output, "plots_visible_3", suspendWhenHidden = FALSE)
     
     output$vaf_hm <- renderPlot({
       req(k2())
       req(plots_visible_2())  # Make sure it is called as a reactive function
-      req(gg_clust_valid())
+      req(plots_visible_3())
       req(current_variants())
       
       variant.ids.filtered.gene <- paste0(
@@ -644,7 +651,8 @@ app_server <- function(input, output, session) {
       ## Violin: Explore variants ----------------------------------------------
       req(k2())
       req(plots_visible_2())  # Make sure it is called as a reactive function
-      req(gg_clust_valid())
+      req(plots_visible_3())
+      
       req(current_variants())
       
       variant.ids.filtered.gene <- paste0(
@@ -668,7 +676,8 @@ app_server <- function(input, output, session) {
     output$vaf_map <- renderPlot({
       ## Map: Explore variants colored by VAF ----------------------------------
       req(plots_visible_2())  # Make sure it is called as a reactive function
-      req(gg_clust_valid())
+      req(plots_visible_3())
+      
       req(current_variants())
       
       variant.ids.filtered.gene <- paste0(
@@ -691,7 +700,6 @@ app_server <- function(input, output, session) {
     output$ana_bar <- renderPlot({
       ## Bar: Explore variants -------------------------------------------------
       req(plots_visible_2())  # Make sure it is called as a reactive function
-      req(gg_clust_valid())
       req(current_variants())
       
       variant.ids.filtered.gene <- paste0(
