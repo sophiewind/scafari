@@ -12,7 +12,7 @@ createExploreVariantUI <- function() {
       
       fluidRow(
         withLoader(
-          uiOutput("cluster_plot"),  
+          plotOutput("cluster_plot"),  
           loader = 'dnaspin'
         )
       ),

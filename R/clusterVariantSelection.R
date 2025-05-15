@@ -87,39 +87,58 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
     
     # Leiden ---------------------------------------------------------------------
   } else if (method == 'leiden'){
-      if (is.null(resolution)) {
-        stop("Parameter 'resolution' must be provided when using 'Leiden' clustering.")
-      }
-      
+    tryCatch({
+      # Perform PCA
       pca_result <- prcomp(df, center = TRUE, scale. = TRUE)
-      pc_scores <- pca_result$x 
-      # Use RANN for KNN graph construction
+      pc_scores <- pca_result$x
+      
+      # Utilize RANN for KNN graph construction
       neighborhood <- RANN::nn2(pc_scores)
+      
+      # Create adjacency matrix for KNN graph
       adjacency_matrix <- matrix(0, ncol = nrow(pc_scores), nrow = nrow(pc_scores))
       for (i in seq_len(nrow(pc_scores))) {
         adjacency_matrix[i, neighborhood$nn.idx[i, ]] <- 1
       }
       
+      # Create graph and apply Leiden clustering
       knn_graph <- igraph::graph_from_adjacency_matrix(adjacency_matrix, mode = "undirected")
       leiden_results <- igraph::cluster_leiden(knn_graph, resolution = resolution)
       
       cluster <- leiden_results$membership
+      
+      # Handle scenario with too many clusters
       if (length(unique(cluster)) > 15) {
-        return(list(leiden_results = NULL, clusterplot = "Too many clusters (>15). Adjust resolution."))
+        return(list(
+          leiden = "Error: Too many clusters (>15). Adjust resolution.",
+          clusterplot = "Error: Too many clusters (>15). Adjust resolution."
+        ))
       }
       
+      # Prepare cluster data frame for plotting
       cluster_data <- as.data.frame(cbind(pc_scores, cluster))
       cluster_data$cluster <- as.factor(cluster_data$cluster)
       colnames(cluster_data)[1:2] <- c('x', 'y')
       
+      # Generate ggplot
       clust_plot <- ggplot(cluster_data, aes(x = x, y = y, color = cluster)) +
-        geom_point() + 
-        labs(x = paste0('PC1 (', round(summary(pca_result)$importance[2,1], 3)*100, '%)'),
-             y = paste0('PC2 (', round(summary(pca_result)$importance[2,2], 3)*100, '%)')) +
+        geom_point() +
+        labs(
+          x = paste0('PC1 (', round(summary(pca_result)$importance[2,1], 3) * 100, '%)'),
+          y = paste0('PC2 (', round(summary(pca_result)$importance[2,2], 3) * 100, '%)')
+        ) +
         stat_ellipse(aes(fill = cluster), alpha = .25, geom = 'polygon') +
         theme_default()
       
       return(list(leiden_results = leiden_results, clusterplot = clust_plot))
+      
+    }, error = function(e) {
+      # Catch any unexpected errors and return as structured messages
+      return(list(
+        leiden = "Error: An unexpected error occurred during Leiden clustering.",
+        clusterplot = paste("Error: ", e$message)
+      ))
+    })
       
     # DBSCAN ---------------------------------------------------------------------
   } else if (method == 'dbscan'){

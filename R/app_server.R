@@ -3,8 +3,6 @@ app_server <- function(input, output, session) {
   # Setup reactivity -----------------------------------------------------------
   plots_visible <- reactiveVal(FALSE)
   plots_visible_2 <- reactiveVal(FALSE)
-  plots_visible_3 <- reactiveVal(FALSE)
-  
   continue <- reactiveVal(FALSE)
   
   shinyjs::disable("filter_btn")
@@ -416,9 +414,7 @@ app_server <- function(input, output, session) {
     vaf_hm <- reactiveVal(NULL)
     vaf_violin <- reactiveVal(NULL)
     vaf_map <- reactiveVal(NULL)
-    errorMessage <- reactiveVal(NULL)
-    
-    method <- reactiveVal("kmeans")  # Initialize with a default method
+    method <- reactiveVal("kmeans")  
     observe({
       if (is.numeric(input$n_clust) && input$n_clust >= 2) {
         enable("kmeans_btn") # Enable button if valid
@@ -435,234 +431,98 @@ app_server <- function(input, output, session) {
     })
     
     
-    observeEvent(input$radio, {
-      method(input$radio)
-    })
-    
-    
     # Observe the k-means button event
     observeEvent(input$kmeans_btn, {
-      tryCatch({
-        method <- input$radio    # Get the selected method
-        
-        req(current_variants()) # Ensure variants are selected
-        req(is.numeric(input$n_clust) && input$n_clust >= 2) # Re-check the condition
-        variant.ids.filtered.gene <- paste0(
-          rowData(altExp(sce_filtered))$Gene,
-          ":", rowData(altExp(sce_filtered))$id
-        )
-        variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
-        
-        # Print selected variants
-        print.var(paste0(
-          "<ul>",
-          paste0(
-            "<li>",
-            variants.of.interest,
-            "</li>",
-            collapse = ""
-          ),
-          "</ul>"
-        ))
-        
-        # Print clustering
+      req(current_variants()) # Ensure variants are selected
+      req(is.numeric(input$n_clust) && input$n_clust >= 2) # Re-check the condition
+      req(method())
+      method <- method()
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      
+      # Print selected variants
+      print.var(paste0(
+        "<ul>",
+        paste0(
+          "<li>",
+          variants.of.interest,
+          "</li>",
+          collapse = ""
+        ),
+        "</ul>"
+      ))
+      
+      # Print clustering
+      try({
         print.clust(paste0(
           "<ul>",
           paste0(
             "<li>",
             "clustering: ", 
-            method,
+            as.character(method),  # Ensure method() is called correctly
             "</li>",
             collapse = ""
           ),
           "</ul>"
         ))
-        
-        plots_visible_2(TRUE)
-        
-        ### Cluster plot ---------------------------------------------------------
-        req(plots_visible_2()) # Ensure plots are visible and the data available
-        if (method == 'kmeans'){
-          cluster.res <- clusterVariantSelection(sce_filtered,
-                                                 variants.of.interest =  variants.of.interest,   
-                                                 method = 'k-means', 
-                                                 n.clust = input$n_clust)
-          k2(cluster.res[[1]])
-          gg.clust(cluster.res[["clusterplot"]])
-          
-        } else if (method == 'leiden'){
-          cluster.res <- clusterVariantSelection(sce_filtered,
-                                                 variants.of.interest = variants.of.interest,
-                                                 method ='leiden',
-                                                 resolution = input$resolution
-          )
-          k2(cluster.res[[1]])
-          gg.clust(cluster.res[["clusterplot"]])
-        } else {
-          
-          
-          cluster.res <- clusterVariantSelection(sce_filtered,
-                                                 variants.of.interest,
-                                                 method ='dbscan',
-                                                 eps = input$eps, 
-                                                 min.pts = input$minPts)
-          k2(cluster.res[[1]])
-          gg.clust(cluster.res[["clusterplot"]])
-        }
-        
-      outputOptions(output, "plots_visible_2", suspendWhenHidden = FALSE)
-      browser()
-      # Render the cluster plot using the reactive variable
-      output$cluster_plot <- renderUI({
-        if (is.character(gg.clust())) {
-          textOutput("cluster_plot_text")  # Display message
-        } else {
-          plotOutput("cluster_plot", height = "800px")
-        }
-      })
+      }, silent = TRUE)
       
-      output$cluster_plot_text <- renderText({
-        req(is.character(gg.clust()))  # Ensure it's a message
-        gg.clust()
-      })
+      plots_visible_2(TRUE)
       
-      # Render the plot when it's valid
-      output$cluster_plot_actual <- renderPlot({
-        req(inherits(gg.clust(), "ggplot"))  # Ensure it's ggplot
-        print(gg.clust())
-      })
-      
-      }, error = function(e) {
-        # Manage error display
-        runjs(paste0('document.getElementById("error_message").innerHTML = "', e$message, '"'))
-      })
-    #})
-    
-      
-      ## Clustered Heatmap  ----------------------------------------------------
-      req(gg.clust()) # Ensure there is a cluster plot available
-      req(k2())
-      
-      # Make colorpalette
-      chromosomes <- c(paste0("chr", 1:21), "chrX", "chrY")
-      colors.vaf <- circlize::colorRamp2(c(0, 50, 100), 
-                                         c("#414487FF", "#F6A97A", "#D44292"))
-      
-      vaf.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered, 
-                                                          "variants"), "VAF")))
-      colnames(vaf.matrix.filtered) <- 
-        paste0(rowData(altExp(sce_filtered,"variants"))$Gene, 
-               ":", rowData(altExp(sce_filtered, 
-                                   "variants"))$id)
-      
-      genotype.matrix.filtered <- as.data.frame(t(assay(altExp(sce_filtered), 
-                                                        "Genotype")))
-      colnames(genotype.matrix.filtered) <- 
-        paste0(rowData(altExp(sce_filtered))$Gene, ":", 
-               rowData(altExp(sce_filtered))$id)
-      
-      vaf.matrix.filtered.hm <- vaf.matrix.filtered[, variants.of.interest]
-      column_ha <- HeatmapAnnotation(
-        chr = factor(str_extract(colnames(vaf.matrix.filtered.hm), 
-                                 "chr(\\d|X|Y)+"),
-                     levels = chromosomes),
-        col = list(chr = chr_palette))
-      collect <- data.frame(row.names = "")
-      
-      # GT matrix annotation
-      df <- do.call(rbind, lapply(genotype.matrix.filtered[, variants.of.interest], function(x) {
-        length(x) <- 4
-        return(x)
-      }))
-      
-      gt.anno <- data.frame(
-        WT = integer(),
-        Het = integer(),
-        Hom = integer(),
-        Missing = integer()
-      )
-      
-      for (col in 1:ncol(genotype.matrix.filtered)) {
-        wt <- sum(genotype.matrix.filtered[, col] == 0)
-        het <- sum(genotype.matrix.filtered[, col] == 1)
-        hom <- sum(genotype.matrix.filtered[, col] == 2)
-        mis <- sum(genotype.matrix.filtered[, col] == 3)
-        gt.anno[col, ] <- c(wt, het, hom, mis)
+      ### Cluster plot ---------------------------------------------------------
+      req(plots_visible_2()) # Ensure plots are visible and the data available
+      if (method == 'kmeans'){
+        cluster.res <- clusterVariantSelection(sce_filtered,
+                                               variants.of.interest =  variants.of.interest,   
+                                               method = 'k-means', 
+                                               n.clust = input$n_clust)
+      } else if (method == 'leiden'){
+        browser()
+        cluster.res <- clusterVariantSelection(sce_filtered,
+                                               variants.of.interest = variants.of.interest,
+                                               method ='leiden',
+                                               resolution = input$resolution
+        )
+      } else {
+        cluster.res <- clusterVariantSelection(sce_filtered,
+                                               variants.of.interest,
+                                               method ='dbscan',
+                                               eps = input$eps, 
+                                               min.pts = input$minPts)
       }
       
-      gt.anno$Total <- rowSums(gt.anno)
-      proportions <- gt.anno %>%
-        dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / Total * 100)) %>%
-        dplyr::select(-Total)
-      rownames(proportions) <- variant.ids.filtered.gene
+      k2(cluster.res[[1]])
+      gg.clust(cluster.res[["clusterplot"]])
       
-      # Genotype annotation
-      anno.bar <- anno_barplot(proportions,
-                               bar_width = 1, height = unit(3, "cm"),
-                               gp = gpar(fill = c(
-                                 WT = "#414487FF",
-                                 Het = "#F6A97A",
-                                 Hom = "#D44292",
-                                 Missing = "grey"
-                               ))
-      )
-      # Add cluster annoation
-      colors <- gg_color_hue(length(unique(gg.clust()$data$cluster)))
-      color_palette <- setNames(colors, as.character(seq(1, length(colors))))
-      row_annot <- rowAnnotation(
-        cluster = as.factor(gg.clust()$data$cluster),
-        col = list(cluster = color_palette)
-      )
-      vaf_hm(Heatmap(
-        matrix = vaf.matrix.filtered.hm,
-        name = "VAF",
-        col = colors.vaf,
-        show_column_dend = TRUE,
-        show_row_dend = FALSE,
-        column_title = "Filtered Variants",
-        row_title = "Cells",
-        top_annotation = column_ha,
-        left_annotation = row_annot,
-        row_split = as.factor(gg.clust()$data$cluster)
-      ))
+      outputOptions(output, "plots_visible_2", suspendWhenHidden = FALSE)
       
-      ## Violin: Explore variants ----------------------------------------------
-      req(k2())
-      req(plots_visible_2)
-      violin <- plotClusterVAF(sce_filtered,
-                               variants.of.interest = variants.of.interest,
-                               gg.clust = gg.clust()
-      ) +
-        theme(
-          title = element_text(size = 20),
-          text = element_text(size = 16)
-        )
-      vaf_violin(violin)
       
-      ## Bar: Explore variants -------------------------------------------------
-      req(k2())
-      ana_bar(plotClusterGenotype(sce_filtered,
-                                  variants.of.interest = variants.of.interest,
-                                  gg.clust = gg.clust()
-      ) +
-        theme(
-          title = element_text(size = 20),
-          text = element_text(size = 16)
-        ))
-      
-      ## Map: Explore variants colored by VAF ----------------------------------
-      req(k2())
-      sce_filtered <- sce_filtered
-      variants.of.interest <- variants.of.interest
-      gg.clust <- gg.clust()
-      vaf_map(plotClusterVAFMap(sce_filtered,
-                                variants.of.interest = variants.of.interest,
-                                gg.clust = gg.clust()
-      ) +
-        theme(
-          title = element_text(size = 20),
-          text = element_text(size = 16)
-        ))
+    })
+    
+    is_valid_ggplot <- function(gg_clust_obj) {
+      inherits(gg_clust_obj, "ggplot")
+    }
+    
+    # Create a reactive expression to check validity of gg.clust
+    gg_clust_valid <- reactive({
+      gg_clust_result <- gg.clust()
+      if (is_valid_ggplot(gg_clust_result)) {
+        return(gg_clust_result)
+      } else {
+        # Handle invalid ggplot case
+        showNotification("gg.clust() did not return a valid ggplot object. Plots will not be generated.", type = "error")
+        return(NULL)
+      }
+    })
+    
+    # Render the cluster plot using the reactive variable
+    output$cluster_plot <- renderPlot({
+      req(plots_visible_2())  # Make sure it is called as a reactive function
+      req(gg.clust())
+      print(gg.clust())
     })
     
     # End of Explore variants Panel plots
@@ -678,22 +538,81 @@ app_server <- function(input, output, session) {
     })
     
     
-    output$vaf_hm <- renderPlot({
-      print(vaf_hm())
-    })
+    # output$vaf_hm <- renderPlot({
+    #   print(vaf_hm())
+    # })
     
     output$vaf_violin <- renderPlot({
+      ## Violin: Explore variants ----------------------------------------------
+      req(k2())
+      req(plots_visible_2())  # Make sure it is called as a reactive function
+      req(gg_clust_valid())
+      req(current_variants())
+      
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      
+      violin <- plotClusterVAF(sce_filtered,
+                               variants.of.interest = variants.of.interest,
+                               gg.clust = gg.clust()
+      ) +
+        theme(
+          title = element_text(size = 20),
+          text = element_text(size = 16)
+        )
+      vaf_violin(violin)
       print(vaf_violin())
     })
     
     output$vaf_map <- renderPlot({
+      ## Map: Explore variants colored by VAF ----------------------------------
+      req(plots_visible_2())  # Make sure it is called as a reactive function
+      req(gg_clust_valid())
+      req(current_variants())
+      
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      
+      vaf_map(plotClusterVAFMap(sce_filtered,
+                                variants.of.interest = variants.of.interest,
+                                gg.clust = gg.clust()
+      ) +
+        theme(
+          title = element_text(size = 20),
+          text = element_text(size = 16)
+        ))
       print(vaf_map())
     })
-    
+
     output$ana_bar <- renderPlot({
+      ## Bar: Explore variants -------------------------------------------------
+      req(plots_visible_2())  # Make sure it is called as a reactive function
+      req(gg_clust_valid())
+      req(current_variants())
+      
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      ana_bar(plotClusterGenotype(sce_filtered,
+                                  variants.of.interest = variants.of.interest,
+                                  gg.clust = gg.clust()
+      ) +
+        theme(
+          title = element_text(size = 20),
+          text = element_text(size = 16)
+        ))
+
       print(ana_bar())
     })
-    
+
     output$selected_rows_2 <- renderUI({
       HTML(print.var())
     })
@@ -708,7 +627,6 @@ app_server <- function(input, output, session) {
     paste("You have selected", input$var)
     paste("You have selected", input$radio)
   })
-  
   
   
   # Plots ----------------------------------------------------------------------
