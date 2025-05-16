@@ -57,7 +57,7 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
         if ("annotated" %in% names(metadata(altExp(sce)))) {
           var.vec <- rowData(altExp(sce))$id
         } else {
-          var.vec <- rowData(altExp(sce))[["X"]]
+          var.vec <- rowData(altExp(sce))[,1]
         }
 
         # Bring variants to MissionBio APIs variant format
@@ -69,14 +69,15 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
         )
 
         for (var in seq_along(var.mb)) {
-          incProgress(1 / length(var.mb), detail = paste0("Annotate variant ", var))
+          incProgress(1 / length(var.mb),
+                      detail = paste0("Annotate variant ", var))
 
           # Reach MissioBio API
           url <- paste0("https://api.missionbio.io/annotations/v1/variants?ids=", var.mb[var])
 
           # Parse URL to get variant annotation
           res <- httr::GET(url)
-          data <- jsonlite::fromJSON(rawToChar(res$content)) # TODO vary
+          data <- jsonlite::fromJSON(rawToChar(res$content))
           annot <- data$annotations %>%
             unlist() %>%
             t() %>%
@@ -114,7 +115,7 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
 
 
         # Original variant ids as rownames
-        rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered$id
+        rownames(variant.ids.filtered.df.anno) <- variant.ids.filtered[[1]]
         variant.ids.filtered.df.anno$id <- variant.ids.filtered[[1]]
       } else if (check_MBAPI() != "MissionBio" && metadata[["genome_version"]] == "hg19") {
         stop("MissionBio API is not available.")
@@ -135,7 +136,7 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
           "clinical_significance" = c(), "ENSEMBL" = c(), "id" = c()
         )
 
-        for (var in variant.ids.filtered[1:3]) {
+        for (var in variant.ids.filtered) {
           message(paste0("annotate ", var))
           var.tmp <- str_match(var, "([0-9XY]+):(\\d+)") %>%
             {
