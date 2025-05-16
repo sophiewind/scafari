@@ -200,10 +200,10 @@ app_server <- function(input, output, session) {
       file.out <- paste0("scafari_variants_", sample.name)
       rowData(altExp(sce_filtered)) %>%
         as.data.frame() %>%
-        dplyr::select(-any_of("id")) %>%
+        #dplyr::select(-any_of("id")) %>%
         replace(is.na(.), "-") %>%
-        rownames_to_column(var = "Variant") %>%
-        tidyr::separate(Variant, c("Chromosome", "Position", "Alt", "Ref"),
+        #rownames_to_column(var = "Variant") %>%
+        tidyr::separate(id, c("Chromosome", "Position", "Alt", "Ref"),
           sep = ":|/", remove = FALSE
         ) %>%
         dplyr::mutate(Protein = ifelse(str_detect(Protein, "\\?"),
