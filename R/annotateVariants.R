@@ -42,7 +42,6 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
     stop("You try to annotated >= 50 variants. This exceeds `max.var`. If you want to annoate more than 50 variants you need to increase the `max.var` param.")
   }
 
-
   metadata <- metadata(sce)
 
   # Check that genome version is present in metadata
