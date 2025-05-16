@@ -101,8 +101,8 @@ app_ui <- function() {
             condition = "input.radio == 'kmeans'",
             fluidRow(
               withLoader(plotOutput("kneeplot"), loader = "dnaspin"),
-              numericInput("n_clust", "Number of clusters:",
-                           value = 3, min = 0, max = 10, step = 1
+              sliderInput("n_clust", "Number of clusters:",
+                           value = 3, min = 2, max = 10, step = 1
               ),
               div(
                 style = "display:inline-block; float:center",
@@ -120,8 +120,8 @@ app_ui <- function() {
           conditionalPanel(
             condition = "input.radio == 'leiden'",
             fluidRow(
-              numericInput("resolution", "Resolution parameter:",
-                           value = 0.5, min = 0, max = 1, step = 0.01
+              sliderInput("resolution", "Resolution parameter:",
+                           value = 0.5, min = 0.0001, max = 1, step = 0.0001
               ),
               div(
                 style = "display:inline-block; float:center",
@@ -141,10 +141,10 @@ app_ui <- function() {
             fluidRow(
               withLoader(plotOutput("edgeplot"), loader = "dnaspin"),
               
-              numericInput("minPts", "minPts:",
+              sliderInput("minPts", "minPts:",
                            value = 5, min = 1, max = 100, step = 1
               ),
-              numericInput("eps", "eps.value:",
+              sliderInput("eps", "eps.value:",
                            value = 0.5, min = 0, max = 5, step = 0.1
               ),
               div(
@@ -155,6 +155,7 @@ app_ui <- function() {
                              style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
                 )
               ),
+              div(id = "error_message", style = "color: red;"),
               hr()
             )
           ),

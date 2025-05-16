@@ -98,7 +98,6 @@ app_server <- function(input, output, session) {
         rowData = filteres$variant.ids.filtered,
         colData = filteres$cells.keep
       )
-      
       sce_filtered <- current_sce[, indices_to_keep, drop = FALSE]
       SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
       sce_filtered <- annotateVariants(sce = sce_filtered, shiny = TRUE)
@@ -197,14 +196,15 @@ app_server <- function(input, output, session) {
     # Variant tables ----------------------------------------------------------
     ## DT: overview filtered variants -----------------------------------------
     output$data_table_var <- renderDataTable({
+      browser()
       sample.name <- sce_filtered@metadata[["sample_name"]]
       file.out <- paste0("scafari_variants_", sample.name)
       rowData(altExp(sce_filtered)) %>%
         as.data.frame() %>%
-        dplyr::select(-any_of("id")) %>%
+        #dplyr::select(-any_of("id")) %>%
         replace(is.na(.), "-") %>%
-        rownames_to_column(var = "Variant") %>%
-        tidyr::separate(Variant, c("Chromosome", "Position", "Alt", "Ref"),
+        #rownames_to_column(var = "Variant") %>%
+        tidyr::separate(id, c("Chromosome", "Position", "Alt", "Ref"),
                         sep = ":|/", remove = FALSE
         ) %>%
         dplyr::mutate(Protein = ifelse(str_detect(Protein, "\\?"),
@@ -380,14 +380,6 @@ app_server <- function(input, output, session) {
       })
       outputOptions(output, "continue", suspendWhenHidden = FALSE)
       
-      # Compute the kneeplot data only upon clicking continue_var
-      # Store the plot in the reactive variable
-      variant.ids.filtered.gene <- paste0(
-        rowData(altExp(sce_filtered))$Gene,
-        ":", rowData(altExp(sce_filtered))$id
-      )
-      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
-      
       kneeplot_data(plotElbow(sce_filtered, current_variant_ids))
     })
     
@@ -399,10 +391,18 @@ app_server <- function(input, output, session) {
     })
     
     output$edgeplot <- renderPlot({
+      browser()
+      # Compute the kneeplot data only upon clicking continue_var
+      # Store the plot in the reactive variable
+      variant.ids.filtered.gene <- paste0(
+        rowData(altExp(sce_filtered))$Gene,
+        ":", rowData(altExp(sce_filtered))$id
+      )
+      variants.of.interest <- sort(variant.ids.filtered.gene)[current_variants()]
+      
       # condition to run your specific branch, could be based on user input or button press
       # Assuming your choice is if 'method' variable allows for other conditions
-      plotDensityEdge(sce_filtered, variants.of.interest, input$min.pts)
-      
+      plotDensityEdge(sce_filtered, variants.of.interest, input$minPts)
     })
     
     ## Clustering --------------------------------------------------------------
@@ -414,15 +414,26 @@ app_server <- function(input, output, session) {
     vaf_violin <- reactiveVal(NULL)
     vaf_map <- reactiveVal(NULL)
     method <- reactiveVal("kmeans")  
+    
+    # Check input params
+    # Consolidate all parameter checks into a single observer
+    # Consolidate checks into a single observer
     observe({
-      if (is.numeric(input$n_clust) && input$n_clust >= 2) {
-        enable("kmeans_btn") # Enable button if valid
-        runjs('document.getElementById("error_message").innerHTML = ""')
+      valid_n_clust <- is.numeric(input$n_clust) && input$n_clust >= 2
+      valid_eps <- is.numeric(input$eps) && input$eps > 0 && input$eps <= 1
+      valid_resolution <- is.numeric(input$resolution) && input$resolution > 0
+      valid_minPts <- is.numeric(input$minPts) && input$minPts >= 2
+      
+      # Enable button based on all checks and provide informative feedback
+      if (valid_n_clust && valid_eps && valid_resolution && valid_minPts) {
+        enable("kmeans_btn")
+        output$error_message <- renderText("")
       } else {
-        disable("kmeans_btn") # Disable button if not valid
-        runjs('document.getElementById("error_message").innerHTML = "Please enter a numeric value greater than 2."')
+        disable("kmeans_btn")
+        output$error_message <- renderText("Please enter valid values for all parameters.")
       }
     })
+    
     
     # Observe changes in the radio button and update the method
     observeEvent(input$radio, {
@@ -474,6 +485,7 @@ app_server <- function(input, output, session) {
       
       ### Cluster plot ---------------------------------------------------------
       req(plots_visible_2()) # Ensure plots are visible and the data available
+      
       if (method == 'kmeans'){
         cluster.res <- clusterVariantSelection(sce_filtered,
                                                variants.of.interest =  
