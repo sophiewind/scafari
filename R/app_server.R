@@ -183,7 +183,6 @@ app_server <- function(input, output, session) {
       draw(lgd)
     })
     
-    
     ## Violin: GQ -------------------------------------------------------------
     output$var_plot5 <- renderPlot({
       plotGenotypequalityPerGenotype(sce_filtered) +
