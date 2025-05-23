@@ -20,32 +20,28 @@ plotAmpliconDistribution <- function(sce) {
     stop("The input must be a SingleCellExperiment object.")
   }
   
-  gene_anno_df <- as.data.frame(rowData(sce))
-  colnames(gene_anno_df) <- c('seqnames', 'start', 'end', 'id')
+  amps <- as.data.frame(rowData(sce))%>% 
+    mutate(Gene = vapply(strsplit(id, '_'), function(x) x[3], character(1))) %>% 
+    makeGRangesFromDataFrame(., keep.extra.columns = TRUE) %>% 
+    as.data.frame()
+  
   # Ensure the input data is a data frame
-  if (!is.data.frame(gene_anno_df)) {
+  if (!is.data.frame(amps)) {
     stop("gene_anno_df must be a data frame.")
   }
   
-  # Prepare GRanges from gene annotation data frame
-  gene_anno_gr <- gene_anno_df %>%
-    mutate(Gene = vapply(strsplit(id, '_'), function(x) x[3], character(1))) %>%
-    makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+  data(ideoCyto, package = "biovizBase")
+
   
-  # Create a karyotype plot
-  kp <- plotKaryotype(plot.type = 1, cex = 1.5)
+  amps$tooltip <- paste("Gene:", amps$Gene, "<br>ID:", amps$id)
   
-  # Plot genomic regions
-  kpPlotRegions(kp, data = gene_anno_gr, col = "#F66D7A", data.panel = 1)
+  plot <- ggbio::autoplot((ideoCyto$hg19), layout = "karyogram", cytobands = TRUE) +
+    geom_segment(data = amps, aes(x = start, xend = start + width,
+                                  y = -2, 
+                                  yend = 12, 
+                                  text = tooltip
+    ), color = "blue", size = 1) +
+    theme(panel.background = element_blank())
   
-  # Prepare GRanges object for gene labels (avoid overplotting)
-  amp_genes <- gene_anno_df %>%
-    mutate(Gene = vapply(strsplit(id, '_'), function(x) x[3], character(1))) %>%
-    group_by(Gene) %>%
-    slice(1) %>%
-    ungroup() %>%
-    makeGRangesFromDataFrame(keep.extra.columns = TRUE)
-  
-  # Add gene labels to the plot
-  kpText(kp, chr = seqnames(amp_genes), x = start(amp_genes), y = 0.75, labels = amp_genes$Gene, cex = 0.95)
+  return(plot)
 }

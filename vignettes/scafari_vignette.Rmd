@@ -14,40 +14,6 @@ knitr::opts_chunk$set(
   fig.width = 7,  # Width of plots in inches
   fig.height = 5  # Height of plots in inches
 )
-
-# library(dplyr)
-# library(ggplot2)
-# #library(tibble)
-# library(karyoploteR)
-# library(DT)
-# library(dplyr)
-# library(waiter)
-# library(ggplot2)
-# library(plotly)
-# library(GenomicRanges)
-# library(tibble)
-# library(rhdf5)
-# library(ComplexHeatmap)
-# library(karyoploteR)
-# library(stringr)
-# library(reshape2)
-# library(biomaRt)
-# library(clusterProfiler)
-# library(org.Hs.eg.db)
-# library(shinyjs)
-# library(shinyBS)
-# library(shinycustomloader)
-# library(factoextra)
-# library(markdown)
-# library(SingleCellExperiment)
-# invisible(
-#   suppressMessages(
-#     suppressWarnings(
-#       mapply(source, list.files('../R', pattern = '.R', full.names = TRUE))
-#     )
-#   )
-# )
-
 ```
 
 # Introduction
@@ -123,26 +89,33 @@ After read counts are normalized they can be annotated with biological relevant 
 
 Therefore, known canonicals should be provided. They can be dowloaded like it is shown here: 
 
-```{r, eval=FALSE}
-url <- "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/knownCanonical.txt.gz"
-destfile <- "knownCanonical.txt.gz"
+```{r, eval=TRUE}
+library(R.utils)
 
-# Download the file
-download.file(url, destfile)
+temp_dir <- tempdir()
+known_canon_path <- file.path(temp_dir, "UCSC_hg19_knownCanonical_goldenPath.txt")
 
-# Decompress the file
-R.utils::gunzip(destfile, remove = FALSE)  # This creates 'knownCanonical.txt'
+if (!file.exists(known_canon_path)) {
+  url <- "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/knownCanonical.txt.gz"
+  destfile <- file.path(temp_dir, "UCSC_hg19_knownCanonical_goldenPath.txt.gz")
+  
+  # Download the file
+  download.file(url, destfile)
+  
+  # Decompress the file
+  R.utils::gunzip(destfile, remove = FALSE)  # Creates 'UCSC_hg19_knownCanonical_goldenPath.txt'
+}
 ```
 
 
 
 ```{r}
-annotateAmplicons(sce = sce, known.canon = "./UCSC_hg19_knownCanonical_goldenPath.txt")
+try(annotateAmplicons(sce = sce, known.canon = known_canon_path))
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
 
-```{r}
+```{r, warning=FALSE}
 plotAmpliconDistribution(sce)
 ```
 

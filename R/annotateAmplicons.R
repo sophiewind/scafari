@@ -1,18 +1,18 @@
 #' Function: annotateAmplicons
-#' -------------------------------
 #' This function takes a SingleCellExperiment object as input and annotates the stored amplicons.
 #'
 #' @param sce SingleCellExperiment object containing the single-cell data.
 #' @param known.canon Path to jnown canonicals (see vignette)
+#' @param shiny If TRUE messages are shown
 #'
 #' @return A dataframe containing annotated amplicons.
-#'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
 #' sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
-#' annotated <- annotateAmplicons(sce_filtered)
+#' annotated <- annotateAmplicons(sce_filtered, 
+#' system.file("extdata", "UCSC_hg19_knownCanonical_mock.txt", package = "scafari"))
 #' @export
-annotateAmplicons <- function(sce, known.canon) {
+annotateAmplicons <- function(sce, known.canon, shiny = FALSE) {
   # Check if the SCE object has metadata
   if (is.null(metadata(sce))) {
     stop("The SingleCellExperiment object does not contain any metadata.")
@@ -36,14 +36,16 @@ annotateAmplicons <- function(sce, known.canon) {
       stop("Failed to extract sample name from metadata: ", e$message)
     }
   )
-
-
+  
   if (genome_version == "hg19") {
-    # Prepare exon database -----------------------------------------------------
+    # Prepare exon database ----------------------------------------------------
     # Read Biomart Exon information and format them
     amps <- as.data.frame(rowData(sce))
-    try(mart <- useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl", GRCh = 37))
+    if (shiny) showNotification('Trying to access ensembl...')
+    try(mart <- useEnsembl(biomart = "ensembl", 
+                           dataset = "hsapiens_gene_ensembl", GRCh = 37))
     if (!exists('mart')){
+      if (shiny) showNotification('Accessing biomart failed.')
       message('Ensemble is not accessible at the moment.')
       amps %>% 
         as.data.frame() %>% 
@@ -67,16 +69,27 @@ annotateAmplicons <- function(sce, known.canon) {
         exons <- getBM(
           attributes = c("ensembl_exon_id", "ensembl_transcript_id_version", "chromosome_name", "exon_chrom_start", "exon_chrom_end", "rank"),
           filters = c("chromosome_name", "start", "end"),
-          values = list(gsub("chr", "", amps$seqnames[i]), amps$start[i], amps$end[i]),
+          values = list(gsub("chr", "", amps$seqnames[i]), amps$start[i], 
+                        amps$end[i]),
           mart = mart
         )
         exons$region_id <- amps$id[i] # Include the region ID
         return(exons)
       }
-      num_cores <- detectCores() - 1
-  
+      
       # Use mclapply for parallel processing
-      all_exon_data <- mclapply(1:nrow(amps), get_exon_data, mc.cores = num_cores)
+      if (!shiny){
+        all_exon_data <- lapply(1:nrow(amps), get_exon_data)
+      } else {
+        withProgress(message = "Processing", value = 0, {
+          total <- nrow(amps)
+          all_exon_data <- lapply(1:total, function(i) {
+            incProgress(1/total, detail = paste("Processing amplicon", i,
+                                                     "of", total))
+            get_exon_data(i)
+          })
+        }) 
+      }
   
       # Combine all exon data into a single data frame
       exon_data <- do.call(rbind, all_exon_data)
@@ -91,7 +104,7 @@ annotateAmplicons <- function(sce, known.canon) {
   
       # Extract canonical transcripts
       canon.path <- known.canon
-      known.canon <- read.delim(canon.path, header = FALSE, col.names = c("seqnames", "start", "end", "x", "transcript"))
+      known.canon <- read.delim(canon.path, header = FALSE, col.names = c("seqnames", "start", "end", "x", "transcript", 'ENSG'))
       known.canon$transcript <- gsub("\\..*", "", known.canon$transcript)
       exons.gr$transcript <- gsub("\\..*", "", exons.gr$transcript)
       exons.gr.clean <- exons.gr[exons.gr$transcript %in% known.canon$transcript, ]
@@ -111,7 +124,8 @@ annotateAmplicons <- function(sce, known.canon) {
       tibble::rownames_to_column("id") %>%
       dplyr::mutate(Gene = str_split_i(id, "_", 3)) %>%
       dplyr::select(seqnames, start, end, width, Gene, Exon, transcript) %>%
-      `colnames<-`(c("Chromosome", "Start", "End", "Amplicon length (bp)", "Gene", "Exon", "Canonical Transcript ID")) %>%
+      `colnames<-`(c("Chromosome", "Start", "End", "Amplicon length (bp)",
+                     "Gene", "Exon", "Canonical Transcript ID")) %>%
       datatable(.,
         rownames = FALSE, extensions = "Buttons",
         options = list(
