@@ -42,7 +42,8 @@ Imports:
     scales,
     tidyr,
     txdbmaker,
-    circlize
+    circlize,
+    R.utils
 VignetteBuilder: knitr
 Suggests: 
     knitr,
