@@ -39,7 +39,7 @@ h5ToSce <- function(h5_file) {
   
   # Try reading the metadata, stop if it fails
   tryCatch({
-    metadata <- unlist(h5read(h5_file, "assays/dna_read_counts/metadata/"))
+    metadata <- unlist(h5read(h5_file, "assays/dna_variants/metadata/"))
   }, error = function(e) {
     stop("Failed to read metadata: ", e$message)
   })

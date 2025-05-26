@@ -69,6 +69,7 @@ chr_palette <- setNames(colors, chromosomes)
 #' @export
 checkH5 <- function(h5_file) {
   paths_to_check <- c(
+    "/assays/dna_variants/metadata",
     "/assays/dna_variants/layers/DP",
     "/assays/dna_variants/layers/GQ",
     "/assays/dna_variants/layers/NGT",

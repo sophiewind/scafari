@@ -17,13 +17,25 @@ createSequencingUI <- function() {
     ),
     hr(),
     fluidRow(
-      h2('Sequencing information'),
-      withLoader(dataTableOutput("data_table_sequencing"), loader = 'dnaspin')
-    ),
+      column(width = 4,
+             fluidRow(
+               h2('Sequencing information'),
+               withLoader(dataTableOutput("data_table_sequencing"), loader = 'dnaspin')
+             ),
+             hr(),
+             fluidRow(
+               h2('Mapping'),
+               withLoader(dataTableOutput("data_table_mapping"), loader = 'dnaspin')
+               ),
+             ),
+      column(width = 8,
+             withLoader(plotlyOutput("seq_plot4", height = "600px"), loader = 'dnaspin')
+             )
+      ),
     hr(),
     fluidRow(
-      h2('Mapping'),
-      withLoader(dataTableOutput("data_table_mapping"), loader = 'dnaspin')
+      h2('Tapestri pipeline information'),
+      withLoader(dataTableOutput("data_table_tapestri"), loader = 'dnaspin')
     )
   )
 }

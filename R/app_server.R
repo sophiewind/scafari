@@ -807,6 +807,40 @@ app_server <- function(input, output, session) {
       )
   })
   
+  # Sequencing plot 4
+  output$seq_plot4 <- renderPlotly({
+    req(input$upload)
+    sce_obj <- sce()
+    metadata <- sce_obj@metadata %>% 
+      t() %>%  
+      as.data.frame() %>% 
+      select(n_bases_r1, n_bases_r1_q30, n_bases_r2, n_bases_r2_q30,
+           n_cell_barcode_bases, n_cell_barcode_bases_q30) %>%
+      tidyr::pivot_longer(everything(), names_to = "Type", values_to = "value") %>% 
+      mutate(value = as.numeric(unlist(value)))
+    
+    metadata %>%
+      mutate(
+        Type = Type %>%
+          str_replace("n_bases_", "Bases ") %>%
+          str_replace("_q30", " Q30") %>%
+          str_replace("r(\\d)", "R\\1") %>% 
+          str_replace('n_cell_barcode_bases',
+                      'Cell barcode bases'),
+        group = gsub(" Q30", "", Type),
+      ) %>% 
+      ggplot(aes(x = group, y = value, fill = Type)) +
+      geom_bar(stat = "identity", position = 'stack') +
+      theme_minimal() +
+      scale_fill_manual(values = c(`Bases R1` = '#F66D7A',
+                                   `Bases R1 Q30` = '#c00c1d',
+                                   `Bases R2` = 'dodgerblue',
+                                   `Bases R2 Q30` = '#003898',
+                                   `Cell barcode bases` = '#00BA38',
+                                   `Cell barcode bases Q30` = '#00561a')) +
+      labs(x = '', y = 'Number of bases')
+  })
+  
   # Panel plot 1
   output$panel_plot1 <- renderPlot({
     req(input$upload)
@@ -943,7 +977,8 @@ app_server <- function(input, output, session) {
     metadata <- sce_obj@metadata
     rbind(
       "Reads mapped to genome (%)" = c(round((as.numeric(metadata[["n_reads_mapped"]]) / (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100), digits = 2)),
-      "Reads mapped to target (%)" = c(round((as.numeric(metadata[["n_reads_mapped_insert"]]) / (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100), digits = 2))
+      "Reads mapped to target (%)" = c(round((as.numeric(metadata[["n_reads_mapped_insert"]]) / (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100), digits = 2)),
+      "Average mapping error rate (%)" = c(round(as.numeric(metadata[["avg_mapping_error_rate"]])*100), digits = 2) 
     ) %>%
       datatable(.,
                 extensions = "Buttons",
@@ -964,6 +999,38 @@ app_server <- function(input, output, session) {
                 ),
                 class = "display",
                 colnames = rep("", ncol(.))
+      )
+  })
+  
+  # m.var$dp_cutoff
+  # m.var$high_quality_variants
+  # m.var$missing_cells_cutoff
+  # m.var$missing_variants_cutoff
+  # m.var$mutated_cells_cutoff
+  output$data_table_tapestri <- renderDataTable({
+    sce_obj <- sce()
+    metadata <- sce_obj@metadata
+    rbind(
+      "Depth cutoff" = c(paste(as.numeric(metadata[["dp_cutoff"]]))),
+      "Missing cells cutoff" = c(paste(as.numeric(
+        metadata[["missing_cells_cutoff"]]))),
+      "Missing variants cutoff" = c(paste(round(as.numeric(
+        metadata[["missing_variants_cutoff"]])))),
+      "Mutated cells cutoff" = c(paste(as.numeric(
+        metadata[["mutated_cells_cutoff"]])))
+    ) %>%
+      datatable(.,
+                extensions = "Buttons",
+                options = list(
+                  pageLength = 5, width = "100%",
+                  dom = "Bt",
+                  buttons = list(
+                    list(extend = "csv", filename = paste0("scafari_sequencing_tapestri_", metadata[["sample_name"]])),
+                    list(extend = "excel", filename = paste0("scafari_sequencing_tapestri_", metadata[["sample_name"]])),
+                    list(extend = "pdf", filename = paste0("scafari_sequencing_tapestri_", metadata[["sample_name"]])),
+                    list(extend = "copy", filename = paste0("scafari_sequencing_tapestri_", metadata[["sample_name"]]))
+                  )
+                ), colnames = NULL
       )
   })
   
