@@ -978,7 +978,7 @@ app_server <- function(input, output, session) {
     rbind(
       "Reads mapped to genome (%)" = c(round((as.numeric(metadata[["n_reads_mapped"]]) / (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100), digits = 2)),
       "Reads mapped to target (%)" = c(round((as.numeric(metadata[["n_reads_mapped_insert"]]) / (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100), digits = 2)),
-      "Average mapping error rate (%)" = c(round(as.numeric(metadata[["avg_mapping_error_rate"]])*100), digits = 2) 
+      "Average mapping error rate (%)" = c(round(as.numeric(metadata[["avg_mapping_error_rate"]])*100, digits = 2)) 
     ) %>%
       datatable(.,
                 extensions = "Buttons",
