@@ -195,7 +195,6 @@ app_server <- function(input, output, session) {
     # Variant tables ----------------------------------------------------------
     ## DT: overview filtered variants -----------------------------------------
     output$data_table_var <- renderDataTable({
-      browser()
       sample.name <- sce_filtered@metadata[["sample_name"]]
       file.out <- paste0("scafari_variants_", sample.name)
       rowData(altExp(sce_filtered)) %>%
@@ -390,7 +389,6 @@ app_server <- function(input, output, session) {
     })
     
     output$edgeplot <- renderPlot({
-      browser()
       # Compute the kneeplot data only upon clicking continue_var
       # Store the plot in the reactive variable
       variant.ids.filtered.gene <- paste0(
@@ -492,7 +490,6 @@ app_server <- function(input, output, session) {
                                                method = 'k-means', 
                                                n.clust = input$n_clust)
       } else if (method == 'leiden'){
-        browser()
         cluster.res <- clusterVariantSelection(sce_filtered,
                                                variants.of.interest = 
                                                  variants.of.interest,
@@ -777,14 +774,12 @@ app_server <- function(input, output, session) {
     metadata <- sce_obj@metadata
     
     plot(0, type = "n", axes = FALSE, ann = FALSE)
-    mtext(
-      paste0(round(as.numeric(metadata[["avg_panel_uniformity"]]) * 100,
-                   digits = 2
-      ), ""),
+    mtext(round(as.numeric(metadata[["n_read_pairs_mapped_to_cells"]]) /
+          as.numeric(metadata[["n_cells"]]), digits = 2),
       side = 3, line = -2, cex = 3,
       col = "#22A484FF"
     )
-    mtext("Panel uniformity (%)", side = 3, line = -4, cex = 1.5)
+    mtext("Mean read pairs mapped to cells per cell", side = 3, line = -4, cex = 1.5)
     
     # Print ean mapped reads per cell  # TODO check bei anderen, ob richtig!!
     mtext(
@@ -796,6 +791,16 @@ app_server <- function(input, output, session) {
     
     # Draw box
     box(which = "outer", lty = "solid", col = "grey")
+  })
+  
+  output$panelUniformityText <- renderText({
+    req(input$upload)
+    sce_obj <- sce()
+    validate(need(input$upload, "Please, select a file to start"))
+    metadata <- sce_obj@metadata
+    paste("Panel Uniformity (%):", 
+          round(as.numeric(metadata[["avg_panel_uniformity"]]) * 100, 
+                digits = 2))  # Combine label with dynamic value
   })
   
   # Sequencing log-log plot
@@ -915,11 +920,16 @@ app_server <- function(input, output, session) {
   output$data_table_sample <- renderDataTable({
     sce_obj <- sce()
     metadata <- sce_obj@metadata
+    n.amp <- length(rownames(sce_obj)) %>%
+      as.data.frame() %>%  
+      mutate(rowname = 'n_amplions')
     metadata <- (metadata %>%
                    unlist() %>%
                    as.data.frame() %>%
-                   rownames_to_column())[c(16, 14, 6, 5, 4, 15), ] %>%
-      as.data.frame() %>%
+                   rownames_to_column())[c(24, 26, 7, 5, 25), ] %>%
+      as.data.frame()
+    metadata <- rbind(metadata, n.amp)
+    metadata %>% 
       mutate(rowname = gsub("n_", "Number of ", rowname)) %>%
       mutate(rowname = gsub("_", " ", rowname)) %>%
       mutate(rowname = str_to_title(rowname)) %>%
