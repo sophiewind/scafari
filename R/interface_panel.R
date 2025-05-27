@@ -21,6 +21,7 @@ createPanelUI <- function(){
     ),
     fluidRow(
       h2('Panel uniformity plot',bsButton("pu", label = "", icon = icon("info"), style = "info", size = "extra-small")),
+      textOutput("panelUniformityText"),
       bsPopover(
         id = "pu",
         title = "Panel uniformity",
