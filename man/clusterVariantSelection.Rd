@@ -3,10 +3,17 @@
 \name{clusterVariantSelection}
 \alias{clusterVariantSelection}
 \title{Function: clusterVariantSelection
--------------------------------
 This function takes selected variants and performs clustering on them.}
 \usage{
-clusterVariantSelection(sce, variants.of.interest, n.clust)
+clusterVariantSelection(
+  sce,
+  variants.of.interest,
+  n.clust,
+  method = "k-means",
+  eps.value = 0.2,
+  resolution = NULL,
+  min.pts = NULL
+)
 }
 \arguments{
 \item{sce}{A SingleCellExperiment object containing the single-cell data on which clustering will be performed.}
@@ -14,13 +21,18 @@ clusterVariantSelection(sce, variants.of.interest, n.clust)
 \item{variants.of.interest}{A vector or list specifying the variants of interest to be selected for clustering.}
 
 \item{n.clust}{An integer specifying the number of clusters.}
+
+\item{eps.value}{Size (radius) of the epsilon neighborhood. Can be omitted if x is a frNN object.}
+
+\item{resolution}{The resolution parameter to use. Higher resolutions lead to more smaller communities, while lower resolutions lead to fewer larger communities.}
+
+\item{min.pts}{Number of minimum points required in the eps neighborhood for core points (including the point itself). By default cell number/100.}
 }
 \value{
-A list with k-means results and a ggplot-object.
+A list with clustering results and a ggplot-object.
 }
 \description{
 Function: clusterVariantSelection
--------------------------------
 This function takes selected variants and performs clustering on them.
 }
 \examples{
@@ -37,4 +49,7 @@ clusterplot <- clusterVariantSelection(
   n.clust = 4
 )
 
+}
+\references{
+https://cran.r-project.org/web/packages/dbscan/readme/README.html#ref-hahsler2019dbscan
 }
