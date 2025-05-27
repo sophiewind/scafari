@@ -13,8 +13,8 @@ createPanelUI <- function(){
     ),
     fluidRow(
       h2('Amplicon Distribution'),
-      withLoader(plotOutput("panel_plot3", height = "800px"), loader = 'dnaspin')
-    ),
+      withLoader(plotlyOutput("panel_plot3", height = "800px"), loader = 'dnaspin')
+      ),
     fluidRow(
       h2('Amplicon Performance'),
       withLoader(plotOutput("panel_plot4"), loader = 'dnaspin')

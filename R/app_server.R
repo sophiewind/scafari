@@ -892,12 +892,13 @@ app_server <- function(input, output, session) {
   })
   
   # Panel karyoplot
-  output$panel_plot3 <- renderPlot({
-    plotAmpliconDistribution(sce = sce()) +
+  output$panel_plot3 <- renderPlotly({
+    plot <- plotAmpliconDistribution(sce = sce()) +
       theme(
         title = element_text(size = 20),
         text = element_text(size = 16)
       )
+    plotly::ggplotly(plot@ggplot)
   })
   
   output$panel_plot4 <- renderPlot({
@@ -1046,6 +1047,32 @@ app_server <- function(input, output, session) {
   
   ## Occurence of genes in panel -----------------------------------------------
   output$data_table_overview <- renderDataTable({
-    annotateAmplicons(sce = sce())
+    temp_dir <- tempdir()
+    known_canon_path <- file.path(temp_dir, "UCSC_hg19_knownCanonical_goldenPath.txt")
+    
+    if (!file.exists(known_canon_path)) {
+      url <- "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/knownCanonical.txt.gz"
+      destfile <- file.path(temp_dir, "UCSC_hg19_knownCanonical_goldenPath.txt.gz")
+      
+      withProgress(message = "Downloading known canonicals", value = 0, {
+        # Define a custom function to mimic progress
+        download_with_progress <- function(url, destfile) {
+          download.file(url, destfile)
+        }
+        
+        # Mimic the progress (for demonstration, we just have 1 step)
+        incProgress(0.5)  # Simulate 50% progress
+        
+        # Call the download function
+        download_with_progress(url, destfile)
+        
+        incProgress(0.5)  # Simulate reaching 100%
+      })
+      
+      # Decompress the file
+      try(R.utils::gunzip(destfile, remove = FALSE))
+    }
+    
+    annotateAmplicons(sce = sce(), known.canon = known_canon_path)
   })
 }
