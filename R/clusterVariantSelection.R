@@ -108,10 +108,11 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust,
       cluster <- leiden_results$membership
       
       # Handle scenario with too many clusters
-      if (length(unique(cluster)) > 15) {
+      if (length(unique(cluster)) > 20) {
         return(list(
-          leiden = "Error: Too many clusters (>15). Adjust resolution.",
-          clusterplot = "Error: Too many clusters (>15). Adjust resolution."
+          leiden = paste0("Error: Too many clusters found (",
+          length(unique(cluster)), "). This value is > 21. Adjust resolution."),
+          clusterplot = "Error: Too many clusters. Adjust resolution."
         ))
       }
       
