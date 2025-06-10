@@ -1,11 +1,10 @@
 #' Function: annotateVariants
-#' -------------------------------
 #' This function takes a SingleCellExperiment object as input and performs variant annotation.
 #'
 #' @param sce SingleCellExperiment object containing the single-cell data to be annotated.
 #' @param shiny A logical flag indicating whether the function is being run in a Shiny application
 #' context. Default is FALSE.
-#' @param max.var Maximum number of variants to annotate. By default this is 50 to avoid long runtime.
+#' @param max.var Maximum number of variants to annotate. By default this is 100 to avoid long runtime.
 #'
 #' @return The function returns an annotated SingleCellExperiment object.
 #'
@@ -16,7 +15,7 @@
 #' @export
 #'
 #' @references https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
-annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
+annotateVariants <- function(sce, shiny = FALSE, max.var = 100) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {
     stop("`sce` must be a SingleCellExperiment object.")
@@ -39,7 +38,7 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
 
   # Check that the input is a SingleCellExperiment object
   if (nrow(altExp(sce)) >= max.var) {
-    stop("You try to annotated >= 50 variants. This exceeds `max.var`. If you want to annoate more than 50 variants you need to increase the `max.var` param.")
+    stop("You try to annotated >= 100 variants. This exceeds `max.var`. If you want to annoate more than 100 variants you need to increase the `max.var` param.")
   }
 
 
