@@ -18,7 +18,7 @@
 #' result <- h5ToSce(h5_file_path)
 #'
 #' # Display the result
-#' print(result)
+#' result
 #' 
 #' @return A list with the SingleCellExperiment and the SummarizedExperiment 
 #' object representing the amplicon and the varaint analysis.
