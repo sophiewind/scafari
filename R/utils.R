@@ -34,7 +34,7 @@ theme_default <- function() {
 #' @keywords internal
 gg_color_hue <- function(n) {
   hues <- seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
+  hcl(h = hues, l = 65, c = 100)[seq(1,n)]
 }
 
 mycols <- c(
@@ -52,7 +52,7 @@ colors_vaf <- circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A", "#D4
 
 
 # Chromosome color palette
-chromosomes <- c(paste0("chr", 1:21), "chrX", "chrY")
+chromosomes <- c(paste0("chr", seq(1,21)), "chrX", "chrY")
 
 # Get colors from the viridis "magma" palette
 colors <- gg_color_hue(length(chromosomes))
@@ -88,7 +88,6 @@ checkH5 <- function(h5_file) {
 
     if (!(path %in% full_paths)) {
       missing_paths <- c(missing_paths, path)
-      print()
       shinyjs::html("text", paste0(path, " is missing!<br>"), add = FALSE)
     }
     Sys.sleep(0.01)

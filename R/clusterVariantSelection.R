@@ -65,8 +65,6 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust) {
                            geom = "point") +
     theme_default()
 
-  # Print the cluster plot for debugging
-  print(gg.clust) # Display the cluster plot
 
   return(list(k_means = kmeans_result, clusterplot = gg.clust))
 }
