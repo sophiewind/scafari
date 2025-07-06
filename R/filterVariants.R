@@ -88,12 +88,12 @@ filterVariants <- function(depth.threshold = numeric(),
   
   
   tryCatch({
-    depth.matrix = t(se.var@assays@data$Depth)
-    vaf.matrix =   t(se.var@assays@data$VAF)
-    variant.ids = rowData(se.var)
-    genoqual.matrix = t(se.var@assays@data$Genoqual)
-    genotype.matrix = t(se.var@assays@data$Genotype)
-    read.counts.df.norm = t(sce@assays@data$normalized.counts)
+    depth.matrix <- t(se.var@assays@data$Depth)
+    vaf.matrix <- t(se.var@assays@data$VAF)
+    variant.ids <- rowData(se.var)
+    genoqual.matrix <- t(se.var@assays@data$Genoqual)
+    genotype.matrix <- t(se.var@assays@data$Genotype)
+    read.counts.df.norm <- t(sce@assays@data$normalized.counts)
     cells <- se.var@colData
     if (shiny){
       
@@ -120,8 +120,8 @@ filterVariants <- function(depth.threshold = numeric(),
         num_cells <- nrow(genotype.matrix)
         num_variants <- ncol(genotype.matrix)
         
-        cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) {x %in% 0:2})) > num_cells * min.cell / 100
-        mut_cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) { x %in% 1:2 })) > num_cells * min.mut.cell / 100
+        cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) {x %in% seq(0,2)})) > num_cells * min.cell / 100
+        mut_cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) { x %in% seq(1,2)})) > num_cells * min.mut.cell / 100
         variant_keep_tf <- cell_num_keep_tf & mut_cell_num_keep_tf  
         v_names <- variant.ids[[1]]
         
@@ -157,8 +157,8 @@ filterVariants <- function(depth.threshold = numeric(),
       # Filter based on cell and mutation counts
       num_cells <- nrow(genotype.matrix)
       num_variants <- ncol(genotype.matrix)
-      cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) {x %in% 0:2})) > num_cells * min.cell / 100
-      mut_cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) { x %in% 1:2 })) > num_cells * min.mut.cell / 100
+      cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) {x %in% seq(0,2)})) > num_cells * min.cell / 100
+      mut_cell_num_keep_tf <- colSums(apply(genotype.matrix, 2, function(x) { x %in% seq(1,2)})) > num_cells * min.mut.cell / 100
       variant_keep_tf <- cell_num_keep_tf & mut_cell_num_keep_tf  
       v_names <- variant.ids[,1]
       
