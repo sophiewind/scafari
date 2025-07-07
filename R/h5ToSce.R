@@ -21,7 +21,7 @@
 #' result
 #' 
 #' @return A list with the SingleCellExperiment and the SummarizedExperiment 
-#' object representing the amplicon and the varaint analysis.
+#' object representing the amplicon and the variant analysis.
 #' \describe{
 #'   \item{sce_amp}{SingleCellExperiment with amplicon experiment.}
 #'   \item{se_var}{SummarizedExperiment with variants eexperiment}
