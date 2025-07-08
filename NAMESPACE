@@ -1,10 +1,11 @@
 import(shiny)
-importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull, rename, 
-           group_by, summarize, summarise, across, sample_n, slice)
+importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull, 
+        rename, group_by, summarize, summarise, across, sample_n, slice)
 importFrom(magrittr, "%>%")
 import(ggplot2)
 importFrom(tibble, rownames_to_column)
-importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract, str_to_title)
+importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract, 
+        str_to_title)
 importFrom(reshape2, melt)
 importFrom(DT, datatable)
 importFrom(plotly, ggplotly, plotlyOutput, renderPlotly)
@@ -49,7 +50,4 @@ export(annotateAmplicons,
         plotNormalizedReadCounts,
         plotPanelUniformity,
         plotVariantHeatmap,
-        theme_default,
-        theme_shiny,
-        gg_color_hue,
         launchScafariShiny)
