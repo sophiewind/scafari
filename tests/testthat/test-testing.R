@@ -1,5 +1,6 @@
 # Setup data -------------------------------------------------------------------
 # Create test dataset to manipulate
+library(SingleCellExperiment)
 h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
 h5 <- h5ToSce(h5_file_path)
 sce <- h5$sce_amp
@@ -91,7 +92,7 @@ test_that("plotNormalizedReadCounts handles missing norm.counts", {
 
 test_that("plotAmpliconDistribution handles wrong input format", {
     expect_error(
-        plotAmpliconDistribution(mtcars),
+        plotAmpliconDistribution(sce = mtcars),
         "The input must be a SingleCellExperiment object."
     )
 })
@@ -399,7 +400,7 @@ test_that("normalizeReadCounts Normalization of counts is working.", {
     sce_test <- readRDS(system.file("extdata", "sce_norm_demo.rds",
         package = "scafari"
     ))
-    expect_equal(norm, as.data.frame(sce_test@assays@data$normalized.counts))
+    expect_equal(norm@assays@data$normalized.counts, sce_test@assays@data$normalized.counts)
 })
 
 test_that("annotateAmplicons", {
@@ -537,3 +538,4 @@ test_that("Variant annotation works", {
         SingleCellExperiment::altExp(sce_filtered)
     )))
 })
+
