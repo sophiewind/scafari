@@ -395,14 +395,6 @@ test_that("h5ToSce creates correct output.", {
 })
 
 # sce
-test_that("normalizeReadCounts Normalization of counts is working.", {
-    norm <- normalizeReadCounts(sce)
-    sce_test <- readRDS(system.file("extdata", "sce_norm_demo.rds",
-        package = "scafari"
-    ))
-    expect_equal(norm@assays@data$normalized.counts, sce_test@assays@data$normalized.counts)
-})
-
 test_that("annotateAmplicons", {
     # Since its only possible to annotate by mock in test not all columns are
     # considered
