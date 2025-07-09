@@ -2,21 +2,25 @@
 % Please edit documentation in R/normalizeReadCounts.R
 \name{normalizeReadCounts}
 \alias{normalizeReadCounts}
-\title{This function normalizes the read counts contained within a `SingleCellExperiment` object.}
+\title{This function normalizes the read counts contained within a
+`SingleCellExperiment` object.}
 \usage{
 normalizeReadCounts(sce)
 }
 \arguments{
-\item{sce}{A SingleCellExperiment object that includes the assay data with read counts to be normalized. The metadata within the object may also be utilized for normalization purposes.}
+\item{sce}{A SingleCellExperiment object that includes the assay data with
+read counts to be normalized. The metadata within the object may also be
+utilized for normalization purposes.}
 }
 \value{
 SingleCellExperiment object  with normalized read counts.
 }
 \description{
-This function normalizes the read counts contained within a `SingleCellExperiment` object.
+This function normalizes the read counts contained within a
+`SingleCellExperiment` object.
 }
 \examples{
-# Assume `sce` is a SingleCellExperiment object with 'counts' assay. 
+# Assume `sce` is a SingleCellExperiment object with 'counts' assay.
 h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
 h5 <- h5ToSce(h5_file_path)
 sce <- h5$sce_amp
@@ -24,5 +28,6 @@ sce <- normalizeReadCounts(sce)
 
 }
 \references{
-https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
+https://missionbio.github.io/mosaic/,
+https://github.com/rachelgriffard/optima
 }

@@ -8,9 +8,8 @@ check_MBAPI()
 }
 \value{
 boolean if MissionBio API is currently available
-
- @export
 }
 \description{
 Check if MissionBio is accessible
 }
+\keyword{internal}

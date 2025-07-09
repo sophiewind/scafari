@@ -2,7 +2,7 @@
 % Please edit documentation in R/launchScafariShiny.R
 \name{launchScafariShiny}
 \alias{launchScafariShiny}
-\title{Launch the Scafari Shiny App}
+\title{Launch Scafari Shiny Application}
 \usage{
 launchScafariShiny()
 }
@@ -10,11 +10,11 @@ launchScafariShiny()
 shiny app
 }
 \description{
-Launch the Scafari Shiny App
+Launches the Scafari Shiny application for data visualization.
 }
 \examples{
-\dontrun{
-launchScafariShiny()
+if (interactive()) {
+  launchScafariShiny()
 }
 
 }

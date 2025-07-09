@@ -3,7 +3,8 @@
 \name{annotateAmplicons}
 \alias{annotateAmplicons}
 \title{Function: annotateAmplicons
-This function takes a SingleCellExperiment object as input and annotates the stored amplicons.}
+This function takes a SingleCellExperiment object as input and annotates the
+ stored amplicons.}
 \usage{
 annotateAmplicons(sce, known.canon, shiny = FALSE)
 }
@@ -19,11 +20,19 @@ A dataframe containing annotated amplicons.
 }
 \description{
 Function: annotateAmplicons
-This function takes a SingleCellExperiment object as input and annotates the stored amplicons.
+This function takes a SingleCellExperiment object as input and annotates the
+ stored amplicons.
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with a 'counts' assay
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
-annotated <- annotateAmplicons(sce_filtered, 
-system.file("extdata", "UCSC_hg19_knownCanonical_mock.txt", package = "scafari"))
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
+
+annotated <- annotateAmplicons(
+    sce_filtered,
+    system.file("extdata", "UCSC_hg19_knownCanonical_mock.txt",
+        package = "scafari"
+    )
+)
 }

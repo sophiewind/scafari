@@ -4,7 +4,8 @@
 \alias{filterVariants}
 \title{Function: filterVariants
 -------------------------------
-This function takes a SingleCellExperiment object as input and performs variant filtering}
+This function takes a SingleCellExperiment object as input and performs
+variant filtering}
 \usage{
 filterVariants(
   depth.threshold = numeric(),
@@ -20,25 +21,34 @@ filterVariants(
 )
 }
 \arguments{
-\item{depth.threshold}{A numeric value specifying the minimum read depth required.}
+\item{depth.threshold}{A numeric value specifying the minimum read depth
+required.}
 
-\item{genotype.quality.threshold}{A numeric value specifying the minimum genotype quality score.}
+\item{genotype.quality.threshold}{A numeric value specifying the minimum
+genotype quality score.}
 
-\item{vaf.ref}{A numeric value specifying the variant allele frequency threshold for wild-type alleles.}
+\item{vaf.ref}{A numeric value specifying the variant allele frequency
+threshold for wild-type alleles.}
 
-\item{vaf.het}{A numeric value specifying the variant allele frequency threshold for heterozygous variants.}
+\item{vaf.het}{A numeric value specifying the variant allele frequency
+threshold for heterozygous variants.}
 
-\item{vaf.hom}{A numeric value specifying the variant allele frequency threshold for homozygous variants.}
+\item{vaf.hom}{A numeric value specifying the variant allele frequency
+threshold for homozygous variants.}
 
-\item{min.cell}{A numeric value indicating the minimum number of cells with a genotype other than "missing".}
+\item{min.cell}{A numeric value indicating the minimum number of cells with
+a genotype other than "missing".}
 
-\item{min.mut.cell}{A numeric value indicating the minimum number of mutated (genotype either "homozygous" or "heterozygous") cells.}
+\item{min.mut.cell}{A numeric value indicating the minimum number of mutated
+(genotype either "homozygous" or "heterozygous") cells.}
 
-\item{se.var}{The SummarizedExperiment object containing variant data which will be filtered.}
+\item{se.var}{The SummarizedExperiment object containing variant data which
+will be filtered.}
 
 \item{sce}{SingleCellExperiment object containing the single-cell data TODO.}
 
-\item{shiny}{A logical flag indicating whether the function is being run in a Shiny application
+\item{shiny}{A logical flag indicating whether the function is being run in
+a Shiny application
 context. Default is FALSE.}
 }
 \value{
@@ -46,16 +56,21 @@ A list containing the following elements:
 \describe{
   \item{vaf.matrix.filtered}{Variant allele frequencies after filtering.}
   \item{genotype.matrix.filtered}{Genotype information after filtering.}
-  \item{read.counts.df.norm.filtered}{Normalized read counts for variants retained after filtering.}
-  \item{variant.ids.filtered}{A vector of the variant IDs that were retained after filtering.}
-  \item{genoqual.matrix.filtered}{Genotype qualities for variants retained after filtering.}
-  \item{cells.keep}{A vector of cell identifiers for those cells retained after filtering.}
+  \item{read.counts.df.norm.filtered}{Normalized read counts for variants
+  retained after filtering.}
+  \item{variant.ids.filtered}{A vector of the variant IDs that were
+  retained after filtering.}
+  \item{genoqual.matrix.filtered}{Genotype qualities for variants retained
+   after filtering.}
+  \item{cells.keep}{A vector of cell identifiers for those cells retaine
+  d after filtering.}
 }
 }
 \description{
 Function: filterVariants
 -------------------------------
-This function takes a SingleCellExperiment object as input and performs variant filtering
+This function takes a SingleCellExperiment object as input and performs
+variant filtering
 }
 \examples{
 library(SummarizedExperiment)
@@ -64,30 +79,40 @@ h5 <- h5ToSce(h5_file_path)
 sce <- h5$sce_amp
 se.var <- h5$se_var
 sce <- normalizeReadCounts(sce = sce)
-filteres <- filterVariants(depth.threshold = 10,
-genotype.quality.threshold = 30,
-vaf.ref = 5, 
-vaf.het =  35, 
-vaf.hom = 95, 
-min.cell = 50,
-min.mut.cell = 1,
-se.var = se.var,
-sce = sce,
-shiny = FALSE)
-se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered), 
-                                           Genotype = t(filteres$genotype.matrix.filtered),
-                                           Genoqual = t(filteres$genoqual.matrix.filtered)),
-                             rowData = filteres$variant.ids.filtered,
-                             colData = filteres$cells.keep)
+filteres <- filterVariants(
+    depth.threshold = 10,
+    genotype.quality.threshold = 30,
+    vaf.ref = 5,
+    vaf.het = 35,
+    vaf.hom = 95,
+    min.cell = 50,
+    min.mut.cell = 1,
+    se.var = se.var,
+    sce = sce,
+    shiny = FALSE
+)
+se.f <- SummarizedExperiment(
+    assays = list(
+        VAF = t(filteres$vaf.matrix.filtered),
+        Genotype = t(filteres$genotype.matrix.filtered),
+        Genoqual = t(filteres$genoqual.matrix.filtered)
+    ),
+    rowData = filteres$variant.ids.filtered,
+    colData = filteres$cells.keep
+)
 
 # Filter out cells in sce object
 # Find the indices of the columns to keep
-indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)[[1]], nomatch = 0)
+indices_to_keep <- match(filteres$cells.keep,
+    SummarizedExperiment::colData(sce)[[1]],
+    nomatch = 0
+)
 
 # Subset the SCE using these indices
 sce_filtered <- sce[, indices_to_keep]
 
 }
 \references{
-https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
+https://missionbio.github.io/mosaic/,
+https://github.com/rachelgriffard/optima
 }
