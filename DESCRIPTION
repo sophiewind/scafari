@@ -52,6 +52,7 @@ Suggests:
     R.utils,
     BiocStyle,
     testthat (>= 3.0.0)
+Depends: R (>= 3.5.0)
 biocViews: Software, ShinyApps, SingleCell, Sequencing
 BugReports: https://github.com/sophiewind/scafari/issues
 URL: https://github.com/sophiewind/scafari
