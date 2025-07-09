@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with 'genotype_quality'
-#' assay.
+#' # assay.
 #' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
 #'     package = "scafari"
 #' ))
@@ -25,8 +25,8 @@
 plotGenotypequalityPerGenotype <- function(sce) {
     # Check if the 'sce' object is valid
     if (is.null(sce) || !(inherits(sce, "SingleCellExperiment"))) {
-        stop("Input 'sce' is invalid. It must be a
-            SingleCellExperiment object.")
+        stop(paste0("Input 'sce' is invalid. It must be a ",
+            "SingleCellExperiment object."))
     }
 
     # Retrieve genotype and genotype quality matrices

@@ -23,8 +23,8 @@ plotNormalizedReadCounts <- function(sce) {
 
     # Check if 'normalized.counts' assay is available
     if (!"normalized.counts" %in% assayNames(sce)) {
-        stop("The SingleCellExperiment object must contain a
-            'normalized.counts' assay.")
+        stop(paste0("The SingleCellExperiment object must contain a ",
+            "'normalized.counts' assay."))
     }
 
     # Extract normalized read counts and verify it is not empty
@@ -45,8 +45,8 @@ plotNormalizedReadCounts <- function(sce) {
 
     # Assign amplicon IDs from rowData
     if (!"id" %in% names(rowData(sce))) {
-        stop("The rowData of SingleCellExperiment must contain an 'id' column
-            for amplicon identification.")
+        stop(paste0("The rowData of SingleCellExperiment must contain an 'id' ",
+                    "column for amplicon identification."))
     }
     normalized.read.counts$Amplicon <- rowData(sce)$id
 

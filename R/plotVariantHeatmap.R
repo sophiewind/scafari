@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with an appropriate variant
-#' assay.
+#' # assay.
 #' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
 #'     package = "scafari"
 #' ))
@@ -30,12 +30,12 @@ plotVariantHeatmap <- function(sce) {
 
     # Check for the presence of 'variants' altExp and required assays
     if (!"variants" %in% altExpNames(sce)) {
-        stop("The SingleCellExperiment object must contain 'variants' as an
-            alternate experiment.")
+        stop(paste0("The SingleCellExperiment object must contain 'variants' ",
+                    "as an alternate experiment."))
     }
     if (!all(c("VAF", "Genotype") %in% assayNames(altExp(sce, "variants")))) {
-        stop("The 'variants' alternate experiment must contain 'VAF' and
-            'Genotype' assays.")
+        stop(paste0("The 'variants' alternate experiment must contain 'VAF' ",
+                    "and Genotype' assays."))
     }
 
     # Extract and verify VAF and genotype matrices
@@ -51,8 +51,8 @@ plotVariantHeatmap <- function(sce) {
     }
 
     if (!"annotated" %in% names(metadata(altExp(sce)))) {
-        stop("The variants are not annotated. Please do this using
-            `annotateVariants()`")
+        stop(paste0("The variants are not annotated. Please do this using",
+            "`annotateVariants()`"))
     }
 
     # Verify the presence of gene and id in rowData

@@ -30,8 +30,8 @@ plotPanelUniformity <- function(sce, interactive = FALSE) {
     }
     # Check for the presence of 'normalized.counts' assay
     if (!"normalized.counts" %in% assayNames(sce)) {
-        stop("The SingleCellExperiment object must contain a 'normalized.counts'
-            assay.")
+        stop(paste0("The SingleCellExperiment object must contain a ",
+                    "'normalized.counts' assay."))
     }
 
     # Extract and verify normalized read counts and amplicon data
@@ -40,8 +40,8 @@ plotPanelUniformity <- function(sce, interactive = FALSE) {
 
     # Ensure the assays and rowData contain the necessary data
     if (nrow(read.counts.norm) == 0 || ncol(read.counts.norm) == 0) {
-        stop("The 'normalized.counts' assay is empty, cannot plot panel
-            uniformity.")
+        stop(paste0("The 'normalized.counts' assay is empty, cannot plot panel",
+            "uniformity."))
     }
     if (nrow(amplicons) == 0 || !"id" %in% names(amplicons)) {
         stop("The rowData must contain non-empty data with an 'id' column.")

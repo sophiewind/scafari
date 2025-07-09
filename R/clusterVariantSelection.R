@@ -35,8 +35,8 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust) {
 
     # Check that 'variants' altExp exists and contains a 'VAF' assay
     if (!"variants" %in% altExpNames(sce)) {
-        stop("The SingleCellExperiment object must contain 'variants' as an
-        alternate experiment.")
+        stop(paste0("The SingleCellExperiment object must contain 'variants' ",
+                    "as an alternate experiment."))
     }
     if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
         stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
