@@ -12,6 +12,7 @@
 #' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
 #'     package = "scafari"
 #' ))
+#' 
 #' annotated <- annotateAmplicons(
 #'     sce_filtered,
 #'     system.file("extdata", "UCSC_hg19_knownCanonical_mock.txt",
