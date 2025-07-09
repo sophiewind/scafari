@@ -5,7 +5,7 @@ by corresponding tabs: “Sequencing”, “Panel”, “Variants” and “Expl
 
 # Requirements
 
-To run scafari, you need R (Version 4.4 or higher) and R Shiny.
+To run scafari, you need R (Version 4.5 or higher) and R Shiny.
 
 You can use bioconductor/bioconductor_docker (https://hub.docker.com/r/bioconductor/bioconductor_docker).
 
@@ -14,8 +14,7 @@ You can use bioconductor/bioconductor_docker (https://hub.docker.com/r/bioconduc
 To install scafari, open R and install the package.
 
 ```
-install.packages("devtools")
-devtools::install_github("sophiewind/scafari")
+BiocManager::install('scafari')
 ```
 
 scafari is available as R package and as shiny app. A detailed description how to use the R packages is in the vignette in `/vignettes` directory.
