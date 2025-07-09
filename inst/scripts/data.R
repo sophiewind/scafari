@@ -1,5 +1,14 @@
 # Documentation how inst/extdata was generated
 
+# annotated.rds ----------------------------------------------------------------
+# h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+# h5 <- h5ToSce(h5_file_path)
+# sce <- h5$sce_amp
+# se.var <- h5$se_var
+# sce <- normalizeReadCounts(sce = sce)
+# annotated <- try(annotateAmplicons(sce = sce, known.canon = known_canon_path))
+# saveRDS(annotated, './inst/extdata/annotated.rds')
+
 # demo.h5 ----------------------------------------------------------------------
 # .h5 was downloaded here: 
 # https://portal.missionbio.com/datasets/4-cell-lines-AML-multiomics
@@ -54,8 +63,7 @@
 #                                variants.of.interest = variants.of.interest,
 #                                n.clust = 3)
 
-
-# sce_filtered.rds -------------------------------------------------------------
+# sce_filtered_demo.rds --------------------------------------------------------
 # h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
 # h5 <- h5ToSce(h5_file_path)
 # sce <- h5$sce_amp
@@ -78,7 +86,18 @@
 #                              colData = filteres$cells.keep)
 # indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)[[1]], nomatch = 0)
 # sce_filtered <- sce[, indices_to_keep]
+# SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
+# sce_filtered <- annotateVariants(sce = sce_filtered)
+# sce_filtered %>% saveRDS('./inst/extdata/sce_filtered_demo.rds')
 
+# sce_norm_demo.rds ------------------------------------------------------------
+# Load .h5 file
+# h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
+# h5 <- h5ToSce(h5_file_path)
+# sce <- h5$sce_amp
+# se.var <- h5$se_var
+# sce <- normalizeReadCounts(sce = sce)
+# saveRDS(sce, './inst/extdata/sce_norm_demo.rds')
 
 # UCSC_hg19_knownCanonical_mock.txt --------------------------------------------
 # knownCanonical were downloaded here: 
