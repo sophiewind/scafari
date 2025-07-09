@@ -399,7 +399,7 @@ test_that("normalizeReadCounts Normalization of counts is working.", {
     sce_test <- readRDS(system.file("extdata", "sce_norm_demo.rds",
         package = "scafari"
     ))
-    expect_equal(norm, sce_test)
+    expect_equal(norm, as.data.frame(sce_test@assays@data$normalized.counts))
 })
 
 test_that("annotateAmplicons", {
