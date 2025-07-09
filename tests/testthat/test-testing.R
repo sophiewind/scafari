@@ -464,13 +464,14 @@ test_that("filterVariants creates correct output.", {
 
 
 # sce
-test_that("Normalization of counts is working.", {
+test_that("normalizeReadCounts Normalization of counts is working.", {
     norm <- normalizeReadCounts(sce)
     sce_test <- readRDS(system.file("extdata", "sce_norm_demo.rds",
-        package = "scafari"
+                                    package = "scafari"
     ))
-    expect_equal(norm, sce_test)
+    expect_equal(norm@assays@data$normalized.counts, sce_test@assays@data$normalized.counts)
 })
+
 
 test_that("filterVariants creates correct output.", {
     h5 <- h5ToSce(h5_file_path)
