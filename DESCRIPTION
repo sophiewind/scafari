@@ -1,7 +1,7 @@
 Package: scafari
 Type: Package
 Title: Analysis of scDNA-seq data
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: 
 	person("Sophie", "Wind", , 
 	 email = "sophie.wind@uni-muenster.de", 
