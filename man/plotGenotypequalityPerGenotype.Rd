@@ -7,23 +7,26 @@
 plotGenotypequalityPerGenotype(sce)
 }
 \arguments{
-\item{sce}{A `SingleCellExperiment` object containing the single-cell data. 
-This object should include a 'genotype_quality' assay or similar data which 
+\item{sce}{A `SingleCellExperiment` object containing the single-cell data.
+This object should include a 'genotype_quality' assay or similar data which
 provides quality metrics for each genotype.}
 }
 \value{
-A `ggplot` object visualizing the distribution of genotype quality 
+A `ggplot` object visualizing the distribution of genotype quality
 across different genotypes.
 }
 \description{
-This function generates a plot to assess the quality of genotypes within a 
-`SingleCellExperiment` object. It uses the 'genotype_quality' assay or any 
-relevant assay to visualize the distribution of genotype quality metrics 
+This function generates a plot to assess the quality of genotypes within a
+`SingleCellExperiment` object. It uses the 'genotype_quality' assay or any
+relevant assay to visualize the distribution of genotype quality metrics
 across different genotypes.
 }
 \examples{
-# Assume `sce` is a SingleCellExperiment object with 'genotype_quality' assay.
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+# Assume `sce` is a SingleCellExperiment object with 'genotype_quality'
+# assay.
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
 genotype_quality_plot <- plotGenotypequalityPerGenotype(sce_filtered)
 print(genotype_quality_plot)
 

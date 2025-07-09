@@ -7,22 +7,26 @@
 plotVariantHeatmap(sce)
 }
 \arguments{
-\item{sce}{A `SingleCellExperiment` object containing single-cell variant data. 
-The object should include an assay that holds variant information suitable 
+\item{sce}{A `SingleCellExperiment` object containing single-cell variant
+data.
+The object should include an assay that holds variant information suitable
 for visualization in a heatmap.}
 }
 \value{
-A `ggplot` object representing the heatmap of variant frequencies or 
+A `ggplot` object representing the heatmap of variant frequencies or
 presence across cells or groups.
 }
 \description{
-This function generates a heatmap to visualize variant data within a 
-`SingleCellExperiment` object. The heatmap provides insights into the 
+This function generates a heatmap to visualize variant data within a
+`SingleCellExperiment` object. The heatmap provides insights into the
 distribution and frequency of variants across different samples or cells.
 }
 \examples{
-# Assume `sce` is a SingleCellExperiment object with an appropriate variant assay.
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+# Assume `sce` is a SingleCellExperiment object with an appropriate variant
+# assay.
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
 variant_heatmap <- plotVariantHeatmap(sce_filtered)
 print(variant_heatmap)
 

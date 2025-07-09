@@ -7,8 +7,8 @@
 plotPanelUniformity(sce, interactive = FALSE)
 }
 \arguments{
-\item{sce}{A `SingleCellExperiment` object that contains single-cell data 
-with a 'counts' assay. This object should be pre-processed to ensure 
+\item{sce}{A `SingleCellExperiment` object that contains single-cell data
+with a 'counts' assay. This object should be pre-processed to ensure
 the data is appropriate for uniformity analysis.}
 
 \item{interactive}{in interactive mode an plotly is returned.}
@@ -17,8 +17,8 @@ the data is appropriate for uniformity analysis.}
 A `ggplot` object visualizing the uniformity of panel reads.
 }
 \description{
-This function generates a plot to assess the uniformity of panel reads 
-in a `SingleCellExperiment` object. It uses read counts stored in the 
+This function generates a plot to assess the uniformity of panel reads
+in a `SingleCellExperiment` object. It uses read counts stored in the
 'counts' assay to visualize the distribution and variability of reads.
 }
 \examples{
