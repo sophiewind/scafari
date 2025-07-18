@@ -4,17 +4,21 @@
 \alias{annotateVariants}
 \title{Function: annotateVariants
 -------------------------------
-This function takes a SingleCellExperiment object as input and performs variant annotation.}
+This function takes a SingleCellExperiment object as input and performs
+variant annotation.}
 \usage{
 annotateVariants(sce, shiny = FALSE, max.var = 50)
 }
 \arguments{
-\item{sce}{SingleCellExperiment object containing the single-cell data to be annotated.}
+\item{sce}{SingleCellExperiment object containing the single-cell data to be
+annotated.}
 
-\item{shiny}{A logical flag indicating whether the function is being run in a Shiny application
+\item{shiny}{A logical flag indicating whether the function is being run in
+a Shiny application
 context. Default is FALSE.}
 
-\item{max.var}{Maximum number of variants to annotate. By default this is 50 to avoid long runtime.}
+\item{max.var}{Maximum number of variants to annotate. By default this is 50
+to avoid long runtime.}
 }
 \value{
 The function returns an annotated SingleCellExperiment object.
@@ -22,13 +26,17 @@ The function returns an annotated SingleCellExperiment object.
 \description{
 Function: annotateVariants
 -------------------------------
-This function takes a SingleCellExperiment object as input and performs variant annotation.
+This function takes a SingleCellExperiment object as input and performs
+variant annotation.
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp()
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
 sce <- annotateVariants(sce_filtered, shiny = FALSE)
 }
 \references{
-https://missionbio.github.io/mosaic/, https://github.com/rachelgriffard/optima
+https://missionbio.github.io/mosaic/,
+https://github.com/rachelgriffard/optima
 }

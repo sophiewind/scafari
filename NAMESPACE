@@ -1,6 +1,6 @@
 import(shiny)
-importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull, rename, 
-           group_by, summarize, summarise, across, sample_n, slice)
+importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull, 
+        rename, group_by, summarize, summarise, across, sample_n, slice)
 importFrom(magrittr, "%>%")
 import(ggplot2)
 importFrom(tibble, rownames_to_column)
@@ -27,11 +27,12 @@ import(shinyBS)
 import(markdown)
 import(GenomicRanges)
 import(rhdf5)
+importFrom(R.utils, gunzip)
 import(ComplexHeatmap)
-#import(karyoploteR)
+importFrom(ggbio, autoplot)
 importFrom(biomaRt, getBM, useEnsembl)
 import(org.Hs.eg.db)
-importFrom(S4Vectors, metadata, DataFrame)
+importFrom(S4Vectors, metadata, DataFrame, subjectHits, queryHits)
 import(SingleCellExperiment)
 import(SummarizedExperiment)
 export(annotateAmplicons,
@@ -50,7 +51,4 @@ export(annotateAmplicons,
         plotNormalizedReadCounts,
         plotPanelUniformity,
         plotVariantHeatmap,
-        theme_default,
-        theme_shiny,
-        gg_color_hue,
         launchScafariShiny)

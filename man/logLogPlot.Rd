@@ -7,13 +7,16 @@
 logLogPlot(sce)
 }
 \arguments{
-\item{sce}{A SingleCellExperiment object that contains read count data to be plotted. The read counts are extracted from an associated h5 file or similar data structure within the object.}
+\item{sce}{A SingleCellExperiment object that contains read count data to be
+plotted. The read counts are extracted from an associated h5 file or similar
+data structure within the object.}
 }
 \value{
 A ggplot object representing the log-log plot of read counts.
 }
 \description{
-This function generates a log-log plot of read counts using the data from a `SingleCellExperiment` object.
+This function generates a log-log plot of read counts using the data from a
+`SingleCellExperiment` object.
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with a 'counts' assay

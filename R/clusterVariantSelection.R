@@ -1,8 +1,10 @@
 #' Function: clusterVariantSelection
 #' This function takes selected variants and performs clustering on them.
 #'
-#' @param sce A SingleCellExperiment object containing the single-cell data on which clustering will be performed.
-#' @param variants.of.interest A vector or list specifying the variants of interest to be selected for clustering.
+#' @param sce A SingleCellExperiment object containing the single-cell data on
+#' which clustering will be performed.
+#' @param variants.of.interest A vector or list specifying the variants of
+#' interest to be selected for clustering.
 #' @param n.clust An integer specifying the number of clusters.
 #' @param resolution The resolution parameter to use. Higher resolutions lead to more smaller communities, while lower resolutions lead to fewer larger communities.
 #' @param eps.value Size (radius) of the epsilon neighborhood. Can be omitted if x is a frNN object.
@@ -13,16 +15,18 @@
 #'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
-#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered.rds", package = "scafari"))
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+#'     package = "scafari"
+#' ))
 #' clusterplot <- clusterVariantSelection(
-#'   sce = sce_filtered,
-#'   variants.of.interest = c(
-#'     "FLT3:chr13:28610183:A/G",
-#'     "KIT:chr4:55599436:T/C",
-#'     "TP53:chr17:7577427:G/A",
-#'     "TET2:chr4:106158216:G/A"
-#'   ),
-#'   n.clust = 4
+#'     sce = sce_filtered,
+#'     variants.of.interest = c(
+#'         "FLT3:chr13:28610183:A/G",
+#'         "KIT:chr4:55599436:T/C",
+#'         "TP53:chr17:7577427:G/A",
+#'         "TET2:chr4:106158216:G/A"
+#'     ),
+#'     n.clust = 4
 #' )
 #'
 #' @export

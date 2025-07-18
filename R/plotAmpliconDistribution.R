@@ -1,19 +1,21 @@
 #' Plot Distribution of Amplicons
-#' 
-#' This function generates a plot to visualize the distribution of amplicons within a `SingleCellExperiment` object.
 #'
-#' @param sce A SingleCellExperiment object that contains the assay data, including amplicon information to be plotted.
+#' This function generates a plot to visualize the distribution of amplicons
+#' within a `SingleCellExperiment` object.
+#'
+#' @param sce A SingleCellExperiment object that contains the assay data,
+#' including amplicon information to be plotted.
 #'
 #' @return A ggplot object representing the distribution of amplicons.
-#' 
+#'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with 'counts' assay.
 #' h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
 #' h5 <- h5ToSce(h5_file_path)
-#' sce <- h5$sce_amp 
+#' sce <- h5$sce_amp
 #' plotAmpliconDistribution(sce)
 #'
-#' @export 
+#' @export
 plotAmpliconDistribution <- function(sce) {
   # Check that the input is a SingleCellExperiment object
   if (!inherits(sce, "SingleCellExperiment")) {

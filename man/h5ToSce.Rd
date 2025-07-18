@@ -4,7 +4,8 @@
 \alias{h5ToSce}
 \title{Function: h5ToSce
 -------------------------------
-This function takes the path of an h5 file and reads this into an object of the SingleCellExperiment class.}
+This function takes the path of an h5 file and reads this into an object of
+the SingleCellExperiment class.}
 \usage{
 h5ToSce(h5_file)
 }
@@ -14,12 +15,14 @@ h5ToSce(h5_file)
 \value{
 A list containing the following elements:
 \describe{
-  \item{sce_amp}{SingleCellExperiment class object containing read count information.}
-  \item{se_var}{SummarizedExperiment class object containing variant information..}
+  \item{sce_amp}{SingleCellExperiment class object containing read count
+  information.}
+  \item{se_var}{SummarizedExperiment class object containing variant
+  information..}
 }
 
-A list with the SingleCellExperiment and the SummarizedExperiment 
-object representing the amplicon and the varaint analysis.
+A list with the SingleCellExperiment and the SummarizedExperiment
+object representing the amplicon and the variant analysis.
 \describe{
   \item{sce_amp}{SingleCellExperiment with amplicon experiment.}
   \item{se_var}{SummarizedExperiment with variants eexperiment}
@@ -28,7 +31,8 @@ object representing the amplicon and the varaint analysis.
 \description{
 Function: h5ToSce
 -------------------------------
-This function takes the path of an h5 file and reads this into an object of the SingleCellExperiment class.
+This function takes the path of an h5 file and reads this into an object of
+the SingleCellExperiment class.
 }
 \examples{
 h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
@@ -37,6 +41,6 @@ h5_file_path <- system.file("extdata", "demo.h5", package = "scafari")
 result <- h5ToSce(h5_file_path)
 
 # Display the result
-print(result)
+result
 
 }

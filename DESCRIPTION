@@ -1,40 +1,16 @@
 Package: scafari
 Type: Package
 Title: Analysis of scDNA-seq data
-Version: 0.99.0
+Version: 0.99.8
 Authors@R: 
 	person("Sophie", "Wind", , 
 	 email = "sophie.wind@uni-muenster.de", 
 	 role = c("aut", "cre"),
 	 comment=c(ORCID="0009-0002-1174-8201"))
 Description: Scafari is a Shiny application designed for the analysis of single-cell DNA sequencing (scDNA-seq) data provided in .h5 file format. The analysis process is structured into the four key steps "Sequencing", "Panel", "Variants", and "Explore Variants". It supports various analyses and visualizations.
+Depends: R (>= 4.5.0)
 License: LGPL-3
 Encoding: UTF-8
-Requires: 
-    shiny,
-    shinycssloaders,
-    DT,
-    dplyr,
-    waiter,
-    ggplot2,
-    tibble,
-    stringr,
-    reshape2,
-    shinyjs,
-    shinyBS,
-    shinycustomloader,
-    factoextra,
-    markdown,
-    plotly,
-    GenomicRanges,
-    rhdf5,
-    ComplexHeatmap,
-    biomaRt,
-    org.Hs.eg.db,
-    SummarizedExperiment,
-    SingleCellExperiment,
-    S4Vectors,
-    parallel
 Imports:
     magrittr,
     shiny,
@@ -52,6 +28,7 @@ Imports:
     factoextra,
     markdown,
     plotly,
+    ggbio,
     GenomicRanges,
     rhdf5,
     ComplexHeatmap,
@@ -66,11 +43,13 @@ Imports:
     scales,
     tidyr,
     txdbmaker,
-    circlize
+    circlize,
+    R.utils
 VignetteBuilder: knitr
 Suggests: 
     knitr,
     rmarkdown,
+    R.utils,
     BiocStyle,
     testthat (>= 3.0.0)
 biocViews: Software, ShinyApps, SingleCell, Sequencing

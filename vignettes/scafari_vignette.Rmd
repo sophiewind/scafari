@@ -1,6 +1,10 @@
 ---
 title: "scafari_vignette"
-output: rmarkdown::html_vignette
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+    
 vignette: >
   %\VignetteIndexEntry{scafari_vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -9,49 +13,25 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,  # Width of plots in inches
-  fig.height = 5  # Height of plots in inches
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 7, # Width of plots in inches
+    fig.height = 5 # Height of plots in inches
 )
-
-# library(dplyr)
-# library(ggplot2)
-# #library(tibble)
-# library(karyoploteR)
-# library(DT)
-# library(dplyr)
-# library(waiter)
-# library(ggplot2)
-# library(plotly)
-# library(GenomicRanges)
-# library(tibble)
-# library(rhdf5)
-# library(ComplexHeatmap)
-# library(karyoploteR)
-# library(stringr)
-# library(reshape2)
-# library(biomaRt)
-# library(clusterProfiler)
-# library(org.Hs.eg.db)
-# library(shinyjs)
-# library(shinyBS)
-# library(shinycustomloader)
-# library(factoextra)
-# library(markdown)
-# library(SingleCellExperiment)
-# invisible(
-#   suppressMessages(
-#     suppressWarnings(
-#       mapply(source, list.files('../R', pattern = '.R', full.names = TRUE))
-#     )
-#   )
-# )
-
 ```
 
 # Introduction
-Single-cell DNA sequencing (scDNA-seq) enables the analysis of mutation profiles at single-cell resolution. This cutting-edge technique makes it possible to shed light on the previously inaccessible complexity of heterogeneous tissues such as tumors.
+Single-cell DNA sequencing (scDNA-seq) enables the analysis of mutation profiles
+at single-cell resolution. This cutting-edge technique makes it possible to shed
+light on the previously inaccessible complexity of heterogeneous tissues such
+as tumors.
+scafari is an R package that offers easy-to-use data quality control as well as 
+explorative variant analyses and visualization for scDNA-seq data.
+
+Other scDNA-seq analysis packages are:
+- mosaic (https://missionbio.github.io/mosaic/)
+- optima  `r BiocStyle::Biocpkg('optima')`
+- scDNA (https://github.com/bowmanr/scDNA)
 
 # Requirements
 To run scafari, you need R (Version 4.4 or higher).
@@ -59,15 +39,16 @@ To run scafari, you need R (Version 4.4 or higher).
 # Running scafari
 ## Installation
 
-A development version of scafari will be available on GitHub and can be installed as follows:
+A development version of scafari will be available on GitHub and can be 
+installed as follows:
 
 ```{r, eval=F}
-install.packages("devtools")
-devtools::install_github("sophiewind/scafari")
+BiocManager::install("scafari")
 ```
 
 ##  Getting started
-A basic workflow analysis of scDNA-seq data is demonstrated in the following on an exemplary dataset. 
+A basic workflow analysis of scDNA-seq data is demonstrated in the following on
+an exemplary dataset. 
 First we need to load scafari.
 
 ```{r loading , eval=T, warning=FALSE}
@@ -75,7 +56,8 @@ library(scafari)
 ```
 
 Once the package is installed and have been loaded, the analysis can start.
-scafari is available as R package and shiny GUI. You can run the shiny version by RStudio executing the function `launchScafariShiny()`.
+scafari is available as R package and shiny GUI. You can run the shiny version
+by RStudio executing the function `launchScafariShiny()`.
 The scafari worklow can be split into four main parts.
 
 1. Sequencing information and quality control
@@ -83,10 +65,12 @@ The scafari worklow can be split into four main parts.
 3. Variant analysis
 4. Analyses of variants of special interest
 
-These parts are represented in the four tabs of the shiny app and several functions in the R package.
+These parts are represented in the four tabs of the shiny app and several 
+functions in the R package.
 
 ## Sequencing information and quality control
-The analysis start with uploading the .h5 file. In the shiny app an interactive upload is provided on the starting page.
+The analysis start with uploading the .h5 file. In the shiny app an interactive
+upload is provided on the starting page.
 Information from the .h5 file are loaded in an sce class object in this step. 
 
 ```{r, message=FALSE}
@@ -99,14 +83,15 @@ sce <- h5$sce_amp
 se.var <- h5$se_var
 ```
 
-After successful data upload the metadata including sequencing information can be accessed and basic quality information can be inspected.
+After successful data upload the metadata including sequencing information can 
+be accessed and basic quality information can be inspected.
 
 ```{r}
 # Get metadata
 metadata(sce)
 ```
 
-Further, reads per TODO barcode can be visualized in a log-log plot.
+Further, reads per barcode can be visualized in a log-log plot.
 
 ```{r, message=FALSE}
 logLogPlot(sce)
@@ -114,45 +99,72 @@ logLogPlot(sce)
 
 
 ## Panel analysis
-The panel analysis start by normalizing the read counts using `normalizeReadCounts()`. The normalized read counts are stored in the corresponding assay (`normalized.counts`).
+The panel analysis start by normalizing the read counts using 
+`normalizeReadCounts()`. The normalized read counts are stored in the 
+corresponding assay (`normalized.counts`).
 ```{r}
 sce <- normalizeReadCounts(sce = sce)
 ```
 
-After read counts are normalized they can be annotated with biological relevant information such as exon number and canonical transcript ID.
+After read counts are normalized they can be annotated with biological relevant
+information such as exon number and canonical transcript ID.
 
-Therefore, known canonicals should be provided. They can be dowloaded like it is shown here: 
+Therefore, known canonicals should be provided. They can be dowloaded like it 
+is shown here: 
 
-```{r, eval=FALSE}
-url <- "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/knownCanonical.txt.gz"
-destfile <- "knownCanonical.txt.gz"
+```{r, eval=TRUE}
+library(R.utils)
 
-# Download the file
-download.file(url, destfile)
+temp_dir <- tempdir()
+known_canon_path <- file.path(
+    temp_dir,
+    "UCSC_hg19_knownCanonical_goldenPath.txt"
+)
 
-# Decompress the file
-R.utils::gunzip(destfile, remove = FALSE)  # This creates 'knownCanonical.txt'
+if (!file.exists(known_canon_path)) {
+    url <- paste0(
+        "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/",
+        "knownCanonical.txt.gz"
+    )
+    destfile <- file.path(
+        temp_dir,
+        "UCSC_hg19_knownCanonical_goldenPath.txt.gz"
+    )
+
+    # Download the file
+    download.file(url, destfile)
+
+    # Decompress the file
+    R.utils::gunzip(destfile, remove = FALSE)
+}
 ```
 
 
 
 ```{r}
-annotateAmplicons(sce = sce, known.canon = "./UCSC_hg19_knownCanonical_goldenPath.txt")
+try(annotateAmplicons(sce = sce, known.canon = known_canon_path))
 ```
 
-The exact genomic locations of the amplicons can be inspected in the amplicon disribution plot.
+The exact genomic locations of the amplicons can be inspected in the amplicon
+distribution plot.
 
-```{r}
+```{r, warning=FALSE}
 plotAmpliconDistribution(sce)
 ```
 
-The amplicon performance plot depicts normalized read counts per amplicon. This can help to identify low performing amplicons and get deeper insights into potential copy number alterations (Sarah). 
+The amplicon performance plot depicts normalized read counts per amplicon. 
+This can help to identify low performing amplicons and get deeper insights into
+potential copy number alterations (Sarah). 
 
 ```{r}
 plotNormalizedReadCounts(sce = sce)
 ```
 
-Insights in the normalized read counts per amplicon on single cell resolution is provided in the panel uniformity plot. Each dot represenents one cell and each row an amplicon. The amplicons are sorted by their mean reads, from high to low. Amplicons meeting at least 20\% of the average depth of coverage are represented in blue, others in orange.
+Insights in the normalized read counts per amplicon on single cell resolution 
+is provided in the panel uniformity plot. Each dot represenents one cell and 
+each row an amplicon. The amplicons are sorted by their mean reads, from high 
+to low. Amplicons meeting at least 20\% of the average depth of coverage are 
+represented in blue, others in orange.
 
 ```{r, warning=FALSE}
 plotPanelUniformity(sce, interactive = FALSE)
@@ -160,39 +172,60 @@ plotPanelUniformity(sce, interactive = FALSE)
 
 
 ## Variant analysis
-The variant analysis starts with variant filtering and is performed on criteria such as sequencing depth, variant allele frequency (VAF), genoytpe data and genotype quality data. Further, the minimum percentage of cells that could be assigned with a genotype other than missing (wild type, heterozygous, homozygous) and the minimum percentage of cells with mutated genotypes (heterozygous, homozygous).
+The variant analysis starts with variant filtering and is performed on criteria
+such as sequencing depth, variant allele frequency (VAF), genoytpe data and 
+genotype quality data. Further, the minimum percentage of cells that could be
+assigned with a genotype other than missing (wild type, heterozygous,
+homozygous) and the minimum percentage of cells with mutated genotypes 
+(heterozygous, homozygous).
 
 
 ```{r, message = FALSE}
 library(SummarizedExperiment)
 
-filteres <- filterVariants(depth.threshold = 10,
-                           genotype.quality.threshold = 30,
-                           vaf.ref = 5, 
-                           vaf.het =  35, 
-                           vaf.hom = 95, 
-                           min.cell = 50,
-                           min.mut.cell = 1,
-                           se.var = se.var,
-                           sce = sce,
-                           shiny = FALSE)
-se.f <- SummarizedExperiment(assays = list(VAF = t(filteres$vaf.matrix.filtered), 
-                                           Genotype = t(filteres$genotype.matrix.filtered),
-                                           Genoqual = t(filteres$genoqual.matrix.filtered)),
-                              rowData = filteres$variant.ids.filtered,
-                              colData = filteres$cells.keep)
-    
+filteres <- filterVariants(
+    depth.threshold = 10,
+    genotype.quality.threshold = 30,
+    vaf.ref = 5,
+    vaf.het = 35,
+    vaf.hom = 95,
+    min.cell = 50,
+    min.mut.cell = 1,
+    se.var = se.var,
+    sce = sce,
+    shiny = FALSE
+)
+se.f <-
+    SummarizedExperiment(
+        assays =
+            list(
+                VAF = t(filteres$vaf.matrix.filtered),
+                Genotype = t(filteres$genotype.matrix.filtered),
+                Genoqual = t(filteres$genoqual.matrix.filtered)
+            ),
+        rowData = filteres$variant.ids.filtered,
+        colData = filteres$cells.keep
+    )
+
 # Filter out cells in sce object
 # Find the indices of the columns to keep
-indices_to_keep <- match(filteres$cells.keep, SummarizedExperiment::colData(sce)[[1]], nomatch = 0)
-    
+indices_to_keep <- match(filteres$cells.keep,
+    SummarizedExperiment::colData(sce)[[1]],
+    nomatch = 0
+)
+
 # Subset the SCE using these indices
 sce_filtered <- sce[, indices_to_keep]
 SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
 ```
 
-After filtering the variants are annotated with biological information like gene names and clinical variant metrics. By default, annotation is performed via the Mission Bio API, which provides information on the names of the gene and the affected protein, the coding effect, the functional classification (e.g. intronic, coding), ClinVar information, the dbSNP ID and
-the DANN (Deleterious Annotation of genetic variants using Neural Networks) score. 
+After filtering the variants are annotated with biological information like gene
+names and clinical variant metrics. By default, annotation is performed via the
+Mission Bio API, which provides information on the names of the gene and the 
+affected protein, the coding effect, the functional classification (e.g. 
+intronic, coding), ClinVar information, the dbSNP ID and
+the DANN (Deleterious Annotation of genetic variants using Neural Networks) 
+score. 
 The annotated variants can than be inspected.
 
 ```{r}
@@ -200,7 +233,7 @@ suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(dplyr))
 
 # Load sce object with filtered variants
-# Check metadata 
+# Check metadata
 metadata(altExp(sce_filtered))
 
 # Annotate variants
@@ -210,20 +243,22 @@ sce_filtered <- annotateVariants(sce = sce_filtered)
 metadata(altExp(sce_filtered))
 
 # The annotations are stored in the rowData
-rowData(altExp(sce_filtered)) %>% 
-  as.data.frame() %>% 
-  head() %>% 
-  datatable()
+rowData(altExp(sce_filtered)) %>%
+    as.data.frame() %>%
+    head() %>%
+    datatable()
 ```
 
-To gain deeper insights into the VAF of filtered variants across the cells, a VAF heatmap with genotype and chromosome annotations is available.
+To gain deeper insights into the VAF of filtered variants across the cells, a 
+VAF heatmap with genotype and chromosome annotations is available.
 
 ```{r, fig.height=8}
 plotVariantHeatmap(sce = sce_filtered)
 ```
 
 
-More detailed insights into the genotype and their quality can be obtained in a violin plot. 
+More detailed insights into the genotype and their quality can be obtained in a
+violin plot. 
 
 ```{r}
 plotGenotypequalityPerGenotype(sce = sce_filtered)
@@ -231,24 +266,33 @@ plotGenotypequalityPerGenotype(sce = sce_filtered)
 
 
 ## Analysis of variants of interest
-To further focus on selected variants of interest, there is a set of function to analyze user selected variants. Thereby, variants forming cell clusters/clones can be identified and analyzed regarding VAF and genotype. First the user need to define a set of variants of interest.
+To further focus on selected variants of interest, there is a set of function 
+to analyze user selected variants. Thereby, variants forming cell 
+clusters/clones can be identified and analyzed regarding VAF and genotype. 
+First the user need to define a set of variants of interest.
 
 ```{r}
-variants.of.interest <- c("KIT:chr4:55599436:T/C", 
-                          "TET2:chr4:106158216:G/A", 
-                          "FLT3:chr13:28610183:A/G",
-                          "TP53:chr17:7577427:G/A")
+variants.of.interest <- c(
+    "KIT:chr4:55599436:T/C",
+    "TET2:chr4:106158216:G/A",
+    "FLT3:chr13:28610183:A/G",
+    "TP53:chr17:7577427:G/A"
+)
 ```
 
 
-After selecting the variants of interest, the cells can be clustered based on their VAF. The clustering returns the k-means results and the clusterplot itself in a list object.
+After selecting the variants of interest, the cells can be clustered based on 
+their VAF. The clustering returns the k-means results and the clusterplot itself
+in a list object.
 For stable k-means clustering a seed can be used `set.seed(1)`.
 
 
 ```{r, fig.show='hide'}
-plot <- clusterVariantSelection(sce = sce_filtered,
-                        variants.of.interest = variants.of.interest,
-                        n.clust = 3)
+plot <- clusterVariantSelection(
+    sce = sce_filtered,
+    variants.of.interest = variants.of.interest,
+    n.clust = 3
+)
 
 names(plot)
 ```
@@ -259,27 +303,36 @@ The clustered cells plot is stored in `clusterplot`.
 plot$clusterplot
 ```
 
-To compare the clusters regarding the variant selection there are various visualizations available. The distribution of variant allele frequency (VAF) within each cell cluster can be obtained using `plotClusterVAF()`. 
+To compare the clusters regarding the variant selection there are various 
+visualizations available. The distribution of variant allele frequency (VAF) 
+within each cell cluster can be obtained using `plotClusterVAF()`. 
 
 ```{r, warning=FALSE}
-plotClusterVAF(sce = sce_filtered, 
-               variants.of.interest = variants.of.interest,
-               gg.clust = plot$clusterplot)
+plotClusterVAF(
+    sce = sce_filtered,
+    variants.of.interest = variants.of.interest,
+    gg.clust = plot$clusterplot
+)
 ```
 
 ```{r, warning=FALSE}
-plotClusterVAFMap(sce = sce_filtered, 
-               variants.of.interest = variants.of.interest,
-               gg.clust = plot$clusterplot)
+plotClusterVAFMap(
+    sce = sce_filtered,
+    variants.of.interest = variants.of.interest,
+    gg.clust = plot$clusterplot
+)
 ```
 
 
-Further, the clusters can be analyzed regarding the genotype using `plotClusterGenotype()`.
+Further, the clusters can be analyzed regarding the genotype using 
+`plotClusterGenotype()`.
 
 ```{r, warning=FALSE}
-plotClusterGenotype(sce = sce_filtered, 
-               variants.of.interest = variants.of.interest,
-               gg.clust = plot$clusterplot)
+plotClusterGenotype(
+    sce = sce_filtered,
+    variants.of.interest = variants.of.interest,
+    gg.clust = plot$clusterplot
+)
 ```
 
 
