@@ -102,6 +102,7 @@ logLogPlot(sce)
 The panel analysis start by normalizing the read counts using 
 `normalizeReadCounts()`. The normalized read counts are stored in the 
 corresponding assay (`normalized.counts`).
+
 ```{r normalize_rc}
 sce <- normalizeReadCounts(sce = sce)
 ```
