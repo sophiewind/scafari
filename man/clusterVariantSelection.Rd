@@ -3,7 +3,6 @@
 \name{clusterVariantSelection}
 \alias{clusterVariantSelection}
 \title{Function: clusterVariantSelection
--------------------------------
 This function takes selected variants and performs clustering on them.}
 \usage{
 clusterVariantSelection(sce, variants.of.interest, n.clust)
@@ -22,7 +21,6 @@ A list with k-means results and a ggplot-object.
 }
 \description{
 Function: clusterVariantSelection
--------------------------------
 This function takes selected variants and performs clustering on them.
 }
 \examples{
