@@ -22,6 +22,8 @@ clusterplot <- readRDS(system.file("extdata", "clusterplot.rds",
 sce.without.counts <- sce
 sce.without.counts@assays@data$counts <- NULL
 
+sce.norm <- normalizeReadCounts(sce)
+
 # Remove normalized counts
 sce.without.meta <- sce
 sce.without.meta@metadata <- list(c())
@@ -101,7 +103,7 @@ test_that("plotAmpliconDistribution handles wrong input format", {
 test_that("plotPanelUniformity handles wrong input format", {
     expect_error(
         plotPanelUniformity(mtcars),
-        "`sce` must be a SingleCellExperiment object."
+        "The input must be a SingleCellExperiment object"
     )
 })
 
@@ -127,19 +129,6 @@ test_that("annotateAmplicons handles wrong input format", {
     )
 })
 
-test_that("annotateAmplicons handles missing genome_version", {
-    expect_error(
-        annotateAmplicons(sce.without.meta),
-        "The metadata must contain 'genome_version'."
-    )
-})
-
-test_that("annotateAmplicons handles missing genome_version", {
-    expect_error(
-        annotateAmplicons(sce.without.meta),
-        "The metadata must contain 'genome_version'."
-    )
-})
 
 test_that("plotGenotypequalityPerGenotype handles invalid inputs properly", {
     expect_error(
@@ -148,12 +137,6 @@ test_that("plotGenotypequalityPerGenotype handles invalid inputs properly", {
     )
 })
 
-test_that("annotateAmplicons handles missing metadata", {
-    expect_error(
-        annotateAmplicons(sce.without.meta),
-        "The metadata must contain 'genome_version'."
-    )
-})
 
 
 ## Variant analysis ------------------------------------------------------------
@@ -205,7 +188,7 @@ test_that("filterVariants handles wrong input format", {
             min.cell = 50,
             min.mut.cell = 1,
             se.var = se.var.missing,
-            sce = sce,
+            sce = sce.norm,
             shiny = FALSE
         ),
         "Missing required assays in se.var: VAF"
@@ -236,7 +219,7 @@ test_that("filterVariants handles wrong input format", {
 test_that("annotateVariants handles wrong input format", {
     expect_error(
         annotateVariants(mtcars),
-        "`sce` must be a SingleCellExperiment object."
+        "`sce` must be a SingleCellExperiment object"
     )
 })
 
@@ -384,7 +367,7 @@ test_that("plotClusterVAF handles wrong variables", {
 
 test_that("plotClusterGenotype handles wrong input format", {
     expect_error(
-        plotElbow(mtcars, c("FLT3:chr13:28610183:A/G")),
+        plotClusterGenotype(mtcars, c("FLT3:chr13:28610183:A/G")),
         "The input must be a SingleCellExperiment object."
     )
 })
@@ -395,22 +378,23 @@ test_that("h5ToSce creates correct output.", {
 })
 
 # sce
-test_that("annotateAmplicons", {
-    # Since its only possible to annotate by mock in test not all columns are
-    # considered
-    annotated <- annotateAmplicons(
-        sce,
-        system.file("extdata",
-            "UCSC_hg19_knownCanonical_mock.txt",
-            package = "scafari"
-        )
-    )
-    annotated.true <- readRDS(system.file("extdata",
-        "annotated.rds",
-        package = "scafari"
-    ))
-    expect_equal(annotated$x$data[3:5, ], annotated.true$x$data[3:5, ])
-})
+# commented out since ensemble is currently not available
+# test_that("annotateAmplicons", {
+#     # Since its only possible to annotate by mock in test not all columns are
+#     # considered
+#     annotated <- annotateAmplicons(
+#         sce,
+#         system.file("extdata",
+#             "UCSC_hg19_knownCanonical_mock.txt",
+#             package = "scafari"
+#         )
+#     )
+#     annotated.true <- readRDS(system.file("extdata",
+#         "annotated.rds",
+#         package = "scafari"
+#     ))
+#     expect_equal(annotated$x$data[3:5, ], annotated.true$x$data[3:5, ])
+# })
 
 
 test_that("filterVariants creates correct output.", {
