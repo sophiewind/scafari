@@ -58,7 +58,7 @@ library(scafari)
 Once the package is installed and have been loaded, the analysis can start.
 scafari is available as R package and shiny GUI. You can run the shiny version
 by RStudio executing the function `launchScafariShiny()`.
-The scafari worklow can be split into four main parts.
+The scafari workflow can be split into four main parts.
 
 1. Sequencing information and quality control
 2. Panel analysis
