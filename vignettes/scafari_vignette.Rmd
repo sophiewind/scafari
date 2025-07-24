@@ -11,7 +11,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
@@ -42,7 +42,7 @@ To run scafari, you need R (Version 4.4 or higher).
 A development version of scafari will be available on GitHub and can be 
 installed as follows:
 
-```{r, eval=F}
+```{r install, eval=F}
 BiocManager::install("scafari")
 ```
 
@@ -73,7 +73,7 @@ The analysis start with uploading the .h5 file. In the shiny app an interactive
 upload is provided on the starting page.
 Information from the .h5 file are loaded in an sce class object in this step. 
 
-```{r, message=FALSE}
+```{r reading, message=FALSE}
 library(SingleCellExperiment)
 
 # Load .h5 file
@@ -86,14 +86,14 @@ se.var <- h5$se_var
 After successful data upload the metadata including sequencing information can 
 be accessed and basic quality information can be inspected.
 
-```{r}
+```{r metadata}
 # Get metadata
 metadata(sce)
 ```
 
 Further, reads per barcode can be visualized in a log-log plot.
 
-```{r, message=FALSE}
+```{r loglopplot, message=FALSE}
 logLogPlot(sce)
 ```
 
@@ -102,7 +102,7 @@ logLogPlot(sce)
 The panel analysis start by normalizing the read counts using 
 `normalizeReadCounts()`. The normalized read counts are stored in the 
 corresponding assay (`normalized.counts`).
-```{r}
+```{r normalize_rc}
 sce <- normalizeReadCounts(sce = sce)
 ```
 
@@ -112,7 +112,7 @@ information such as exon number and canonical transcript ID.
 Therefore, known canonicals should be provided. They can be dowloaded like it 
 is shown here: 
 
-```{r, eval=TRUE}
+```{r known_canon, eval=TRUE}
 library(R.utils)
 
 temp_dir <- tempdir()
@@ -141,14 +141,14 @@ if (!file.exists(known_canon_path)) {
 
 
 
-```{r}
+```{r annotate_amp}
 try(annotateAmplicons(sce = sce, known.canon = known_canon_path))
 ```
 
 The exact genomic locations of the amplicons can be inspected in the amplicon
 distribution plot.
 
-```{r, warning=FALSE}
+```{r plot_amp_dist, warning=FALSE}
 plotAmpliconDistribution(sce)
 ```
 
@@ -156,7 +156,7 @@ The amplicon performance plot depicts normalized read counts per amplicon.
 This can help to identify low performing amplicons and get deeper insights into
 potential copy number alterations (Sarah). 
 
-```{r}
+```{r plot_norm_rc}
 plotNormalizedReadCounts(sce = sce)
 ```
 
@@ -166,7 +166,7 @@ each row an amplicon. The amplicons are sorted by their mean reads, from high
 to low. Amplicons meeting at least 20\% of the average depth of coverage are 
 represented in blue, others in orange.
 
-```{r, warning=FALSE}
+```{r plot_panel_uniformity, warning=FALSE}
 plotPanelUniformity(sce, interactive = FALSE)
 ```
 
@@ -180,7 +180,7 @@ homozygous) and the minimum percentage of cells with mutated genotypes
 (heterozygous, homozygous).
 
 
-```{r, message = FALSE}
+```{r filter_variants, message = FALSE}
 library(SummarizedExperiment)
 
 filteres <- filterVariants(
@@ -228,7 +228,7 @@ the DANN (Deleterious Annotation of genetic variants using Neural Networks)
 score. 
 The annotated variants can than be inspected.
 
-```{r}
+```{r annotate_variants}
 suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(dplyr))
 
@@ -252,7 +252,7 @@ rowData(altExp(sce_filtered)) %>%
 To gain deeper insights into the VAF of filtered variants across the cells, a 
 VAF heatmap with genotype and chromosome annotations is available.
 
-```{r, fig.height=8}
+```{r plot_variant_heatmap, fig.height=8}
 plotVariantHeatmap(sce = sce_filtered)
 ```
 
@@ -260,7 +260,7 @@ plotVariantHeatmap(sce = sce_filtered)
 More detailed insights into the genotype and their quality can be obtained in a
 violin plot. 
 
-```{r}
+```{r plot_gt_quality}
 plotGenotypequalityPerGenotype(sce = sce_filtered)
 ```
 
@@ -271,7 +271,7 @@ to analyze user selected variants. Thereby, variants forming cell
 clusters/clones can be identified and analyzed regarding VAF and genotype. 
 First the user need to define a set of variants of interest.
 
-```{r}
+```{r variants_of_interest}
 variants.of.interest <- c(
     "KIT:chr4:55599436:T/C",
     "TET2:chr4:106158216:G/A",
@@ -287,7 +287,7 @@ in a list object.
 For stable k-means clustering a seed can be used `set.seed(1)`.
 
 
-```{r, fig.show='hide'}
+```{r cluster_variants, fig.show='hide'}
 plot <- clusterVariantSelection(
     sce = sce_filtered,
     variants.of.interest = variants.of.interest,
@@ -299,7 +299,7 @@ names(plot)
 
 The clustered cells plot is stored in `clusterplot`.
 
-```{r}
+```{r show_clusters}
 plot$clusterplot
 ```
 
@@ -307,7 +307,7 @@ To compare the clusters regarding the variant selection there are various
 visualizations available. The distribution of variant allele frequency (VAF) 
 within each cell cluster can be obtained using `plotClusterVAF()`. 
 
-```{r, warning=FALSE}
+```{r plot_clusters_vaf, warning=FALSE}
 plotClusterVAF(
     sce = sce_filtered,
     variants.of.interest = variants.of.interest,
@@ -315,7 +315,7 @@ plotClusterVAF(
 )
 ```
 
-```{r, warning=FALSE}
+```{r plot_clusters_vaf_map, warning=FALSE}
 plotClusterVAFMap(
     sce = sce_filtered,
     variants.of.interest = variants.of.interest,
@@ -327,7 +327,7 @@ plotClusterVAFMap(
 Further, the clusters can be analyzed regarding the genotype using 
 `plotClusterGenotype()`.
 
-```{r, warning=FALSE}
+```{r plot_clusters_gt, warning=FALSE}
 plotClusterGenotype(
     sce = sce_filtered,
     variants.of.interest = variants.of.interest,
