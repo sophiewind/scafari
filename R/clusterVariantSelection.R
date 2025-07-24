@@ -1,5 +1,4 @@
 #' Function: clusterVariantSelection
-#' -------------------------------
 #' This function takes selected variants and performs clustering on them.
 #'
 #' @param sce A SingleCellExperiment object containing the single-cell data on
@@ -28,29 +27,22 @@
 #'
 #' @export
 clusterVariantSelection <- function(sce, variants.of.interest, n.clust) {
-    # Check that the input is a SingleCellExperiment object
-    if (!inherits(sce, "SingleCellExperiment")) {
-        stop("The input must be a SingleCellExperiment object.")
-    }
+    checkSce(sce)
 
     # Check that 'variants' altExp exists and contains a 'VAF' assay
     if (!"variants" %in% altExpNames(sce)) {
-        stop(paste0("The SingleCellExperiment object must contain 'variants' ",
-                    "as an alternate experiment."))
-    }
+        stop("The SingleCellExperiment object must contain 'variants' ",
+                    "as an alternate experiment.")}
     if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
-        stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
-    }
+        stop("The 'variants' alternate experiment must contain a 'VAF' assay.")}
 
     # Check that variants.of.interest is non-empty and exists in the data
     if (length(variants.of.interest) == 0) {
-        stop("variants.of.interest must be a non-empty vector.")
-    }
+        stop("variants.of.interest must be a non-empty vector.")}
 
     vaf.matrix.filtered <- as.data.frame(t(assay(
         altExp(sce, "variants"),
-        "VAF"
-    )))
+        "VAF")))
     colnames(vaf.matrix.filtered) <-
         paste0(
             rowData(altExp(sce, "variants"))$Gene, ":",
@@ -58,8 +50,7 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust) {
         )
 
     if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
-        stop("All variants.of.interest must exist in the VAF matrix columns.")
-    }
+        stop("All variants.of.interest must exist in the VAF matrix columns.")}
 
     df <- vaf.matrix.filtered[, variants.of.interest] # selected_variants()]
     df <- na.omit(df)
@@ -75,7 +66,6 @@ clusterVariantSelection <- function(sce, variants.of.interest, n.clust) {
         geom = "point"
     ) +
         theme_default()
-
 
     return(list(k_means = kmeans_result, clusterplot = gg.clust))
 }
