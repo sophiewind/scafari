@@ -28,20 +28,8 @@
 #'
 #' @export
 plotClusterVAF <- function(sce, variants.of.interest, gg.clust) {
-    # Check that the input is a SingleCellExperiment object
-    if (!inherits(sce, "SingleCellExperiment")) {
-        stop("The input must be a SingleCellExperiment object.")
-    }
-
-    # Check that 'variants' altExp exists and contains a 'VAF' assay
-    if (!"variants" %in% altExpNames(sce)) {
-        stop("The SingleCellExperiment object must contain 'variants' as an 
-            alternate experiment.")
-    }
-    if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
-        stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
-    }
-
+    checkSce(sce, variants = TRUE)
+    
     # Check that variants.of.interest is non-empty and exists in the data
     if (length(variants.of.interest) == 0) {
         stop("variants.of.interest must be a non-empty vector.")
@@ -57,9 +45,8 @@ plotClusterVAF <- function(sce, variants.of.interest, gg.clust) {
         stop("All variants.of.interest must exist in the VAF matrix columns.")
     }
 
-
     vaf.matrix.filtered <- vaf.matrix.filtered[, variants.of.interest]
-    # Check if gg.clust contains necessary data and if it has correct dimensions
+
     if (!is.data.frame(gg.clust$data) || !"cluster" %in% names(gg.clust$data)) {
         stop("gg.clust$data must be a non-empty data frame 
         with a 'cluster' column.")
@@ -71,15 +58,11 @@ plotClusterVAF <- function(sce, variants.of.interest, gg.clust) {
 
     # add cluster information
     vaf.matrix.filtered.tmp <- vaf.matrix.filtered
-
     colnames(vaf.matrix.filtered.tmp) <- variants.of.interest
     vaf.matrix.filtered.tmp$cluster <- paste0("c", gg.clust$data$cluster)
     vaf.matrix.filtered.tmp <- vaf.matrix.filtered.tmp %>%
-        tidyr::pivot_longer(
-            cols = c(-cluster),
-            names_to = "variable",
-            values_to = "value"
-        ) %>%
+        tidyr::pivot_longer( cols = c(-cluster), names_to = "variable",
+            values_to = "value") %>%
         as.data.frame()
     vaf.matrix.filtered.tmp$variable <- factor(
         vaf.matrix.filtered.tmp$variable, levels = sort(variants.of.interest))
@@ -92,6 +75,5 @@ plotClusterVAF <- function(sce, variants.of.interest, gg.clust) {
         labs(y = "VAF", x = "cluster") +
         facet_grid(~variable) +
         theme_default()
-    p
     return(p)
 }

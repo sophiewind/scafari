@@ -35,8 +35,7 @@ plotAmpliconDistribution <- function(sce) {
         stop("gene_anno_df must be a data frame.")
     }
 
-    data(ideoCyto, package = "biovizBase")
-
+    data("ideoCyto", package = "biovizBase", envir = environment())
 
     amps$tooltip <- paste("Gene:", amps$Gene, "<br>ID:", amps$id)
 
