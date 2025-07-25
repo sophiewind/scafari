@@ -21,11 +21,12 @@
 #'   \item{\code{clusterVariantSelection()}: Clusteres variants of special 
 #'   interest.}
 #' }
+#' 
 #' @section Installation:
 #' To install this package, use:
 #' \code{BiocManager::install("scafari")}
 #'
-#'
+#' @docType package
 #' @name scafari
 #' @aliases scafari-package
 NULL
