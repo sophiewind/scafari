@@ -30,42 +30,56 @@ plotVariantHeatmap <- function(sce) {
     genotype.matrix.filtered <- t(assay(altExp(sce, "variants"), "Genotype"))
 
     if (nrow(vaf.matrix.filtered) == 0 || ncol(vaf.matrix.filtered) == 0) {
-        stop("The VAF matrix is empty, cannot plot heatmap.")}
-    
+        stop("The VAF matrix is empty, cannot plot heatmap.")
+    }
+
     if (nrow(genotype.matrix.filtered) == 0 ||
         ncol(genotype.matrix.filtered) == 0) {
-        stop("The Genotype matrix is empty, cannot plot heatmap.")}
-    
+        stop("The Genotype matrix is empty, cannot plot heatmap.")
+    }
+
     if (!"annotated" %in% names(metadata(altExp(sce)))) {
-        stop("The variants are not annotated. Please do this using",
-            "`annotateVariants()`")}
+        stop(
+            "The variants are not annotated. Please do this using",
+            "`annotateVariants()`"
+        )
+    }
 
     # Verify the presence of gene and id in rowData
     row_data <- rowData(altExp(sce, "variants"))
     if (!all(c("Gene", "id") %in% names(row_data))) {
-        stop("The rowData of 'variants' must contain 'Gene' and 'id' columns.")}
+        stop("The rowData of 'variants' must contain 'Gene' and 'id' columns.")
+    }
 
-    colnames(vaf.matrix.filtered) <- paste0(row_data$Gene, ":",
-        as.character(row_data$id))
+    colnames(vaf.matrix.filtered) <- paste0(
+        row_data$Gene, ":",
+        as.character(row_data$id)
+    )
 
     # Chromosome annotation
     column_ha <- HeatmapAnnotation(
         chr = factor(
-            stringr::str_extract(colnames(vaf.matrix.filtered), 
-                            "chr(\\d|X|Y)+"),
-            levels = chromosomes), col = list(chr = chr_palette))
+            stringr::str_extract(
+                colnames(vaf.matrix.filtered),
+                "chr(\\d|X|Y)+"
+            ),
+            levels = chromosomes
+        ), col = list(chr = chr_palette)
+    )
 
     # Process genotype matrix and check for expected columns
     gt_anno <- data.frame(
         WT = integer(), Het = integer(), Hom = integer(),
-        Missing = integer())
-    
+        Missing = integer()
+    )
+
     for (col in seq_len(ncol(genotype.matrix.filtered))) {
         wt <- sum(genotype.matrix.filtered[, col] == 0)
         het <- sum(genotype.matrix.filtered[, col] == 1)
         hom <- sum(genotype.matrix.filtered[, col] == 2)
         mis <- sum(genotype.matrix.filtered[, col] == 3)
-        gt_anno[col, ] <- c(hom, het, wt, mis)}
+        gt_anno[col, ] <- c(hom, het, wt, mis)
+    }
     gt_anno$Total <- rowSums(gt_anno)
 
     proportions <- gt_anno %>%
@@ -76,13 +90,16 @@ plotVariantHeatmap <- function(sce) {
     # Create a bar plot annotation for the genotype proportions
     anno_bar <- ComplexHeatmap::anno_barplot(proportions,
         bar_width = 1, height = unit(3, "cm"),
-        gp = gpar(fill = c("#D44292", "#F6A97A", "#414487FF", "grey")))
+        gp = gpar(fill = c("#D44292", "#F6A97A", "#414487FF", "grey"))
+    )
 
     # Update column annotation with GT (%) annotation
     column_ha <- HeatmapAnnotation(
-        chr = factor(stringr::str_extract(
+        chr = factor(
+            stringr::str_extract(
                 colnames(vaf.matrix.filtered),
-                "chr(\\d|X|Y)+"),
+                "chr(\\d|X|Y)+"
+            ),
             levels = chromosomes
         ),
         col = list(chr = chr_palette),

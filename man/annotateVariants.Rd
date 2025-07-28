@@ -3,7 +3,6 @@
 \name{annotateVariants}
 \alias{annotateVariants}
 \title{Function: annotateVariants
--------------------------------
 This function takes a SingleCellExperiment object as input and performs
 variant annotation.}
 \usage{
@@ -25,7 +24,6 @@ The function returns an annotated SingleCellExperiment object.
 }
 \description{
 Function: annotateVariants
--------------------------------
 This function takes a SingleCellExperiment object as input and performs
 variant annotation.
 }

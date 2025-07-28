@@ -26,10 +26,12 @@ This function generates a plot to visualize variant allele frequency (VAF) in
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp() and
 # clusterplot is the output of clusterVariantSleection().
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds", 
-package = "scafari"))
-clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", 
-package = "scafari"))
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
+clusterplot <- readRDS(system.file("extdata", "clusterplot.rds",
+    package = "scafari"
+))
 plotClusterVAF(
     sce = sce_filtered,
     variants.of.interest = c(

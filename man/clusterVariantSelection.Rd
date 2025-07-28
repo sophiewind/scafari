@@ -24,11 +24,17 @@ interest to be selected for clustering.}
 
 \item{n.clust}{An integer specifying the number of clusters.}
 
-\item{eps.value}{Size (radius) of the epsilon neighborhood. Can be omitted if x is a frNN object.}
+\item{method}{Clustering method. Either k-means, dbscan or leiden.}
 
-\item{resolution}{The resolution parameter to use. Higher resolutions lead to more smaller communities, while lower resolutions lead to fewer larger communities.}
+\item{eps.value}{Size (radius) of the epsilon neighborhood. Can be omitted
+if x is a frNN object.}
 
-\item{min.pts}{Number of minimum points required in the eps neighborhood for core points (including the point itself). By default cell number/100.}
+\item{resolution}{The resolution parameter to use. Higher resolutions lead
+to more smaller communities, while lower resolutions lead to fewer larger
+communities.}
+
+\item{min.pts}{Number of minimum points required in the eps neighborhood
+for core points (including the point itself). By default cell number/100.}
 }
 \value{
 A list with clustering results and a ggplot-object.
@@ -55,5 +61,6 @@ clusterplot <- clusterVariantSelection(
 
 }
 \references{
-https://cran.r-project.org/web/packages/dbscan/readme/README.html#ref-hahsler2019dbscan
+https://cran.r-project.org/web/packages/dbscan/readme/
+README.html#ref-hahsler2019dbscan
 }
