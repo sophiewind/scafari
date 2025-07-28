@@ -1,6 +1,4 @@
 #' Function: annotateVariants
-
-#' -------------------------------
 #' This function takes a SingleCellExperiment object as input and performs
 #' variant annotation.
 #'
@@ -42,6 +40,8 @@ annotateVariants <- function(sce, shiny = FALSE, max.var = 50) {
     if (is.null(metadata(sce))) {
         stop("The SingleCellExperiment object does not contain any metadata.")
     }
+
+    metadata <- metadata(sce)
 
     # Check that genome version is present in metadata
     if (!"genome_version" %in% names(metadata)) {
