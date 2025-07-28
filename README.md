@@ -41,6 +41,8 @@ scafari is available as R package and as shiny app. A detailed description how t
 - log-log plot
 - sequencing statistics table
 - mapping statistics table
+- tapestri table
+- R1 to R2 bar plot
 
 ## Panel
 - panel information table
@@ -70,9 +72,13 @@ scafari is available as R package and as shiny app. A detailed description how t
 
 ## Sequencing
 - hit the "Sequencing" tab
+- scroll through the page
+- explore the interactive bar plot
 
 ## Panel
 - hit the "Panel" tab
+- the read counts are normalized and annotated in the background. Therefore, it 
+can take some time until everything is processed and the plots are loaded 
 
 
 ## Variants

@@ -9,8 +9,9 @@ importFrom(dplyr, select, mutate, arrange, filter, ungroup, pull,
 importFrom(magrittr, "%>%")
 import(ggplot2)
 importFrom(tibble, rownames_to_column)
-importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract, 
-        str_to_title)
+importFrom(igraph, graph_from_adjacency_matrix, cluster_leiden)
+importFrom(dbscan, dbscan, kNNdistplot)
+importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract, str_to_title, str_replace)
 importFrom(reshape2, melt)
 importFrom(DT, datatable)
 importFrom(plotly, ggplotly, plotlyOutput, renderPlotly)

@@ -1,5 +1,4 @@
 #' Function: h5ToSce
-#' -------------------------------
 #' This function takes the path of an h5 file and reads this into an object of
 #' the SingleCellExperiment class.
 #'
