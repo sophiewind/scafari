@@ -137,40 +137,45 @@ check_MBAPI <- function() {
 }
 
 
-#' CheckSce 
-#' 
+#' CheckSce
+#'
 #' Checks sce objects.
-#' 
+#'
 #' @return TRUE if input is valid; otherwise an error is thrown
-#' 
+#'
 #' @keywords internal
 #' @noRd
-checkSce <- function(sce, variants = FALSE, gt = FALSE){
+checkSce <- function(sce, variants = FALSE, gt = FALSE) {
     # Check that the input is a SingleCellExperiment object
     if (!inherits(sce, "SingleCellExperiment")) {
         stop("The input must be a SingleCellExperiment object.")
     }
-    
-    if (variants){
+
+    if (variants) {
         # Check for the presence of 'variants' altExp and required assays
         if (!"variants" %in% altExpNames(sce)) {
-            stop("The SingleCellExperiment object must contain 'variants' ",
-                "as an alternate experiment.")
+            stop(
+                "The SingleCellExperiment object must contain 'variants' ",
+                "as an alternate experiment."
+            )
         }
         if (!"VAF" %in% assayNames(altExp(sce, "variants"))) {
-            stop("The 'variants' alternate experiment must contain a 'VAF'",
-            "assay.")
+            stop(
+                "The 'variants' alternate experiment must contain a 'VAF'",
+                "assay."
+            )
         }
     }
-    
-    if (gt){
-        if (!all(c("VAF", "Genotype") %in% 
-                assayNames(altExp(sce, "variants")))) {
-            stop("The 'variants' alternate experiment must contain 'VAF' ",
-                "and Genotype' assays.")
+
+    if (gt) {
+        if (!all(c("VAF", "Genotype") %in%
+            assayNames(altExp(sce, "variants")))) {
+            stop(
+                "The 'variants' alternate experiment must contain 'VAF' ",
+                "and Genotype' assays."
+            )
         }
     }
-    
+
     TRUE
 }
-
