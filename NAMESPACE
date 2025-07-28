@@ -1,6 +1,8 @@
 import(shiny)
 importFrom(grDevices, hcl)
 importFrom(graphics, box, mtext)
+importFrom(RANN, nn2)
+importFrom(stats, prcomp)
 importFrom(stats, kmeans, median, na.omit, reorder,
     setNames)
 importFrom(utils, data, download.file, head, read.delim)
@@ -11,7 +13,8 @@ import(ggplot2)
 importFrom(tibble, rownames_to_column)
 importFrom(igraph, graph_from_adjacency_matrix, cluster_leiden)
 importFrom(dbscan, dbscan, kNNdistplot)
-importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract, str_to_title, str_replace)
+importFrom(stringr, str_detect, str_match, str_split, str_split_i, str_extract,
+        str_to_title, str_replace)
 importFrom(reshape2, melt)
 importFrom(DT, datatable)
 importFrom(plotly, ggplotly, plotlyOutput, renderPlotly)
