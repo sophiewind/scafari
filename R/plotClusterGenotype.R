@@ -30,25 +30,14 @@
 #'
 #' @export
 plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
-    # Check that the input is a SingleCellExperiment object
-    if (!inherits(sce, "SingleCellExperiment")) {
-        stop("The input must be a SingleCellExperiment object.")
-    }
-
-    # Check that 'variants' altExp exists and contains a 'VAF' assay
-    if (!"Genotype" %in% assayNames(altExp(sce, "variants"))) {
-        stop("The 'variants' alternate experiment must contain a 'VAF' assay.")
-    }
+    checkSce(sce, variants = TRUE)
 
     # Check that variants.of.interest is non-empty and exists in the data
     if (length(variants.of.interest) == 0) {
-        stop("variants.of.interest must be a non-empty vector.")
-    }
+        stop("variants.of.interest must be a non-empty vector.")}
 
     genotype.matrix.filtered <- as.data.frame(t(assay(
-        altExp(sce, "variants"),
-        "Genotype"
-    )))
+        altExp(sce, "variants"), "Genotype")))
     colnames(genotype.matrix.filtered) <-
         paste0(
             rowData(altExp(sce, "variants"))$Gene, ":",
@@ -56,18 +45,14 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
         )
 
     if (!all(variants.of.interest %in% colnames(genotype.matrix.filtered))) {
-        stop("All variants.of.interest must exist in the VAF matrix columns.")
-    }
+        stop("All variants.of.interest must exist in the VAF matrix columns.")}
 
     genotype.matrix.filtered <- genotype.matrix.filtered[, variants.of.interest]
 
-
     # add cluster information
     genotype.matrix.filtered.tmp <- as.data.frame(genotype.matrix.filtered)
-
     genotype.matrix.filtered.tmp$cluster <- paste0("c", gg.clust$data$cluster)
     genotype.matrix.filtered.tmp <- melt(genotype.matrix.filtered.tmp)
-
 
     gt <- genotype.matrix.filtered.tmp %>%
         # melt() %>%
@@ -85,15 +70,9 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
         ifelse(x == 0, "WT",
             ifelse(x == 1, "Het",
                 ifelse(x == 2, "Hom",
-                    ifelse(x == 3, "Missing", x)
-                )
-            )
-        )
-    }
+                    ifelse(x == 3, "Missing", x))))}
 
-    # Plot barplot
-    p <- gt %>%
-        ggplot() +
+    p <- gt %>% ggplot() +
         geom_bar(aes(x = cluster, fill = Genotype), col = NA) +
         scale_fill_manual(values = mycols.ngt) +
         facet_grid(~variable) +

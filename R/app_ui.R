@@ -1,37 +1,20 @@
 app_ui <- function() {
     navbarPage(
         useShinyjs(), # Enable shinyjs
-
-        # Upload tab -----------------------------------------------------------
-        createUploadUI(),
-
-        # Sequencing tab -------------------------------------------------------
-        createSequencingUI(),
-
+        createUploadUI(),  # Upload tab
+        createSequencingUI(),  # Seq tab
+        
         # Panel tab ------------------------------------------------------------
-        tabPanel(
-            "Panel",
+        tabPanel("Panel",
             fluidPage(
-                conditionalPanel(
-                    condition = "output.file_ready",
-                    createPanelUI(),
-                ),
-                # Message displayed when the file is not uploaded
-                conditionalPanel(
-                    condition = "!output.file_ready",
+                conditionalPanel(condition = "output.file_ready",
+                    createPanelUI(),),
+                conditionalPanel(condition = "!output.file_ready",
                     fluidRow(
                         style = "text-align: center; margin-top: 50px;",
-                        p(
-                            style = "color: black;",
+                        p(style = "color: black;",
                             "Please upload a file to view sequencing
-                            information."
-                        )
-                    )
-                ),
-                hr(),
-            )
-        ),
-
+                            information."))), hr(),)),
        
     # Variants tab ---------------------------------------------------------------
     tabPanel(
@@ -129,9 +112,7 @@ app_ui <- function() {
               hr()
             )
           ),
-          
           createExploreVariantUI()
-
         )
     )
 }

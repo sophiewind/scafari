@@ -1,7 +1,7 @@
 Package: scafari
 Type: Package
 Title: Analysis of scDNA-seq data
-Version: 0.99.8
+Version: 0.99.11
 Authors@R: 
 	person("Sophie", "Wind", , 
 	 email = "sophie.wind@uni-muenster.de", 
@@ -49,7 +49,6 @@ VignetteBuilder: knitr
 Suggests: 
     knitr,
     rmarkdown,
-    R.utils,
     BiocStyle,
     testthat (>= 3.0.0)
 biocViews: Software, ShinyApps, SingleCell, Sequencing
