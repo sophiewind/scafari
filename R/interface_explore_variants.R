@@ -1,11 +1,5 @@
 createExploreVariantUI <- function() {
-  tags$head(
-    tags$style(HTML("
-    .shiny-output-error-validation {
-      color: red;
-    }
-  "))
-  )
+    tags$head(tags$style(HTML(".shiny-output-error-validation {color: red;}")))
     tagList(
         conditionalPanel(
             condition = "output.plots_visible_2 == true",
