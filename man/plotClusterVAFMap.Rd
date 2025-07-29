@@ -4,7 +4,7 @@
 \alias{plotClusterVAFMap}
 \title{plot Cluster VAF Map
 This function generates a plot to visualize variant allele frequency (VAF) in
- clusters based on selected variants of interest with clusters in the 
+ clusters based on selected variants of interest with clusters in the
  background.}
 \usage{
 plotClusterVAFMap(sce, variants.of.interest, gg.clust)
@@ -17,22 +17,24 @@ plotClusterVAFMap(sce, variants.of.interest, gg.clust)
 \item{gg.clust}{An object containing clustering information.}
 }
 \value{
-A ggplot object that visually represents the VAF in the clusters 
+A ggplot object that visually represents the VAF in the clusters
 with clusters in the background.
 }
 \description{
 plot Cluster VAF Map
 This function generates a plot to visualize variant allele frequency (VAF) in
- clusters based on selected variants of interest with clusters in the 
+ clusters based on selected variants of interest with clusters in the
  background.
 }
 \examples{
 # Assume `sce` is a SingleCellExperiment object with variants in altExp() and
 # clusterplot is the output of clusterVariantSleection().
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds", 
-package = "scafari"))
-clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", 
-package = "scafari"))
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
+clusterplot <- readRDS(system.file("extdata", "clusterplot.rds",
+    package = "scafari"
+))
 plotClusterVAFMap(
     sce = sce_filtered,
     variants.of.interest = c(

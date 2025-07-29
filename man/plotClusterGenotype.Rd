@@ -18,16 +18,18 @@ A ggplot object that visually represents the clustering of genotypes
 based on the specified variants and clustering information.
 }
 \description{
-This function generates a plot to visualize genotype in clusters based on 
+This function generates a plot to visualize genotype in clusters based on
 selected variants of interest.
 }
 \examples{
-# Assume `sce` is a SingleCellExperiment object with variants in altExp() 
+# Assume `sce` is a SingleCellExperiment object with variants in altExp()
 # and clusterplot is the output of clusterVariantSleection().
-sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds", 
-package = "scafari"))
-clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", 
-package = "scafari"))
+sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+    package = "scafari"
+))
+clusterplot <- readRDS(system.file("extdata", "clusterplot.rds",
+    package = "scafari"
+))
 plotClusterGenotype(
     sce = sce_filtered,
     variants.of.interest = c(

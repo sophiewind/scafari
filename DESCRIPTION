@@ -1,7 +1,7 @@
 Package: scafari
 Type: Package
 Title: Analysis of scDNA-seq data
-Version: 0.99.11
+Version: 0.99.12
 Authors@R: 
 	person("Sophie", "Wind", , 
 	 email = "sophie.wind@uni-muenster.de", 
@@ -44,7 +44,10 @@ Imports:
     tidyr,
     txdbmaker,
     circlize,
-    R.utils
+    R.utils,
+    dbscan,
+    igraph,
+    RANN
 VignetteBuilder: knitr
 Suggests: 
     knitr,

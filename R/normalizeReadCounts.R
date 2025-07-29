@@ -24,7 +24,8 @@ normalizeReadCounts <- function(sce) {
 
     # Check if the 'counts' assay is available and accessible
     if (!"counts" %in% assayNames(sce)) {
-        stop("The SingleCellExperiment object must contain a 'counts' assay.")}
+        stop("The SingleCellExperiment object must contain a 'counts' assay.")
+    }
 
     # Extract read counts and metadata
     read.counts <- t(sce@assays@data$counts)
@@ -32,16 +33,19 @@ normalizeReadCounts <- function(sce) {
 
     # Verify that metadata contains the expected element 'n_amplicons'
     if (is.null(metadata[["n_amplicons"]])) {
-        stop("The metadata must contain 'n_amplicons'.")}
+        stop("The metadata must contain 'n_amplicons'.")
+    }
 
     # Check for proper dimension agreement
     if (nrow(read.counts) == 0 || ncol(read.counts) == 0) {
-        stop("The 'counts' data must be non-empty.")}
+        stop("The 'counts' data must be non-empty.")
+    }
 
     # Calculate row sum threshold
     if (nrow(read.counts) < 10) {
         stop("The 'counts' data must have at least 10 entries to compute a valid
-        threshold.")}
+        threshold.")
+    }
 
     # Calculate row sum threshold
     rowsum_threshold <- sort(rowSums(read.counts), decreasing = TRUE)[10] / 10

@@ -4,7 +4,7 @@
 #'
 #' @examples
 #' if (interactive()) {
-#'   launchScafariShiny()
+#'     launchScafariShiny()
 #' }
 #'
 #' @export

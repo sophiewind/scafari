@@ -451,7 +451,7 @@ test_that("filterVariants creates correct output.", {
 test_that("normalizeReadCounts Normalization of counts is working.", {
     norm <- normalizeReadCounts(sce)
     sce_test <- readRDS(system.file("extdata", "sce_norm_demo.rds",
-                                    package = "scafari"
+        package = "scafari"
     ))
     expect_equal(norm@assays@data$normalized.counts, sce_test@assays@data$normalized.counts)
 })
@@ -515,4 +515,3 @@ test_that("Variant annotation works", {
         SingleCellExperiment::altExp(sce_filtered)
     )))
 })
-

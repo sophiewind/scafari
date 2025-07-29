@@ -14,7 +14,7 @@ Launches the Scafari Shiny application for data visualization.
 }
 \examples{
 if (interactive()) {
-  launchScafariShiny()
+    launchScafariShiny()
 }
 
 }

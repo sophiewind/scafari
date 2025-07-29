@@ -3,6 +3,8 @@ app_server <- function(input, output, session) {
     # Setup reactivity ---------------------------------------------------------
     plots_visible <- reactiveVal(FALSE)
     plots_visible_2 <- reactiveVal(FALSE)
+    plots_visible_3 <- reactiveVal(FALSE)
+
     continue <- reactiveVal(FALSE)
 
     shinyjs::disable("filter_btn")
@@ -13,7 +15,6 @@ app_server <- function(input, output, session) {
     options(shiny.maxRequestSize = 500 * 1024^2)
 
     # End of setting up  -------------------------------------------------------
-
     # Process input ------------------------------------------------------------
     ## Check input -------------------------------------------------------------
     h5_file <- reactive({
@@ -97,7 +98,6 @@ app_server <- function(input, output, session) {
                 rowData = filteres$variant.ids.filtered,
                 colData = filteres$cells.keep
             )
-
             sce_filtered <- current_sce[, indices_to_keep, drop = FALSE]
             SingleCellExperiment::altExp(sce_filtered, "variants") <- se.f
             sce_filtered <- annotateVariants(sce = sce_filtered, shiny = TRUE)
@@ -124,10 +124,8 @@ app_server <- function(input, output, session) {
             req(rv$sce_filtered)
 
             plot(0, type = "n", axes = FALSE, ann = FALSE)
-            mtext(dim(se.var())[1],
-                side = 3, line = -2, cex = 3,
-                col = "forestgreen"
-            )
+            mtext(dim(se.var())[1], side = 3, line = -2, cex = 3, 
+                col = "forestgreen")
             mtext("Number of variants total", side = 3, line = -4, cex = 1.5)
 
             # # Print ean mapped reads per cell
@@ -147,10 +145,8 @@ app_server <- function(input, output, session) {
 
             # Print number of cells
             plot(0, type = "n", axes = FALSE, ann = FALSE)
-            mtext(dim(sce())[2],
-                side = 3, line = -2, cex = 3,
-                col = "forestgreen"
-            )
+            mtext(dim(sce())[2], side = 3, line = -2, cex = 3, 
+                col = "forestgreen")
             mtext("Number of cells total", side = 3, line = -4, cex = 1.5)
 
             # Print ean mapped reads per cell
@@ -188,7 +184,6 @@ app_server <- function(input, output, session) {
             )
             draw(lgd)
         })
-
 
         ## Violin: GQ ----------------------------------------------------------
         output$var_plot5 <- renderPlot({
@@ -274,68 +269,49 @@ app_server <- function(input, output, session) {
         # Reactive variable to store user selections
         selected_variants <- reactiveVal(NULL)
 
-        # Render the heatmap only when submit_var is clicked and
-        # selected_variants is not NULL
+        # Render the hm only when submit_var clicked and selected_variants !NULL
         # Update selected variants only when the button is clicked
         observeEvent(input$submit_var, {
             shinyjs::enable("continue_var")
 
-            selected_variants(input$data_table_var2_rows_selected)
+            selected_variants(input$data_table_var2_rows_selected) 
         })
 
-        # Render the heatmap only when submit_var is clicked and
-        # selected_variants is not NULL
         observeEvent(input$submit_var, {
             # Actualize heatmap
             output$hm_1 <- renderPlot({
                 req(selected_variants())
-                req(rv$sce_filtered)
+                req(rv$sce_filtered) 
                 sce_filtered <- rv$sce_filtered
                 output$hm_1 <- renderPlot({
-                    variant.ids.filtered.gene <-
-                        paste0(
-                            rowData(altExp(sce_filtered))$Gene, ":",
-                            rowData(altExp(sce_filtered))$id
-                        )
-                    selected_variants_id <-
+                    variant.ids.filtered.gene <- 
+                        paste0(rowData(altExp(sce_filtered))$Gene, ":", 
+                            rowData(altExp(sce_filtered))$id)
+                    selected_variants_id <- 
                         order(variant.ids.filtered.gene)[selected_variants()]
 
                     # Load matrices
-                    vaf_matrix_filtered <-
-                        as.data.frame(t(assay(
-                            altExp(sce_filtered, "variants"),
-                            "VAF"
-                        )))
-                    colnames(vaf_matrix_filtered) <-
-                        paste0(
-                            rowData(altExp(sce_filtered, "variants"))$Gene,
-                            ":",
-                            rowData(altExp(sce_filtered, "variants"))$id
-                        )
-                    genotype.matrix.filtered <-
-                        as.data.frame(t(assay(
-                            altExp(sce_filtered),
-                            "Genotype"
-                        )))
-                    colnames(genotype.matrix.filtered) <-
-                        paste0(
-                            rowData(altExp(sce_filtered))$Gene, ":",
-                            rowData(altExp(sce_filtered))$id
-                        )
+                    vaf_matrix_filtered <- as.data.frame(t(assay(altExp(
+                        sce_filtered, "variants"), "VAF")))
+                    colnames(vaf_matrix_filtered) <- 
+                        paste0(rowData(altExp(sce_filtered, "variants"))$Gene, 
+                            ":", rowData(altExp(sce_filtered, "variants"))$id)
+                    genotype.matrix.filtered <- 
+                        as.data.frame(t(assay(altExp(sce_filtered), 
+                                            "Genotype")))
+                    colnames(genotype.matrix.filtered) <- 
+                        paste0(rowData(altExp(sce_filtered))$Gene, ":", 
+                            rowData(altExp(sce_filtered))$id)
                     row_data <- rowData(altExp(sce_filtered, "variants"))
-                    names <- paste0(
-                        row_data$Gene, ":",
-                        as.character(row_data$id)
-                    )
+                    names <- paste0(row_data$Gene, ":", 
+                                    as.character(row_data$id))
 
-                    vaf.matrix.filtered.hm <-
-                        vaf_matrix_filtered[, selected_variants_id]
+                    vaf.matrix.filtered.hm <- 
+                        vaf_matrix_filtered[, selected_variants_id] 
 
                     column_ha <- HeatmapAnnotation(
-                        chr = factor(
-                            str_extract(colnames(
-                                vaf.matrix.filtered.hm
-                            ), "chr(\\d|X|Y)+"),
+                        chr = factor(str_extract(colnames(
+                            vaf.matrix.filtered.hm), "chr(\\d|X|Y)+"),
                             levels = chromosomes
                         ),
                         col = list(chr = chr_palette)
@@ -344,21 +320,18 @@ app_server <- function(input, output, session) {
                     collect <- data.frame(row.names = "")
 
                     # GT matrix annotation (customize as needed)
-                    df <- do.call(rbind, lapply(
-                        genotype.matrix.filtered,
-                        function(x) {
-                            length(x) <- 4
-                            return(x)
-                        }
-                    ))
+                    df <- do.call(rbind, lapply(genotype.matrix.filtered, 
+                                                function(x) {
+                        length(x) <- 4
+                        return(x)
+                    }))
 
-                    # Transform numerical genotype to WT, Het, Ho,,
-                    # Missing dataframe
+                    # Transform numerical genotype to WT, Het, Ho,, Missing df
                     gt.anno <- data.frame(
                         WT = integer(), Het = integer(),
                         Hom = integer(), Missing = integer()
                     )
-                    for (col in seq_len(ncol(genotype.matrix.filtered))) {
+                    for (col in seq(1, ncol(genotype.matrix.filtered))) {
                         wt <- sum(genotype.matrix.filtered[, col] == 0)
                         het <- sum(genotype.matrix.filtered[, col] == 1)
                         hom <- sum(genotype.matrix.filtered[, col] == 2)
@@ -369,10 +342,10 @@ app_server <- function(input, output, session) {
                     # Force Het, Hom, Missing in the right order
                     gt.anno$Total <- rowSums(gt.anno)
                     proportions <- gt.anno %>%
-                        dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . /
-                            Total * 100)) %>%
+                        dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / 
+                                                Total * 100)) %>%
                         dplyr::select(-Total)
-                    rownames(proportions) <- names
+                    rownames(proportions) <- names 
 
                     colors.vaf <- circlize::colorRamp2(
                         c(0, 50, 100),
@@ -399,6 +372,7 @@ app_server <- function(input, output, session) {
         current_variants <- reactiveVal(NULL)
         kneeplot_data <- reactiveVal(NULL)
         print.var <- reactiveVal(NULL)
+        print.clust <- reactiveVal(NULL)
 
         # Observer für den continue_var Button
         observeEvent(input$continue_var, {
@@ -412,7 +386,7 @@ app_server <- function(input, output, session) {
 
             # Update current_variants with the selected variants
             current_variants(selected_variants())
-            current_variant_ids <-
+            current_variant_ids <- 
                 sort(variant.ids.filtered.gene)[current_variants()]
 
             continue(TRUE)
@@ -421,8 +395,6 @@ app_server <- function(input, output, session) {
             })
             outputOptions(output, "continue", suspendWhenHidden = FALSE)
 
-            # Compute the kneeplot data only upon clicking continue_var
-            # Store the plot in the reactive variable
             kneeplot_data(plotElbow(sce_filtered, current_variant_ids))
         })
 
@@ -433,6 +405,21 @@ app_server <- function(input, output, session) {
             print(kneeplot_data()) # Render the plot
         })
 
+        output$edgeplot <- renderPlot({
+            # Compute the kneeplot data only upon clicking continue_var
+            # Store the plot in the reactive variable
+            variant.ids.filtered.gene <- paste0(
+                rowData(altExp(sce_filtered))$Gene,
+                ":", rowData(altExp(sce_filtered))$id
+            )
+            variants.of.interest <- 
+                sort(variant.ids.filtered.gene)[current_variants()]
+
+            # condition to run your specific branch, could be based on user 
+            # input or button press
+            plotDensityEdge(sce_filtered, variants.of.interest, input$minPts)
+        })
+
         ## Clustering ----------------------------------------------------------
         # Define reactive variables for k2 and gg.clust
         k2 <- reactiveVal(NULL)
@@ -441,28 +428,50 @@ app_server <- function(input, output, session) {
         vaf_hm <- reactiveVal(NULL)
         vaf_violin <- reactiveVal(NULL)
         vaf_map <- reactiveVal(NULL)
+        method <- reactiveVal("kmeans")
 
+        # Check input params
+        # Consolidate all parameter checks into a single observer
+        # Consolidate checks into a single observer
         observe({
-            if (is.numeric(input$n_clust) && input$n_clust >= 2) {
-                enable("kmeans_btn") # Enable button if valid
-                runjs('document.getElementById("error_message").innerHTML = ""')
+            valid_n_clust <- is.numeric(input$n_clust) && input$n_clust >= 2
+            valid_eps <- is.numeric(input$eps) && input$eps > 0 && 
+                input$eps <= 1
+            valid_resolution <- is.numeric(input$resolution) && 
+                input$resolution > 0
+            valid_minPts <- is.numeric(input$minPts) && input$minPts >= 2
+
+            # Enable button based on all checks and provide informative feedback
+            if (valid_n_clust && valid_eps && valid_resolution && 
+                valid_minPts) {
+                enable("kmeans_btn")
+                output$error_message <- renderText("")
             } else {
-                disable("kmeans_btn") # Disable button if not valid
-                runjs(paste0('document.getElementById("error_message").",
-                            "innerHTML = "Please enter a numeric value ".
-                            "greater than 2."'))
+                disable("kmeans_btn")
+                output$error_message <- 
+                    renderText("Please enter valid values for all parameters.")
             }
         })
+
+
+        # Observe changes in the radio button and update the method
+        observeEvent(input$radio, {
+            method(input$radio)
+        })
+
 
         # Observe the k-means button event
         observeEvent(input$kmeans_btn, {
             req(current_variants()) # Ensure variants are selected
             req(is.numeric(input$n_clust) && input$n_clust >= 2)
+            req(method())
+            method <- method()
+
             variant.ids.filtered.gene <- paste0(
                 rowData(altExp(sce_filtered))$Gene,
                 ":", rowData(altExp(sce_filtered))$id
             )
-            variants.of.interest <-
+            variants.of.interest <- 
                 sort(variant.ids.filtered.gene)[current_variants()]
 
             # Print selected variants
@@ -477,21 +486,122 @@ app_server <- function(input, output, session) {
                 "</ul>"
             ))
 
+            # Print clustering
+            try(
+                {
+                    print.clust(paste0(
+                        "<ul>",
+                        paste0(
+                            "<li>",
+                            "clustering: ",
+                            as.character(method),
+                            "</li>",
+                            collapse = ""
+                        ),
+                        "</ul>"
+                    ))
+                },
+                silent = TRUE
+            )
+
             plots_visible_2(TRUE)
 
             ### Cluster plot ---------------------------------------------------
             req(plots_visible_2())
-            cluster.res <- clusterVariantSelection(
-                sce_filtered,
-                variants.of.interest,
-                input$n_clust
-            )
-            k2(cluster.res[["k_means"]])
+
+            if (method == "kmeans") {
+                cluster.res <- clusterVariantSelection(sce_filtered,
+                    variants.of.interest =
+                        variants.of.interest,
+                    method = "k-means",
+                    n.clust = input$n_clust
+                )
+            } else if (method == "leiden") {
+                tryCatch({
+                    cluster.res <- 
+                        clusterVariantSelection(sce_filtered,
+                                                variants.of.interest =
+                                                    variants.of.interest,
+                                                method = "leiden",
+                                                resolution = input$resolution
+                    )
+                }, error = function(e) {
+                    # Error handling
+                    showNotification(paste("Error: ", e$message), 
+                                    type = "error")
+                })
+            } else {
+                cluster.res <- clusterVariantSelection(sce_filtered,
+                    variants.of.interest,
+                    method = "dbscan",
+                    eps.value = input$eps,
+                    min.pts = input$minPts
+                )
+            }
+
+            k2(cluster.res[[1]])
             gg.clust(cluster.res[["clusterplot"]])
 
-            ## Clustered Heatmap  ----------------------------------------------
-            req(gg.clust()) # Ensure there is a cluster plot available
+            outputOptions(output, "plots_visible_2", suspendWhenHidden = FALSE)
+        })
+
+        is_valid_ggplot <- function(gg_clust_obj) {
+            inherits(gg_clust_obj, "ggplot")
+        }
+
+        # Create a reactive expression to check validity of gg.clust
+        observeEvent(gg.clust(), {
+            gg_clust_result <- gg.clust()
+            if (is_valid_ggplot(gg_clust_result)) {
+                plots_visible_3(TRUE) # Set visibility to TRUE if valid
+            } else {
+                plots_visible_3(FALSE) # Set visibility to FALSE otherwise
+                showNotification("gg.clust did not return a valid ggplot object.
+                        Plots will not be generated.", type = "error")
+            }
+        })
+
+        # Render the cluster plot using the reactive variable
+        output$cluster_plot <- renderPlot({
+            req(plots_visible_2())
+            req(gg.clust())
+
+            validate(
+                need(is_valid_ggplot(gg.clust()), paste0(gg.clust()[[1]]))
+            )
+            print(gg.clust())
+        })
+
+        # End of Explore variants Panel plots
+        # Plot calls Explore variants ------------------------------------------
+        output$k2_output <- renderPrint({
             req(k2())
+            return(k2()) # Render the k-means result stored in k2
+        })
+
+        # Expose the visibility state
+        output$plots_visible_2 <- reactive({
+            plots_visible_2()
+        })
+
+        output$plots_visible_3 <- reactive({
+            plots_visible_3()
+        })
+
+        outputOptions(output, "plots_visible_3", suspendWhenHidden = FALSE)
+
+        output$vaf_hm <- renderPlot({
+            req(k2())
+            req(plots_visible_2())
+            req(plots_visible_3())
+            req(current_variants())
+
+            variant.ids.filtered.gene <- paste0(
+                rowData(altExp(sce_filtered))$Gene,
+                ":", rowData(altExp(sce_filtered))$id
+            )
+            variants.of.interest <-
+                sort(variant.ids.filtered.gene)[current_variants()]
 
             # Make colorpalette
             chromosomes <- c(paste0("chr", seq(1, 21)), "chrX", "chrY")
@@ -523,7 +633,7 @@ app_server <- function(input, output, session) {
                     rowData(altExp(sce_filtered))$id
                 )
 
-            vaf.matrix.filtered.hm <-
+            vaf.matrix.filtered.hm <- 
                 vaf.matrix.filtered[, variants.of.interest]
             column_ha <- HeatmapAnnotation(
                 chr = factor(
@@ -538,17 +648,16 @@ app_server <- function(input, output, session) {
             collect <- data.frame(row.names = "")
 
             # GT matrix annotation
-            df <-
-                do.call(
-                    rbind,
-                    lapply(
-                        genotype.matrix.filtered[, variants.of.interest],
-                        function(x) {
-                            length(x) <- 4
-                            return(x)
-                        }
-                    )
+            df <- do.call(
+                rbind,
+                lapply(
+                    genotype.matrix.filtered[, variants.of.interest],
+                    function(x) {
+                        length(x) <- 4
+                        return(x)
+                    }
                 )
+            )
 
             gt.anno <- data.frame(
                 WT = integer(),
@@ -557,7 +666,7 @@ app_server <- function(input, output, session) {
                 Missing = integer()
             )
 
-            for (col in seq_len(ncol(genotype.matrix.filtered))) {
+            for (col in seq(1, ncol(genotype.matrix.filtered))) {
                 wt <- sum(genotype.matrix.filtered[, col] == 0)
                 het <- sum(genotype.matrix.filtered[, col] == 1)
                 hom <- sum(genotype.matrix.filtered[, col] == 2)
@@ -567,10 +676,8 @@ app_server <- function(input, output, session) {
 
             gt.anno$Total <- rowSums(gt.anno)
             proportions <- gt.anno %>%
-                dplyr::mutate(across(
-                    c(WT, Het, Hom, Missing),
-                    ~ . / Total * 100
-                )) %>%
+                dplyr::mutate(across(c(WT, Het, Hom, Missing), ~ . / 
+                                        Total * 100)) %>%
                 dplyr::select(-Total)
             rownames(proportions) <- variant.ids.filtered.gene
 
@@ -585,11 +692,11 @@ app_server <- function(input, output, session) {
                 ))
             )
             # Add cluster annoation
-            colors <- gg_color_hue(input$n_clust)
-            color_palette <-
-                setNames(colors, as.character(seq(1, input$n_clust)))
+            colors <- gg_color_hue(length(unique(gg.clust()$data$cluster)))
+            color_palette <- 
+                setNames(colors, as.character(seq(1, length(colors))))
             row_annot <- rowAnnotation(
-                cluster = as.factor(k2()$cluster),
+                cluster = as.factor(gg.clust()$data$cluster),
                 col = list(cluster = color_palette)
             )
             vaf_hm(Heatmap(
@@ -602,12 +709,26 @@ app_server <- function(input, output, session) {
                 row_title = "Cells",
                 top_annotation = column_ha,
                 left_annotation = row_annot,
-                row_split = as.factor(k2()$cluster)
+                row_split = as.factor(gg.clust()$data$cluster)
             ))
+            print(vaf_hm())
+        })
 
+        output$vaf_violin <- renderPlot({
             ## Violin: Explore variants ----------------------------------------
             req(k2())
-            req(plots_visible_2)
+            req(plots_visible_2())
+            req(plots_visible_3())
+
+            req(current_variants())
+
+            variant.ids.filtered.gene <- paste0(
+                rowData(altExp(sce_filtered))$Gene,
+                ":", rowData(altExp(sce_filtered))$id
+            )
+            variants.of.interest <-
+                sort(variant.ids.filtered.gene)[current_variants()]
+
             violin <- plotClusterVAF(sce_filtered,
                 variants.of.interest = variants.of.interest,
                 gg.clust = gg.clust()
@@ -617,9 +738,45 @@ app_server <- function(input, output, session) {
                     text = element_text(size = 16)
                 )
             vaf_violin(violin)
+            print(vaf_violin())
+        })
 
+        output$vaf_map <- renderPlot({
+            ## Map: Explore variants colored by VAF ----------------------------
+            req(plots_visible_2())
+            req(plots_visible_3())
+            req(current_variants())
+
+            variant.ids.filtered.gene <- paste0(
+                rowData(altExp(sce_filtered))$Gene,
+                ":", rowData(altExp(sce_filtered))$id
+            )
+            variants.of.interest <-
+                sort(variant.ids.filtered.gene)[current_variants()]
+
+            vaf_map(plotClusterVAFMap(sce_filtered,
+                variants.of.interest = variants.of.interest,
+                gg.clust = gg.clust()
+            ) +
+                theme(
+                    title = element_text(size = 20),
+                    text = element_text(size = 16)
+                ))
+            print(vaf_map())
+        })
+
+        output$ana_bar <- renderPlot({
             ## Bar: Explore variants -------------------------------------------
-            req(k2())
+            req(plots_visible_2())
+            req(plots_visible_3())
+            req(current_variants())
+
+            variant.ids.filtered.gene <- paste0(
+                rowData(altExp(sce_filtered))$Gene,
+                ":", rowData(altExp(sce_filtered))$id
+            )
+            variants.of.interest <-
+                sort(variant.ids.filtered.gene)[current_variants()]
             ana_bar(plotClusterGenotype(sce_filtered,
                 variants.of.interest = variants.of.interest,
                 gg.clust = gg.clust()
@@ -629,62 +786,21 @@ app_server <- function(input, output, session) {
                     text = element_text(size = 16)
                 ))
 
-            ## Map: Explore variants colored by VAF ----------------------------
-            req(k2())
-            sce_filtered <- sce_filtered
-            variants.of.interest <- variants.of.interest
-            gg.clust <- gg.clust()
-            vaf_map(plotClusterVAFMap(sce_filtered,
-                variants.of.interest = variants.of.interest,
-                gg.clust = gg.clust()
-            ) +
-                theme(
-                    title = element_text(size = 20),
-                    text = element_text(size = 16)
-                ))
-        })
-
-        # End of Explore variants Panel plots
-        # Plot calls Explore variants ------------------------------------------
-        output$k2_output <- renderPrint({
-            req(k2())
-            return(k2()) # Render the k-means result stored in k2
-        })
-
-        # Expose the visibility state
-        output$plots_visible_2 <- reactive({
-            plots_visible_2()
-        })
-        outputOptions(output, "plots_visible_2", suspendWhenHidden = FALSE)
-
-        # Render the cluster plot using the reactive variable
-        output$cluster_plot <- renderPlot({
-            print(gg.clust())
-        })
-
-        output$vaf_hm <- renderPlot({
-            print(vaf_hm())
-        })
-
-        output$vaf_violin <- renderPlot({
-            print(vaf_violin())
-        })
-
-        output$vaf_map <- renderPlot({
-            print(vaf_map())
-        })
-
-        output$ana_bar <- renderPlot({
             print(ana_bar())
         })
 
         output$selected_rows_2 <- renderUI({
             HTML(print.var())
         })
+
+        output$selected_method <- renderUI({
+            HTML(print.clust())
+        })
     })
 
     output$text1 <- renderText({
         paste("You have selected", input$var)
+        paste("You have selected", input$radio)
     })
 
 
@@ -720,26 +836,39 @@ app_server <- function(input, output, session) {
 
         plot(0, type = "n", axes = FALSE, ann = FALSE)
         mtext(
-            paste0(round(as.numeric(metadata[["avg_panel_uniformity"]]) * 100,
-                digits = 2
-            ), ""),
+            round(as.numeric(metadata[["n_read_pairs_mapped_to_cells"]]) /
+                as.numeric(metadata[["n_cells"]]), digits = 2),
             side = 3, line = -2, cex = 3,
             col = "#22A484FF"
         )
-        mtext("Panel uniformity (%)", side = 3, line = -4, cex = 1.5)
+        mtext("Mean read pairs mapped to cells per cell",
+            side = 3,
+            line = -4, cex = 1.5
+        )
 
         mtext(
             round((as.numeric(metadata[["n_read_pairs_mapped_to_cells"]]) /
                 as.numeric(metadata[["n_read_pairs"]]) * 100), digits = 2),
             side = 1, line = -4, cex = 3, col = "#22A484FF"
         )
-        mtext("Read pairs assigned to cells (%)",
-            side = 1,
-            line = -2, cex = 1.5
-        )
+        mtext("Read pairs assigned to cells (%)", side = 1, line = -2, 
+            cex = 1.5)
 
         # Draw box
         box(which = "outer", lty = "solid", col = "grey")
+    })
+
+    output$panelUniformityText <- renderText({
+        req(input$upload)
+        sce_obj <- sce()
+        validate(need(input$upload, "Please, select a file to start"))
+        metadata <- sce_obj@metadata
+        paste(
+            "Panel Uniformity (%):",
+            round(as.numeric(metadata[["avg_panel_uniformity"]]) * 100,
+                digits = 2
+            )
+        ) # Combine label with dynamic value
     })
 
     # Sequencing log-log plot
@@ -749,6 +878,49 @@ app_server <- function(input, output, session) {
                 title = element_text(size = 20),
                 text = element_text(size = 16)
             )
+    })
+
+    # Sequencing plot 4
+    output$seq_plot4 <- renderPlotly({
+        req(input$upload)
+        sce_obj <- sce()
+        metadata <- sce_obj@metadata %>%
+            t() %>%
+            as.data.frame() %>%
+            select(
+                n_bases_r1, n_bases_r1_q30, n_bases_r2, n_bases_r2_q30,
+                n_cell_barcode_bases, n_cell_barcode_bases_q30
+            ) %>%
+            tidyr::pivot_longer(everything(),
+                names_to = "Type",
+                values_to = "value"
+            ) %>%
+            mutate(value = as.numeric(unlist(value)))
+
+        metadata %>%
+            mutate(
+                Type = Type %>%
+                    str_replace("n_bases_", "Bases ") %>%
+                    str_replace("_q30", " Q30") %>%
+                    str_replace("r(\\d)", "R\\1") %>%
+                    str_replace(
+                        "n_cell_barcode_bases",
+                        "Cell barcode bases"
+                    ),
+                group = gsub(" Q30", "", Type),
+            ) %>%
+            ggplot(aes(x = group, y = value, fill = Type)) +
+            geom_bar(stat = "identity", position = "stack") +
+            theme_minimal() +
+            scale_fill_manual(values = c(
+                `Bases R1` = "#F66D7A",
+                `Bases R1 Q30` = "#c00c1d",
+                `Bases R2` = "dodgerblue",
+                `Bases R2 Q30` = "#003898",
+                `Cell barcode bases` = "#00BA38",
+                `Cell barcode bases Q30` = "#00561a"
+            )) +
+            labs(x = "", y = "Number of bases")
     })
 
     # Panel plot 1
@@ -784,10 +956,8 @@ app_server <- function(input, output, session) {
             character(1)
         )
         plot(0, type = "n", axes = FALSE, ann = FALSE)
-        mtext(length(unique(genes)),
-            side = 3, line = -2, cex = 3,
-            col = "#F66D7A"
-        )
+        mtext(length(unique(genes)), side = 3, line = -2, cex = 3, 
+            col = "#F66D7A")
         mtext("Number of Genes covered", side = 3, line = -4, cex = 1.5)
 
         # Print ean mapped reads per cell
@@ -835,11 +1005,16 @@ app_server <- function(input, output, session) {
     output$data_table_sample <- renderDataTable({
         sce_obj <- sce()
         metadata <- sce_obj@metadata
+        n.amp <- length(rownames(sce_obj)) %>%
+            as.data.frame() %>%
+            mutate(rowname = "n_amplions")
         metadata <- (metadata %>%
             unlist() %>%
             as.data.frame() %>%
-            rownames_to_column())[c(16, 14, 6, 5, 4, 15), ] %>%
-            as.data.frame() %>%
+            rownames_to_column())[c(24, 26, 7, 5, 25), ] %>%
+            as.data.frame()
+        metadata <- rbind(metadata, n.amp)
+        metadata %>%
             mutate(rowname = gsub("n_", "Number of ", rowname)) %>%
             mutate(rowname = gsub("_", " ", rowname)) %>%
             mutate(rowname = str_to_title(rowname)) %>%
@@ -886,6 +1061,7 @@ app_server <- function(input, output, session) {
     output$data_table_sequencing <- renderDataTable({
         sce_obj <- sce()
         metadata <- sce_obj@metadata
+        o <- "scafari_sequencing_overview_"
         rbind(
             "Total read pairs" = c(paste((
                 as.numeric(metadata[["n_read_pairs"]])))),
@@ -904,31 +1080,19 @@ app_server <- function(input, output, session) {
                     buttons = list(
                         list(
                             extend = "csv",
-                            filename = paste0(
-                                "scafari_sequencing_overview_",
-                                metadata[["sample_name"]]
-                            )
+                            filename = paste0(o, metadata[["sample_name"]])
                         ),
                         list(
-                            extend = "excel",
-                            filename = paste0(
-                                "scafari_sequencing_overview_",
-                                metadata[["sample_name"]]
-                            )
+                            extend = "excel", filename =
+                                paste0(o, metadata[["sample_name"]])
                         ),
                         list(
-                            extend = "pdf",
-                            filename = paste0(
-                                "scafari_sequencing_overview_",
-                                metadata[["sample_name"]]
-                            )
+                            extend = "pdf", filename =
+                                paste0(o, metadata[["sample_name"]])
                         ),
                         list(
-                            extend = "copy",
-                            filename = paste0(
-                                "scafari_sequencing_overview_",
-                                metadata[["sample_name"]]
-                            )
+                            extend = "copy", filename =
+                                paste0(o, metadata[["sample_name"]])
                         )
                     )
                 ), colnames = NULL
@@ -938,20 +1102,24 @@ app_server <- function(input, output, session) {
     output$data_table_mapping <- renderDataTable({
         sce_obj <- sce()
         metadata <- sce_obj@metadata
+        o <- "scafari_sequencing_mapping"
         rbind(
-            "Reads mapped to genome (%)" = c(
-                round(
+            "Reads mapped to genome (%)" =
+                c(round(
                     (as.numeric(metadata[["n_reads_mapped"]]) /
                         (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100),
                     digits = 2
-                )
-            ),
-            "Reads mapped to target (%)" = c(round(
-                (
-                    as.numeric(metadata[["n_reads_mapped_insert"]]) /
+                )),
+            "Reads mapped to target (%)" =
+                c(round(
+                    (as.numeric(metadata[["n_reads_mapped_insert"]]) /
                         (as.numeric(metadata[["n_read_pairs"]]) * 2) * 100),
-                digits = 2
-            ))
+                    digits = 2
+                )),
+            "Average mapping error rate (%)" =
+                c(round(as.numeric(metadata[["avg_mapping_error_rate"]]) * 100,
+                    digits = 2
+                ))
         ) %>%
             datatable(.,
                 extensions = "Buttons",
@@ -960,26 +1128,86 @@ app_server <- function(input, output, session) {
                     width = "100%",
                     dom = "Bt",
                     buttons = list(
-                        list(extend = "csv", filename = paste0(
-                            "scafari_sequencing_mapping",
-                            metadata[["sample_name"]]
-                        )),
-                        list(extend = "excel", filename = paste0(
-                            "scafari_sequencing_mapping",
-                            metadata[["sample_name"]]
-                        )),
-                        list(extend = "pdf", filename = paste0(
-                            "scafari_sequencing_mapping",
-                            metadata[["sample_name"]]
-                        )),
-                        list(extend = "copy", filename = paste0(
-                            "scafari_sequencing_mapping",
-                            metadata[["sample_name"]]
-                        ))
+                        list(
+                            extend = "csv",
+                            filename = paste0(
+                                "scafari_sequencing_mapping",
+                                metadata[["sample_name"]]
+                            )
+                        ),
+                        list(
+                            extend = "excel",
+                            filename = paste0(
+                                o,
+                                metadata[["sample_name"]]
+                            )
+                        ),
+                        list(
+                            extend = "pdf",
+                            filename = paste0(
+                                o,
+                                metadata[["sample_name"]]
+                            )
+                        ),
+                        list(
+                            extend = "copy",
+                            filename = paste0(
+                                o,
+                                metadata[["sample_name"]]
+                            )
+                        )
                     )
                 ),
                 class = "display",
                 colnames = rep("", ncol(.))
+            )
+    })
+
+    # m.var$dp_cutoff
+    # m.var$high_quality_variants
+    # m.var$missing_cells_cutoff
+    # m.var$missing_variants_cutoff
+    # m.var$mutated_cells_cutoff
+    output$data_table_tapestri <- renderDataTable({
+        sce_obj <- sce()
+        metadata <- sce_obj@metadata
+        o <- "scafari_sequencing_tapestri_"
+        rbind(
+            "Depth cutoff" = c(paste(as.numeric(metadata[["dp_cutoff"]]))),
+            "Missing cells cutoff" = c(paste(as.numeric(
+                metadata[["missing_cells_cutoff"]]
+            ))),
+            "Missing variants cutoff" = c(paste(round(as.numeric(
+                metadata[["missing_variants_cutoff"]]
+            )))),
+            "Mutated cells cutoff" = c(paste(as.numeric(
+                metadata[["mutated_cells_cutoff"]]
+            )))
+        ) %>%
+            datatable(.,
+                extensions = "Buttons",
+                options = list(
+                    pageLength = 5, width = "100%",
+                    dom = "Bt",
+                    buttons = list(
+                        list(
+                            extend = "csv",
+                            filename = paste0(o, metadata[["sample_name"]])
+                        ),
+                        list(
+                            extend = "excel",
+                            filename = paste0(o, metadata[["sample_name"]])
+                        ),
+                        list(
+                            extend = "pdf",
+                            filename = paste0(o, metadata[["sample_name"]])
+                        ),
+                        list(
+                            extend = "copy",
+                            filename = paste0(o, metadata[["sample_name"]])
+                        )
+                    )
+                ), colnames = NULL
             )
     })
 
@@ -993,8 +1221,8 @@ app_server <- function(input, output, session) {
 
         if (!file.exists(known_canon_path)) {
             url <- paste0(
-                "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/",
-                "database/knownCanonical.txt.gz"
+                "http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/",
+                "knownCanonical.txt.gz"
             )
             destfile <- file.path(
                 temp_dir,
@@ -1019,7 +1247,7 @@ app_server <- function(input, output, session) {
             # Decompress the file
             try(R.utils::gunzip(destfile, remove = FALSE))
         }
-
-        annotateAmplicons(sce = sce(), known.canon = known_canon_path)
+        annotateAmplicons(sce = sce(), known.canon = known_canon_path, 
+                        shiny = TRUE)
     })
 }

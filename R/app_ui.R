@@ -1,50 +1,141 @@
 app_ui <- function() {
     navbarPage(
         useShinyjs(), # Enable shinyjs
-        createUploadUI(),  # Upload tab
-        createSequencingUI(),  # Seq tab
-        
+        createUploadUI(), # Upload tab
+        createSequencingUI(), # Seq tab
+
         # Panel tab ------------------------------------------------------------
-        tabPanel("Panel",
+        tabPanel(
+            "Panel",
             fluidPage(
-                conditionalPanel(condition = "output.file_ready",
-                    createPanelUI(),),
-                conditionalPanel(condition = "!output.file_ready",
+                conditionalPanel(
+                    condition = "output.file_ready",
+                    createPanelUI(),
+                ),
+                conditionalPanel(
+                    condition = "!output.file_ready",
                     fluidRow(
                         style = "text-align: center; margin-top: 50px;",
-                        p(style = "color: black;",
+                        p(
+                            style = "color: black;",
                             "Please upload a file to view sequencing
-                            information."))), hr(),)),
+                            information."
+                        )
+                    )
+                ), hr(),
+            )
+        ),
 
         # Variants tab ---------------------------------------------------------
-        tabPanel("Variants",
-            fluidPage(wellPanel(fluidRow(
-                    createFilteringUI())),
+        tabPanel(
+            "Variants",
+            fluidPage(
+                wellPanel(fluidRow(
+                    createFilteringUI()
+                )),
                 conditionalPanel(
                     condition = "output.plots_visible == true",
-                    createVariantUI(),))),
+                    createVariantUI(),
+                )
+            )
+        ),
 
         # Explore Variants tab -------------------------------------------------
-        tabPanel("Explore profiles",
-            fluidPage(createExploreVariantSelectionUI(),
+        tabPanel(
+            "Explore profiles",
+            fluidPage(
+                createExploreVariantSelectionUI(),
                 conditionalPanel(
                     condition = "output.continue == true",
                     h1("Identify cell clusters"),
-                    h2("Select number of clusters"),
-                    withLoader(plotOutput("kneeplot")), loader = "dnaspin",
-                    fluidRow(
-                        numericInput("n_clust", "Number of clusters:",
-                            value = 3, min = 0, max = 10, step = 1),
-                        div(style = "display:inline-block; float:center",
-                            actionButton("kmeans_btn",
-                                label = "Start kmeans",
-                                icon = icon("play"),
-                                style = paste0("color: #fff; ",
-                                    "background-color: #337ab7; ",
-                                    "border-color: #2e6da4"))),
-                        hr()),
-                    createExploreVariantUI())),
-            hr(),
+                    h2("Select clustering method"),
+                    radioButtons(
+                        "radio",
+                        "Select option",
+                        choices = list(
+                            "k-means" = "kmeans", "leiden" = "leiden",
+                            "DBSCAN" = "dbscan"
+                        ),
+                        selected = "kmeans"
+                    ),
+                    h2("Setup clustering parameters"),
+
+                    # Panel for k-means
+                    conditionalPanel(
+                        condition = "input.radio == 'kmeans'",
+                        fluidRow(
+                            withLoader(plotOutput("kneeplot"), 
+                                    loader = "dnaspin"),
+                            sliderInput("n_clust", "Number of clusters:",
+                                value = 3, min = 2, max = 10, step = 1
+                            ),
+                            div(
+                                style = "display:inline-block; float:center",
+                                actionButton("kmeans_btn",
+                                    label = "Start kmeans",
+                                    icon = icon("play"),
+                                    style = paste0("color: #fff; ",
+                                    "background-color: ",
+                                    "#337ab7; border-color: #2e6da4")
+                                )
+                            ),
+                            hr()
+                        )
+                    ),
+
+                    # Panel for Leiden
+                    conditionalPanel(
+                        condition = "input.radio == 'leiden'",
+                        fluidRow(
+                            sliderInput("resolution", "Resolution parameter:",
+                                value = 0.5, min = 0.0001, max = 1,
+                                step = 0.0001
+                            ),
+                            div(
+                                style = "display:inline-block; float:center",
+                                actionButton("kmeans_btn",
+                                    label = "Start Leiden",
+                                    icon = icon("play"),
+                                    style = paste0(
+                                        "color: #fff; background-color: ",
+                                        "#337ab7; border-color: #2e6da4"
+                                    )
+                                )
+                            ),
+                            hr()
+                        )
+                    ),
+
+                    # Panel for DBSCAN
+                    conditionalPanel(
+                        condition = "input.radio == 'dbscan'",
+                        fluidRow(
+                            withLoader(plotOutput("edgeplot"), 
+                                    loader = "dnaspin"),
+                            sliderInput("minPts", "minPts:",
+                                value = 5, min = 1, max = 100, step = 1
+                            ),
+                            sliderInput("eps", "eps.value:",
+                                value = 0.5, min = 0, max = 5, step = 0.1
+                            ),
+                            div(
+                                style = "display:inline-block; float:center",
+                                actionButton("kmeans_btn",
+                                    label = "Start DBSCAN",
+                                    icon = icon("play"),
+                                    style = paste0(
+                                        "color: #fff; background-color: ",
+                                        "#337ab7; border-color: #2e6da4"
+                                    )
+                                )
+                            ),
+                            div(id = "error_message", style = "color: red;"),
+                            hr()
+                        )
+                    ),
+                    createExploreVariantUI()
+                )
+            )
         )
     )
 }

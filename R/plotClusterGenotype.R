@@ -1,6 +1,6 @@
 #' Plot Genotype Clusters
 #'
-#' This function generates a plot to visualize genotype in clusters based on 
+#' This function generates a plot to visualize genotype in clusters based on
 #' selected variants of interest.
 #'
 #' @param sce A SingleCellExperiment object containing the relevant data.
@@ -11,12 +11,14 @@
 #' based on the specified variants and clustering information.
 #'
 #' @examples
-#' # Assume `sce` is a SingleCellExperiment object with variants in altExp() 
+#' # Assume `sce` is a SingleCellExperiment object with variants in altExp()
 #' # and clusterplot is the output of clusterVariantSleection().
-#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds", 
-#' package = "scafari"))
-#' clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", 
-#' package = "scafari"))
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+#'     package = "scafari"
+#' ))
+#' clusterplot <- readRDS(system.file("extdata", "clusterplot.rds",
+#'     package = "scafari"
+#' ))
 #' plotClusterGenotype(
 #'     sce = sce_filtered,
 #'     variants.of.interest = c(
@@ -34,10 +36,12 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
 
     # Check that variants.of.interest is non-empty and exists in the data
     if (length(variants.of.interest) == 0) {
-        stop("variants.of.interest must be a non-empty vector.")}
+        stop("variants.of.interest must be a non-empty vector.")
+    }
 
     genotype.matrix.filtered <- as.data.frame(t(assay(
-        altExp(sce, "variants"), "Genotype")))
+        altExp(sce, "variants"), "Genotype"
+    )))
     colnames(genotype.matrix.filtered) <-
         paste0(
             rowData(altExp(sce, "variants"))$Gene, ":",
@@ -45,7 +49,8 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
         )
 
     if (!all(variants.of.interest %in% colnames(genotype.matrix.filtered))) {
-        stop("All variants.of.interest must exist in the VAF matrix columns.")}
+        stop("All variants.of.interest must exist in the VAF matrix columns.")
+    }
 
     genotype.matrix.filtered <- genotype.matrix.filtered[, variants.of.interest]
 
@@ -56,8 +61,9 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
 
     gt <- genotype.matrix.filtered.tmp %>%
         # melt() %>%
-        mutate(variable = factor(variable, 
-                            levels = sort(variants.of.interest))) %>%
+        mutate(variable = factor(variable,
+            levels = sort(variants.of.interest)
+        )) %>%
         mutate(value = as.factor(value)) %>%
         mutate(Genotype = factor(dplyr::case_when(
             value == 0 ~ "WT",
@@ -70,7 +76,11 @@ plotClusterGenotype <- function(sce, variants.of.interest, gg.clust) {
         ifelse(x == 0, "WT",
             ifelse(x == 1, "Het",
                 ifelse(x == 2, "Hom",
-                    ifelse(x == 3, "Missing", x))))}
+                    ifelse(x == 3, "Missing", x)
+                )
+            )
+        )
+    }
 
     p <- gt %>% ggplot() +
         geom_bar(aes(x = cluster, fill = Genotype), col = NA) +

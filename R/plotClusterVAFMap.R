@@ -1,22 +1,24 @@
 #' plot Cluster VAF Map
 #' This function generates a plot to visualize variant allele frequency (VAF) in
-#'  clusters based on selected variants of interest with clusters in the 
+#'  clusters based on selected variants of interest with clusters in the
 #'  background.
 #'
 #' @param sce A SingleCellExperiment object containing the relevant data.
 #' @param variants.of.interest A vector specifying the variants of interest.
 #' @param gg.clust An object containing clustering information.
 #'
-#' @return A ggplot object that visually represents the VAF in the clusters 
+#' @return A ggplot object that visually represents the VAF in the clusters
 #' with clusters in the background.
 #'
 #' @examples
 #' # Assume `sce` is a SingleCellExperiment object with variants in altExp() and
 #' # clusterplot is the output of clusterVariantSleection().
-#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds", 
-#' package = "scafari"))
-#' clusterplot <- readRDS(system.file("extdata", "clusterplot.rds", 
-#' package = "scafari"))
+#' sce_filtered <- readRDS(system.file("extdata", "sce_filtered_demo.rds",
+#'     package = "scafari"
+#' ))
+#' clusterplot <- readRDS(system.file("extdata", "clusterplot.rds",
+#'     package = "scafari"
+#' ))
 #' plotClusterVAFMap(
 #'     sce = sce_filtered,
 #'     variants.of.interest = c(
@@ -46,13 +48,19 @@ plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust) {
         stop("gg.clust must contain 'x' and 'y' labels for plotting.")
     }
 
-    vaf.matrix.filtered <- as.data.frame(t(assay(altExp(sce, "variants"), 
-                                                "VAF")))
-    colnames(vaf.matrix.filtered) <- 
-        paste0(rowData(altExp(sce, "variants"))$Gene, ":", 
-            rowData(altExp(sce, "variants"))$id)
-    rownames(vaf.matrix.filtered) <- paste0("cell",
-        rownames(vaf.matrix.filtered)) 
+    vaf.matrix.filtered <- as.data.frame(t(assay(
+        altExp(sce, "variants"),
+        "VAF"
+    )))
+    colnames(vaf.matrix.filtered) <-
+        paste0(
+            rowData(altExp(sce, "variants"))$Gene, ":",
+            rowData(altExp(sce, "variants"))$id
+        )
+    rownames(vaf.matrix.filtered) <- paste0(
+        "cell",
+        rownames(vaf.matrix.filtered)
+    )
 
     if (!all(variants.of.interest %in% colnames(vaf.matrix.filtered))) {
         stop("All variants.of.interest must exist in the VAF matrix columns.")
@@ -63,19 +71,27 @@ plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust) {
 
     merged <- merge(gg.clust$data, vaf.matrix.filtered, by = 0)
     col_names <- colnames(merged)
-    gene_cols <- col_names[grepl("[^:]:chr[[:digit:]]+", col_names, 
-                                perl = TRUE)]
+    gene_cols <- col_names[grepl("[^:]:chr[[:digit:]]+", col_names,
+        perl = TRUE
+    )]
 
     merged.var <- merged %>%
-        tidyr::pivot_longer(cols = all_of(gene_cols), names_to = "variant",
-            values_to = "VAF")
-    merged.var$variant <- factor(merged.var$variant, 
-                                levels = sort(variants.of.interest))
+        tidyr::pivot_longer(
+            cols = all_of(gene_cols), names_to = "variant",
+            values_to = "VAF"
+        )
+    merged.var$variant <- factor(merged.var$variant,
+        levels = sort(variants.of.interest)
+    )
 
     color_func <- function(value) {
         ifelse(value == -1, "#BEBEBE", # Grey for -1
-            circlize::colorRamp2(c(0, 50, 100), c("#414487FF", "#F6A97A",
-                                                "#D44292"))(value))}
+            circlize::colorRamp2(c(0, 50, 100), c(
+                "#414487FF", "#F6A97A",
+                "#D44292"
+            ))(value)
+        )
+    }
 
     # Create a sequence of breakpoints covering the data range you want
     breakpoints <- seq(-1, 100, length.out = 101)
@@ -85,16 +101,21 @@ plotClusterVAFMap <- function(sce, variants.of.interest, gg.clust) {
 
     data <- data.frame(
         value = c(-1, seq(0, 100, by = 25)),
-        label = c("Missing", "0", "25", "50", "75", "100"))
+        label = c("Missing", "0", "25", "50", "75", "100")
+    )
 
     p <- ggplot(merged.var, aes(x = x, y = y, color = VAF)) +
         geom_polygon(
-            aes(x = x, y = y, group = cluster, fill = cluster), alpha = 0.3,
+            aes(x = x, y = y, group = cluster, fill = cluster),
+            alpha = 0.3,
             stat = "ellipse", type = "norm", level = 0.95, segments = 51,
-            na.rm = FALSE) +
+            na.rm = FALSE
+        ) +
         geom_point() +
-        scale_color_gradientn(colors = colors, 
-                            values = scales::rescale(breakpoints)) +
+        scale_color_gradientn(
+            colors = colors,
+            values = scales::rescale(breakpoints)
+        ) +
         geom_point() +
         facet_grid(~ factor(variant, levels = sort(variants.of.interest))) +
         theme_default()

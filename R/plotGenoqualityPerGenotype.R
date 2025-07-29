@@ -25,8 +25,10 @@
 plotGenotypequalityPerGenotype <- function(sce) {
     # Check if the 'sce' object is valid
     if (is.null(sce) || !(inherits(sce, "SingleCellExperiment"))) {
-        stop("Input 'sce' is invalid. It must be a ",
-            "SingleCellExperiment object.")
+        stop(
+            "Input 'sce' is invalid. It must be a ",
+            "SingleCellExperiment object."
+        )
     }
 
     # Retrieve genotype and genotype quality matrices

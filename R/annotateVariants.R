@@ -1,5 +1,4 @@
 #' Function: annotateVariants
-#' -------------------------------
 #' This function takes a SingleCellExperiment object as input and performs
 #' variant annotation.
 #'

@@ -7,8 +7,6 @@ by corresponding tabs: “Sequencing”, “Panel”, “Variants” and “Expl
 
 To run scafari, you need R (Version 4.5 or higher) and R Shiny.
 
-You can use bioconductor/bioconductor_docker (https://hub.docker.com/r/bioconductor/bioconductor_docker).
-
 # Installation
 
 To install scafari, open R and install the package.
@@ -41,6 +39,8 @@ scafari is available as R package and as shiny app. A detailed description how t
 - log-log plot
 - sequencing statistics table
 - mapping statistics table
+- tapestri table
+- R1 to R2 bar plot
 
 ## Panel
 - panel information table
@@ -70,9 +70,13 @@ scafari is available as R package and as shiny app. A detailed description how t
 
 ## Sequencing
 - hit the "Sequencing" tab
+- scroll through the page
+- explore the interactive bar plot
 
 ## Panel
 - hit the "Panel" tab
+- the read counts are normalized and annotated in the background. Therefore, it 
+can take some time until everything is processed and the plots are loaded 
 
 
 ## Variants
@@ -104,91 +108,54 @@ scafari is available as R package and as shiny app. A detailed description how t
 # R Session
 ```
 > sessionInfo()
-R version 4.3.3 (2024-02-29)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 24.04.1 LTS
+R version 4.5.0 (2025-04-11)
+Platform: x86_64-pc-linux-gnu
+Running under: Ubuntu 24.04.2 LTS
 
 Matrix products: default
 BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0 
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0  LAPACK version 3.12.0
 
 locale:
- [1] LC_CTYPE=de_DE.UTF-8       LC_NUMERIC=C               LC_TIME=de_DE.UTF-8       
- [4] LC_COLLATE=de_DE.UTF-8     LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=de_DE.UTF-8   
- [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
-[10] LC_TELEPHONE=C             LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+ [1] LC_CTYPE=de_DE.UTF-8       LC_NUMERIC=C               LC_TIME=de_DE.UTF-8        LC_COLLATE=de_DE.UTF-8     LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=de_DE.UTF-8    LC_PAPER=de_DE.UTF-8      
+ [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
 
 time zone: Europe/Berlin
 tzcode source: system (glibc)
 
 attached base packages:
-[1] grid      stats4    stats     graphics  grDevices utils     datasets  methods   base     
+[1] stats4    stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] markdown_1.13           factoextra_1.0.7        shinycustomloader_0.9.0 shinyBS_0.61.1         
- [5] shinyjs_2.1.0           org.Hs.eg.db_3.18.0     AnnotationDbi_1.64.1    Biobase_2.62.0         
- [9] clusterProfiler_4.10.1  biomaRt_2.58.2          reshape2_1.4.4          stringr_1.5.1          
-[13] karyoploteR_1.28.0      regioneR_1.34.0         ComplexHeatmap_2.18.0   rhdf5_2.46.1           
-[17] tibble_3.2.1            GenomicRanges_1.54.1    GenomeInfoDb_1.38.8     IRanges_2.36.0         
-[21] S4Vectors_0.40.2        BiocGenerics_0.48.1     ggplot2_3.5.1           waiter_0.2.5           
-[25] dplyr_1.1.4             DT_0.33                 shinycssloaders_1.1.0   shiny_1.9.1            
+ [1] scafari_0.99.12             SingleCellExperiment_1.30.1 SummarizedExperiment_1.38.1 Biobase_2.68.0              GenomicRanges_1.60.0        GenomeInfoDb_1.44.0         IRanges_2.42.0             
+ [8] S4Vectors_0.46.0            BiocGenerics_0.54.0         generics_0.1.4              MatrixGenerics_1.20.0       matrixStats_1.5.0           rhdf5_2.52.0                shiny_1.10.0               
 
 loaded via a namespace (and not attached):
-  [1] splines_4.3.3               later_1.3.2                 BiocIO_1.12.0              
-  [4] ggplotify_0.1.2             bitops_1.0-9                filelock_1.0.3             
-  [7] polyclip_1.10-7             XML_3.99-0.17               rpart_4.1.23               
- [10] lifecycle_1.0.4             doParallel_1.0.17           MASS_7.3-60.0.1            
- [13] lattice_0.22-5              ensembldb_2.26.0            crosstalk_1.2.1            
- [16] backports_1.5.0             magrittr_2.0.3              sass_0.4.9                 
- [19] Hmisc_5.2-0                 rmarkdown_2.29              jquerylib_0.1.4            
- [22] yaml_2.3.10                 httpuv_1.6.15               cowplot_1.1.3              
- [25] DBI_1.2.3                   RColorBrewer_1.1-3          abind_1.4-8                
- [28] zlibbioc_1.48.2             purrr_1.0.2                 AnnotationFilter_1.26.0    
- [31] ggraph_2.2.1                biovizBase_1.50.0           RCurl_1.98-1.16            
- [34] yulab.utils_0.1.8           nnet_7.3-19                 tweenr_2.0.3               
- [37] VariantAnnotation_1.48.1    rappdirs_0.3.3              circlize_0.4.16            
- [40] GenomeInfoDbData_1.2.11     enrichplot_1.22.0           ggrepel_0.9.6              
- [43] tidytree_0.4.6              codetools_0.2-19            DelayedArray_0.28.0        
- [46] ggforce_0.4.2               DOSE_3.28.2                 xml2_1.3.6                 
- [49] tidyselect_1.2.1            shape_1.4.6.1               aplot_0.2.3                
- [52] farver_2.1.2                viridis_0.6.5               matrixStats_1.4.1          
- [55] BiocFileCache_2.10.2        base64enc_0.1-3             bamsignals_1.34.0          
- [58] GenomicAlignments_1.38.2    jsonlite_1.8.9              GetoptLong_1.0.5           
- [61] tidygraph_1.3.1             Formula_1.2-5               iterators_1.0.14           
- [64] foreach_1.5.2               tools_4.3.3                 progress_1.2.3             
- [67] treeio_1.26.0               Rcpp_1.0.13-1               glue_1.8.0                 
- [70] gridExtra_2.3               SparseArray_1.2.4           xfun_0.49                  
- [73] qvalue_2.34.0               MatrixGenerics_1.14.0       withr_3.0.2                
- [76] fastmap_1.2.0               rhdf5filters_1.14.1         fansi_1.0.6                
- [79] digest_0.6.37               gridGraphics_0.5-1          R6_2.5.1                   
- [82] mime_0.12                   colorspace_2.1-1            GO.db_3.18.0               
- [85] dichromat_2.0-0.1           RSQLite_2.3.7               utf8_1.2.4                 
- [88] tidyr_1.3.1                 generics_0.1.3              data.table_1.16.2          
- [91] rtracklayer_1.62.0          graphlayouts_1.2.0          prettyunits_1.2.0          
- [94] httr_1.4.7                  htmlwidgets_1.6.4           S4Arrays_1.2.1             
- [97] scatterpie_0.2.4            pkgconfig_2.0.3             gtable_0.3.6               
-[100] blob_1.2.4                  XVector_0.42.0              shadowtext_0.1.4           
-[103] htmltools_0.5.8.1           fgsea_1.28.0                ProtGenerics_1.34.0        
-[106] clue_0.3-65                 scales_1.3.0                png_0.1-8                  
-[109] ggfun_0.1.7                 knitr_1.48                  rstudioapi_0.17.1          
-[112] rjson_0.2.23                nlme_3.1-164                checkmate_2.3.2            
-[115] curl_6.0.0                  cachem_1.1.0                GlobalOptions_0.1.2        
-[118] parallel_4.3.3              HDO.db_0.99.1               foreign_0.8-86             
-[121] restfulr_0.0.15             pillar_1.9.0                vctrs_0.6.5                
-[124] promises_1.3.0              dbplyr_2.5.0                xtable_1.8-4               
-[127] cluster_2.1.6               htmlTable_2.4.3             evaluate_1.0.1             
-[130] GenomicFeatures_1.54.4      cli_3.6.3                   compiler_4.3.3             
-[133] bezier_1.1.2                Rsamtools_2.18.0            rlang_1.1.4                
-[136] crayon_1.5.3                plyr_1.8.9                  fs_1.6.5                   
-[139] stringi_1.8.4               viridisLite_0.4.2           BiocParallel_1.36.0        
-[142] munsell_0.5.1               Biostrings_2.70.3           lazyeval_0.2.2             
-[145] GOSemSim_2.28.1             Matrix_1.6-5                BSgenome_1.70.2            
-[148] patchwork_1.3.0             hms_1.1.3                   bit64_4.5.2                
-[151] Rhdf5lib_1.24.2             KEGGREST_1.42.0             SummarizedExperiment_1.32.0
-[154] fontawesome_0.5.2           igraph_2.1.1                memoise_2.0.1              
-[157] bslib_0.8.0                 ggtree_3.10.1               fastmatch_1.1-4            
-[160] bit_4.5.0                   gson_0.1.0                  ape_5.8
+  [1] fs_1.6.6                 ProtGenerics_1.40.0      bitops_1.0-9             devtools_2.4.5           fontawesome_0.5.3        httr_1.4.7               RColorBrewer_1.1-3       doParallel_1.0.17       
+  [9] profvis_0.4.0            tools_4.5.0              backports_1.5.0          R6_2.6.1                 DT_0.33                  lazyeval_0.2.2           rhdf5filters_1.20.0      GetoptLong_1.0.5        
+ [17] urlchecker_1.0.1         withr_3.0.2              prettyunits_1.2.0        GGally_2.2.1             gridExtra_2.3            textshaping_1.0.1        factoextra_1.0.7         cli_3.6.5               
+ [25] shinyjs_2.1.0            ggbio_1.56.0             labeling_0.4.3           sass_0.4.10              askpass_1.2.1            systemfonts_1.2.3        Rsamtools_2.24.0         txdbmaker_1.4.1         
+ [33] foreign_0.8-86           dbscan_1.2.2             R.utils_2.13.0           stringdist_0.9.15        dichromat_2.0-0.1        sessioninfo_1.2.3        styler_1.10.3            BSgenome_1.76.0         
+ [41] rstudioapi_0.17.1        RSQLite_2.3.11           shape_1.4.6.1            BiocIO_1.18.0            crosstalk_1.2.1          car_3.1-3                dplyr_1.1.4              Matrix_1.6-5            
+ [49] waldo_0.6.1              abind_1.4-8              R.methodsS3_1.8.2        lifecycle_1.0.4          yaml_2.3.10              carData_3.0-5            biocViews_1.76.0         SparseArray_1.8.0       
+ [57] BiocFileCache_2.16.0     grid_4.5.0               blob_1.2.4               promises_1.3.2           crayon_1.5.3             miniUI_0.1.2             lattice_0.22-5           GenomicFeatures_1.60.0  
+ [65] KEGGREST_1.48.0          sys_3.4.3                pillar_1.11.0            knitr_1.50               ComplexHeatmap_2.24.0    rjson_0.2.23             codetools_0.2-19         glue_1.8.0              
+ [73] data.table_1.17.2        remotes_2.5.0            vctrs_0.6.5              png_0.1-8                testthat_3.2.3           gtable_0.3.6             cachem_1.1.0             xfun_0.52               
+ [81] S4Arrays_1.8.0           mime_0.13                iterators_1.0.14         ellipsis_0.3.2           usethis_3.1.0            bit64_4.6.0-1            progress_1.2.3           filelock_1.0.3          
+ [89] rprojroot_2.0.4          R.cache_0.17.0           bslib_0.9.0              rpart_4.1.23             colorspace_2.1-1         DBI_1.2.3                Hmisc_5.2-3              shinycustomloader_0.9.0 
+ [97] nnet_7.3-19              tidyselect_1.2.1         processx_3.8.6           waiter_0.2.5             bit_4.6.0                compiler_4.5.0           curl_6.2.2               httr2_1.1.2             
+[105] graph_1.86.0             BiocCheck_1.44.2         htmlTable_2.4.3          xml2_1.3.8               plotly_4.10.4            desc_1.4.3               DelayedArray_0.34.1      rtracklayer_1.68.0      
+[113] checkmate_2.3.2          scales_1.4.0             RBGL_1.84.0              callr_3.7.6              rappdirs_0.3.3           stringr_1.5.1            digest_0.6.37            shinyBS_0.61.1          
+[121] rmarkdown_2.29           XVector_0.48.0           htmltools_0.5.8.1        pkgconfig_2.0.3          base64enc_0.1-3          dbplyr_2.5.0             fastmap_1.2.0            ensembldb_2.32.0        
+[129] rlang_1.1.6              GlobalOptions_0.1.2      htmlwidgets_1.6.4        UCSC.utils_1.4.0         farver_2.1.2             jquerylib_0.1.4          jsonlite_2.0.0           BiocParallel_1.42.0     
+[137] R.oo_1.27.1              VariantAnnotation_1.54.1 RCurl_1.98-1.17          magrittr_2.0.3           Formula_1.2-5            GenomeInfoDbData_1.2.14  credentials_2.0.2        Rhdf5lib_1.30.0         
+[145] Rcpp_1.0.14              shinycssloaders_1.1.0    stringi_1.8.7            brio_1.1.5               MASS_7.3-60.0.1          org.Hs.eg.db_3.21.0      plyr_1.8.9               pkgbuild_1.4.7          
+[153] ggstats_0.9.0            ggrepel_0.9.6            parallel_4.5.0           Biostrings_2.76.0        hms_1.1.3                circlize_0.4.16          ps_1.9.1                 igraph_2.1.4            
+[161] ggpubr_0.6.0             RUnit_0.4.33.1           markdown_2.0             ggsignif_0.6.4           reshape2_1.4.4           biomaRt_2.64.0           pkgload_1.4.0            XML_3.99-0.18           
+[169] evaluate_1.0.3           biovizBase_1.56.0        BiocManager_1.30.25      foreach_1.5.2            httpuv_1.6.16            RANN_2.6.2               tidyr_1.3.1              openssl_2.3.2           
+[177] purrr_1.0.4              clue_0.3-66              ggplot2_3.5.2            BiocBaseUtils_1.10.0     broom_1.0.8              xtable_1.8-4             restfulr_0.0.15          AnnotationFilter_1.32.0 
+[185] roxygen2_7.3.2           rstatix_0.7.2            later_1.4.2              ragg_1.4.0               viridisLite_0.4.2        gert_2.1.5               OrganismDbi_1.50.0       tibble_3.2.1            
+[193] memoise_2.0.1            AnnotationDbi_1.70.0     GenomicAlignments_1.44.0 cluster_2.1.6            BiocStyle_2.36.0            gson_0.1.0                  ape_5.8
 ```
 
-Further tested on bioconductor/bioconductor_docker. BiocManager::version() >= '3.19'
 
